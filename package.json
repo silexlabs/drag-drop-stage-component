@@ -1,0 +1,25 @@
+{
+  "name": "stage",
+  "version": "0.0.0",
+  "description": "",
+  "main": "pub/index.js",
+  "scripts": {
+    "postinstall": "npm run build",
+    "serve": "http-server pub -o",
+    "build": "npm run build:js && npm run build:jade",
+    "watch": "watch 'npm run build' src",
+    "build:jade": "jade src/jade -o pub",
+    "build:js": "browserify src/js/index.js -o pub/js/index.js -t [ babelify --presets [ es2015 ] ]"
+  },
+  "author": "lexoyo",
+  "license": "MIT",
+  "dependencies": {
+    "babel-preset-es2015": "~6.6.0",
+    "jade": "~1.11.0",
+    "http-server": "~0.9.0",
+    "babelify": "~7.2.0",
+    "browserify": "~13.0.0",
+    "event-emitter": "~0.3.4",
+    "watch": "~0.17.1"
+  }
+}
