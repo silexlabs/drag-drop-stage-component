@@ -2,8 +2,24 @@ doctype html
 html(lang="en")
   head
     title Stage demo
-    script(type='text/javascript', src='js/index.js')
+    script(type='text/javascript', src='js/stage.js')
+  body(style="width:95%; height:95%; position:absolute")
+    iframe#iframe(style="width:100%; height:100%")
+    template#template
+      link(rel="stylesheet", href="css/stage.css")
+      style.
+        .abs {
+          position: absolute;
+        }
+      div.selectable(style="background-color: red; margin: 10px; padding: 10px;")
+        div.selectable(style="background-color: blue; margin: 10px; padding: 10px;")
+          p.selectable(style="background-color: green; margin: 10px; padding: 10px;") test me!
+      div.selectable(style="background-color: lightred; margin: 10px; padding: 10px;")
+        div.selectable(style="background-color: lightblue; margin: 10px; padding: 10px;")
+          p.selectable(style="background-color: lightgreen; margin: 10px; padding: 10px;") test me!
+      p.selectable(style="background-color: orange;", class="abs") test me!
+      p.selectable(style="background-color: darkred;", class="abs") test me!
     script(type='text/javascript').
-      new Stage(document.body);
-  body
-    p.selectable.draggable.resizeable test me!
+      var stage = new Stage(document.querySelector('#iframe'));
+      console.log(stage.getIFrame());
+      stage.getDocument().body.appendChild(document.querySelector('#template').content);
