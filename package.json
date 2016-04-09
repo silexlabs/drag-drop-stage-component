@@ -12,7 +12,7 @@
     "watch:test": "watch 'npm test' src test",
     "livereload": "livereload pub",
     "build:jade": "jade src/jade -o pub",
-    "build:less": "lessc src/less/index.less pub/css/stage.css",
+    "build:less": "lessc src/less/stage.less pub/css/stage.css && lessc src/less/demo.less pub/css/demo.css",
     "build:js": "browserify src/js/index.js -o pub/js/stage.js -t [ babelify --presets [ es2015 ] ] --debug"
   },
   "author": "lexoyo",
