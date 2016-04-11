@@ -9,8 +9,8 @@ html(lang="en")
       iframe#iframe
       button.button-bar-element(onclick='addTemplate()') Add Random Content
       button.button-bar-element(onclick='addText()') Add Text
-    template#template
-      link(rel="stylesheet", href="css/stage.css")
+      button.button-bar-element(onclick='makeAbsolute()') Make Absolute
+    template#random-content
       style.
         .abs {
           position: absolute;
@@ -27,9 +27,14 @@ html(lang="en")
       var stage = new Stage(document.querySelector('#iframe'));
       var doc = stage.getDocument();
       var win = stage.getWindow();
+      function makeAbsolute() {
+        stage.selection.selected.forEach(function(el) {
+          el.style.position = 'absolute';
+        });
+      }
       function addTemplate() {
         console.log('yyy');
-        doc.body.appendChild(document.querySelector('#template').content);
+        doc.body.appendChild(document.querySelector('template.#random-content').content);
       };
       function addText() {
         console.log('xxx');

@@ -4,9 +4,18 @@ import {MoveHandler} from "./MoveHandler";
 
 class Stage {
 	constructor(iframe) {
+		// store the iframe and use its document and window
 		this.iframe = iframe;
+		// create useful classes
 		this.selection = new Selection();
-        this.handler = null;
+    this.handler = null;
+    // load styles for the UI in the iframe
+    var doc = this.getDocument();
+    var link = doc.createElement('link');
+    link.setAttribute('rel', 'stylesheet');
+    link.setAttribute('href', /*FIXME: Url.makeAbsolute*/('css/stage.css'));
+    doc.head.appendChild(link);
+    // register mouse events
 		let mouseController = new MouseController(this.getWindow());
 		mouseController.on('toggleSelect', (e) => this.toggleSelect(e));
 		mouseController.on('drag', (e) => this.drag(e));

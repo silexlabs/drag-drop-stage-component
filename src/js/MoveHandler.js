@@ -1,8 +1,11 @@
 class MoveHandler {
   constructor(elements, e) {
-    this.elements = elements;
-    console.log('MoveHandler', this.elements, e);
-    this.elements.forEach((el) => {
+    console.log('MoveHandler', elements, e);
+    this.elements = elements.map((el) => {
+      return {target: el, style: el.style};
+    });
+    this.elements.forEach((elementData) => {
+      let el = elementData.target;
       el.style.position = 'absolute';
       let computed = getComputedStyle(el);
       let left = parseFloat(computed.left) || e.pageX;
@@ -28,18 +31,18 @@ class MoveHandler {
     });
   }
   update(e) {
-    console.log('MoveHandler', this.elements, e.movementX);
-    this.elements.forEach((el) => {
+    this.elements.forEach((elementData) => {
+      let el = elementData.target;
       el.style.left = (parseFloat(el.style.left) + e.movementX) + 'px';
       el.style.top = (parseFloat(el.style.top) + e.movementY) + 'px';
     });
   }
   release(e) {
     console.log('MoveHandler', this.elements, e.movementX);
-    this.elements.forEach((el) => {
-      el.style.position = '';
-      el.style.left = '';
-      el.style.top = '';
+    this.elements.forEach((elementData) => {
+      let el = elementData.target;
+      console.log('xxx', elementData);
+      el.style = elementData.style;
     });
   }
 }
