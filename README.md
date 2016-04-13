@@ -19,6 +19,8 @@ let stage = new Stage(iframe)
 
 The iframe is where the elements to be manipulated live. The component itself is also acting on the outside of the iframe since the user can drag an element in the iframe and release the mouse outside the iframe.
 
+Your application will be in charge of catching events and applying the style to the element after the drop.
+
 ## Build
 
 The build requires nodejs and npm, and it produces these files:
