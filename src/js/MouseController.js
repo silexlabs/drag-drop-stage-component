@@ -10,7 +10,6 @@ let State = {
 class MouseController extends EventEmitter {
 	constructor(win) {
 		super();
-		console.log('MouseController', win);
 		this.mouse = new Mouse(win);
 
 		this.state = State.UP;
@@ -26,23 +25,25 @@ class MouseController extends EventEmitter {
 	}
 	down(e) {
 		let element = e.target;
+		this.state = State.DOWN;
 		// prevent default text selection
 		e.preventDefault();
 	}
 	up(e) {
 		let element = e.target;
-		if(this.state === State.UP) {
+		if(this.state === State.DOWN) {
 			this.emit('toggleSelect', e);
 		}
-		else if (this.state === State.DOWN) {
-			this.state = State.UP;
+		else if (this.state === State.DRAGGING) {
+			this.emit('stopDrag', e);
 		}
+		this.state = State.UP;
 	}
 	grab(e) {
 		this.state = State.DOWN;
 	}
 	drop(e) {
-		if(this.state !== State.UP) {
+		if(this.state === State.DRAGGING) {
 			this.state = State.UP;
 			this.emit('stopDrag', e);
 		}

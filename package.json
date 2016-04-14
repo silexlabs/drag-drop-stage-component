@@ -7,13 +7,13 @@
     "test": "mocha --compilers js:babel-register",
     "postinstall": "npm run build",
     "serve": "http-server pub -o",
-    "build": "npm run build:js && npm run build:less && npm run build:jade",
+    "build": "mkdir -p pub/js && npm run build:js && npm run build:less && npm run build:demo",
     "watch": "npm run livereload & watch 'npm run build' src",
     "watch:test": "watch 'npm test' src test",
     "livereload": "livereload pub",
-    "build:jade": "jade src/jade -o pub",
-    "build:less": "lessc src/less/stage.less pub/css/stage.css && lessc src/less/demo.less pub/css/demo.css",
-    "build:js": "browserify src/js/index.js -o pub/js/stage.js -t [ babelify --presets [ es2015 ] ] --debug"
+    "build:less": "lessc src/less/stage.less pub/css/stage.css",
+    "build:js": "browserify src/js/index.js -o pub/js/stage.js -t [ babelify --presets [ es2015 ] ] --debug",
+    "build:demo": "browserify src/js/demo.js -o pub/js/demo.js -t [ babelify --presets [ es2015 ] ] --debug && jade src/jade -o pub && lessc src/less/demo.less pub/css/demo.css"
   },
   "author": "lexoyo",
   "license": "MIT",

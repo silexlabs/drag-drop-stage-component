@@ -1,36 +1,52 @@
 class Selection {
 	constructor() {
-		console.log('Selection');
 		this.selected = [];
 	}
-	toggle(element, keepPrevious) {
-		console.log(`toggle ${element} ${keepPrevious}`);
-		let wasSelected = this.isSelected(element);
+	toggle(selectable, keepPrevious) {
+		let wasSelected = this.isSelected(selectable);
 		if(keepPrevious === false)
 			this.selected.forEach(el => this.remove(el));
 		if(wasSelected === false)
-			this.add(element);
+			this.add(selectable);
 		else if(keepPrevious === true)
-			this.remove(element);
+			this.remove(selectable);
 	}
-	isSelected(element) {
-		return this.selected.indexOf(element) >= 0;
+	isSelected(selectable) {
+		return this.selected.indexOf(selectable) >= 0;
 	}
-	isSelectable(element) {
-		return element.classList.contains('selectable');
+	/**
+	 * returns the first container which is selectable
+	 * or null if the element and none of its parents are selectable
+	 */
+	getSelectable(element) {
+		// TODO: abstraction for getSelectable and getDroppable and getSelected
+		return element.closest('.selectable');
 	}
-	remove(element) {
-		let idx = this.selected.indexOf(element);
+	remove(selectable) {
+		let idx = this.selected.indexOf(selectable);
 		if(idx >= 0) {
-			element.classList.remove('selected');
+			selectable.classList.remove('selected');
 			this.selected.splice(idx, 1);
 		}
 	}
-	add(element) {
-		if(this.isSelectable(element) && this.isSelected(element) === false) {
-			element.classList.add('selected');
-			this.selected.push(element);
+	reset() {
+		while(this.selected.length > 0) {
+			this.remove(this.selected[0]);
 		}
+	}
+	add(selectable) {
+		if(selectable && this.isSelected(selectable) === false) {
+			selectable.classList.add('selected');
+			this.selected.push(selectable);
+		}
+	}
+	set(elements) {
+		// empty the selection
+		this.reset();
+		// refil the selection
+		elements.forEach(el => {
+			this.add(el);
+		});
 	}
 }
 

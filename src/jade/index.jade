@@ -2,7 +2,7 @@ doctype html
 html(lang="en")
   head
     title Stage demo
-    script(type='text/javascript', src='js/stage.js')
+    script(type='text/javascript', src='js/demo.js')
     link(rel="stylesheet", href="css/demo.css")
   body
     section
@@ -11,35 +11,4 @@ html(lang="en")
       button.button-bar-element(onclick='addText()') Add Text
       button.button-bar-element(onclick='makeAbsolute()') Make Absolute
     template#random-content
-      style.
-        .abs {
-          position: absolute;
-        }
-      div.selectable(style="background-color: red; margin: 10px; padding: 10px;")
-        div.selectable(style="background-color: blue; margin: 10px; padding: 10px;")
-          p.selectable(style="background-color: green; margin: 10px; padding: 10px;") test me!
-      div.selectable(style="background-color: lightred; margin: 10px; padding: 10px;")
-        div.selectable(style="background-color: lightblue; margin: 10px; padding: 10px;")
-          p.selectable(style="background-color: lightgreen; margin: 10px; padding: 10px;") test me!
-      p.selectable(style="background-color: orange;", class="abs") test me!
-      p.selectable(style="background-color: darkred;", class="abs") test me!
-    script(type='text/javascript').
-      var stage = new Stage(document.querySelector('#iframe'));
-      var doc = stage.getDocument();
-      var win = stage.getWindow();
-      function makeAbsolute() {
-        stage.selection.selected.forEach(function(el) {
-          el.style.position = 'absolute';
-        });
-      }
-      function addTemplate() {
-        console.log('yyy');
-        doc.body.appendChild(document.querySelector('template.#random-content').content);
-      };
-      function addText() {
-        console.log('xxx');
-        var el = doc.createElement('p');
-        el.classList.add('selectable', 'text-element');
-        el.innerText = 'New Text Box';
-        doc.body.appendChild(el);
-      };
+      include ./random-content.html
