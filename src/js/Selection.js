@@ -8,7 +8,7 @@ class Selection {
 			this.selected.forEach(el => this.remove(el));
 		if(wasSelected === false)
 			this.add(selectable);
-		else if(keepPrevious === true)
+		else
 			this.remove(selectable);
 	}
 	isSelected(selectable) {

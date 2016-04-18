@@ -41,7 +41,7 @@ class Stage extends Event  {
         this.selection.toggle(selectable, e.shiftKey);
       else
         // select this one and only this one
-    		this.selection.set([selectable], e.shiftKey);
+    		this.selection.set([selectable]);
     }
     else console.info('element is not selectable');
   }
