@@ -1,11 +1,11 @@
 import {Selection, Selectable} from "./Selection";
 import {MouseController} from "./MouseController";
 import {MoveHandler} from "./MoveHandler";
-import EventEmitter from "smelly-event-emitter";
+import Event from "emitter-js";
 
-class Stage extends EventEmitter  {
+class Stage extends Event  {
 	constructor(iframe) {
-    super()
+    super();
 		// store the iframe and use its document and window
 		this.iframe = iframe;
 		// create useful classes

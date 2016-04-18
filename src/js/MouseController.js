@@ -1,5 +1,5 @@
 import "mouse";
-import EventEmitter from "smelly-event-emitter";
+import Event from "emitter-js";
 
 let State = {
 	UP: 'UP',
@@ -7,7 +7,7 @@ let State = {
 	DRAGGING: 'DRAGGING'
 }
 
-class MouseController extends EventEmitter {
+class MouseController extends Event {
 	constructor(win) {
 		super();
 		this.mouse = new Mouse(win);
