@@ -1,15 +1,19 @@
 var should = require('should'),
   assert = require('assert'),
-  jsdom = require('jsdom');
-
-var Stage = require('../src/js/index').Stage;
+  jsdom = require('mocha-jsdom');
 
 describe('Stage', function() {
+
+  var Stage;
   
   // create some jsdom magic to allow jQuery to work
-  var document = jsdom.jsdom('<iframe id="iframe" />'),
-      window = document.parentWindow;
-  
+  jsdom();
+
+  before(function () {
+    document.body.innerHTML = '<iframe id="iframe" />';
+    Stage = require('../src/js/index').Stage;
+  })
+
   it('should expose iframe doc and win', function() {
     var stage = new Stage(document.querySelector('#iframe'));
     stage.getIFrame().tagName.toUpperCase().should.equal('IFRAME');
@@ -28,6 +32,5 @@ describe('Stage', function() {
     div.style.width = div.style.height = '200px';
     div.style.backgroundColor = 'black';
     body.appendChild(div);
-    stage.selection.listen(div);
   });
 });

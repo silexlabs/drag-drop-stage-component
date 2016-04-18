@@ -1,4 +1,4 @@
-import "mouse";
+import Mouse from "mouse";
 import Event from "emitter-js";
 
 let State = {
@@ -10,7 +10,7 @@ let State = {
 class MouseController extends Event {
 	constructor(win) {
 		super();
-		this.mouse = new Mouse(win);
+		this.mouse = new window.Mouse(win);
 
 		this.state = State.UP;
 		this.mouse.on('down', (e) => this.down(e));
