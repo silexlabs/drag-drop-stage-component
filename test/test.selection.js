@@ -15,8 +15,8 @@ describe('Selection', function() {
 
   it('should be able to select an element and then know it is selected', function() {
     document.body.innerHTML = '<div id="elem1" class="selectable" /><div id="elem2" class="selectable" />';
-    var elem1 = document.querySelector('#elem1')
-    var elem2 = document.querySelector('#elem2')
+    var elem1 = document.querySelector('#elem1');
+    var elem2 = document.querySelector('#elem2');
     var selection = new Selection();
 
     selection.add(elem1);
@@ -29,7 +29,7 @@ describe('Selection', function() {
 
   it('should be able to select an element only one time', function() {
     document.body.innerHTML = '<div id="elem1" class="selectable" />';
-    var elem1 = document.querySelector('#elem1')
+    var elem1 = document.querySelector('#elem1');
     var selection = new Selection();
 
     selection.add(elem1);
@@ -43,8 +43,8 @@ describe('Selection', function() {
 
   it('should be able to select 2 elements', function() {
     document.body.innerHTML = '<div id="elem1" class="selectable" /><div id="elem2" class="selectable" />';
-    var elem1 = document.querySelector('#elem1')
-    var elem2 = document.querySelector('#elem2')
+    var elem1 = document.querySelector('#elem1');
+    var elem2 = document.querySelector('#elem2');
     var selection = new Selection();
 
     selection.add(elem1);
@@ -58,9 +58,9 @@ describe('Selection', function() {
 
   it('should be able to remove 1 of zero or several elements', function() {
     document.body.innerHTML = '<div id="elem1" class="selectable" /><div id="elem2" class="selectable" /><div id="elem3" class="selectable" />';
-    var elem1 = document.querySelector('#elem1')
-    var elem2 = document.querySelector('#elem2')
-    var elem3 = document.querySelector('#elem3')
+    var elem1 = document.querySelector('#elem1');
+    var elem2 = document.querySelector('#elem2');
+    var elem3 = document.querySelector('#elem3');
     var selection = new Selection();
 
     selection.add(elem1);
@@ -85,9 +85,9 @@ describe('Selection', function() {
 
   it('should be able to reset / remove all elements', function() {
     document.body.innerHTML = '<div id="elem1" class="selectable" /><div id="elem2" class="selectable" /><div id="elem3" class="selectable" />';
-    var elem1 = document.querySelector('#elem1')
-    var elem2 = document.querySelector('#elem2')
-    var elem3 = document.querySelector('#elem3')
+    var elem1 = document.querySelector('#elem1');
+    var elem2 = document.querySelector('#elem2');
+    var elem3 = document.querySelector('#elem3');
     var selection = new Selection();
 
     selection.add(elem1);
@@ -107,9 +107,9 @@ describe('Selection', function() {
 
   it('should be able to toggle elements', function() {
     document.body.innerHTML = '<div id="elem1" class="selectable" /><div id="elem2" class="selectable" /><div id="elem3" class="selectable" />';
-    var elem1 = document.querySelector('#elem1')
-    var elem2 = document.querySelector('#elem2')
-    var elem3 = document.querySelector('#elem3')
+    var elem1 = document.querySelector('#elem1');
+    var elem2 = document.querySelector('#elem2');
+    var elem3 = document.querySelector('#elem3');
     var selection = new Selection();
 
     selection.toggle(elem1);

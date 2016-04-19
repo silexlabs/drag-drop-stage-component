@@ -16,24 +16,25 @@ class MoveHandler {
       };
     });
   }
-  update(e) {
+
+  update(movementX, movementY, clientX, clientY) {
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
     let nearestPosition = null;
     let droppableUnderMouse = null;
     this.elementsData.forEach((elementData) => {
       // compute the new position relative to the initial position
-      elementData.offsetX += e.movementX;
-      elementData.offsetY += e.movementY;
+      elementData.offsetX += movementX;
+      elementData.offsetY += movementY;
       // compute new position in the client area
-      elementData.left += e.movementX;
-      elementData.top += e.movementY;
+      elementData.left += movementX;
+      elementData.top += movementY;
       // visually move the element
       elementData.target.style.transform = `translate(${elementData.offsetX}px, ${elementData.offsetY}px)`;
       switch(elementData.position) {
         case 'static':
           if(nearestPosition === null) {
-            nearestPosition = this.findNearestPosition(this.doc, e.clientX, e.clientY);
-            if(nearestPosition.distance === null) console.info('no nearest position found, how is it poussible');
+            nearestPosition = this.findNearestPosition(this.doc, clientX, clientY);
+            if(nearestPosition.distance === null) console.info('no nearest position found, how is it poussible?', clientX, clientY);
             this.markPosition(nearestPosition);
           }
           elementData.destination = nearestPosition;
@@ -41,15 +42,16 @@ class MoveHandler {
         default:
           if(droppableUnderMouse === null) {
             droppableUnderMouse = {
-              parent: this.findDroppableUnderMouse(this.doc, e.clientX, e.clientY)
+              parent: this.findDroppableUnderMouse(this.doc, clientX, clientY)
             };
-            if(droppableUnderMouse.parent === null) console.info('no droppable under the mouse found, how is it poussible');
+            if(droppableUnderMouse.parent === null) console.info('no droppable under the mouse found, how is it poussible!', clientX, clientY);
           }
           elementData.destination = droppableUnderMouse;
           break;
       }
     });
   }
+
   release(e) {
     this.elementsData.forEach((elementData) => {
       let el = elementData.target;
@@ -69,8 +71,11 @@ class MoveHandler {
     for(let idx=0; idx<droppableList.length; idx++) {
       // only the not selected droppable elements
       // TODO: abstraction for getSelectable and getDroppable and getSelected
-      if(!droppableList[idx].closest('.selected'))
+      if(!droppableList[idx].closest('.selected')) {
         droppable.push(droppableList[idx]);
+      }
+      else
+        console.log('this is NOT droppable because it is selected', droppableList[idx]);
     }
     return droppable;    
   }
@@ -112,6 +117,7 @@ class MoveHandler {
     // get a list of all droppable zone under the point (x, y)
     let droppable = this.getDroppable(doc).filter(dropZone => {
       let bb = dropZone.getBoundingClientRect();
+      console.log('under the mouse: ', dropZone, bb, x, y)
       return bb.left < x && bb.right > x 
         && bb.top < y && bb.bottom > y;      
     });

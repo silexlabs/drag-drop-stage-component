@@ -47,7 +47,7 @@ class Stage extends Event  {
   }
   drag(e) {
     if(this.handler)
-        this.handler.update(e);
+        this.handler.update(e.movementX, e.movementY, e.clientX, e.clientY);
   }
   startDrag(e) {
     let selectable = this.selection.getSelectable(e.target);
