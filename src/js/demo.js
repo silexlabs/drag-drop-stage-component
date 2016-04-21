@@ -27,20 +27,20 @@ window.onload = function() {
       target.style.top = '0';
       // move to a different container
       if(destination && destination.parent) {
-        if(destination.nextSibling) {
+        if(destination.nextElementSibling) {
           // if the target is not allready the sibling of the destination's sibling
           // and if the destination's sibling is not the target itself
           // then move to the desired position in the parent
-          if(destination.nextSibling !== target.nextSibling && destination.nextSibling !== target) {
+          if(destination.nextElementSibling !== target.nextElementSibling && destination.nextElementSibling !== target) {
             target.parentNode.removeChild(target);
-            destination.parent.insertBefore(target, destination.nextSibling);
+            destination.parent.insertBefore(target, destination.nextElementSibling);
           }
         }
         else {
           // if the destination parent is not already the target's parent
           // or if the target is not the last child
           // then append the target to the parent
-          if(destination.parent !== target.parentNode || target.nextSibling) {
+          if(destination.parent !== target.parentNode || target.nextElementSibling) {
             target.parentNode.removeChild(target);
             destination.parent.appendChild(target);
           }

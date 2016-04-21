@@ -17,7 +17,7 @@ class MoveHandler {
     });
   }
 
-  update(movementX, movementY, clientX, clientY) {
+  update(movementX, movementY, mouseX, mouseY) {
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
     let nearestPosition = null;
     let droppableUnderMouse = null;
@@ -33,8 +33,8 @@ class MoveHandler {
       switch(elementData.position) {
         case 'static':
           if(nearestPosition === null) {
-            nearestPosition = this.findNearestPosition(this.doc, clientX, clientY);
-            if(nearestPosition.distance === null) console.info('no nearest position found, how is it poussible?', clientX, clientY);
+            nearestPosition = this.findNearestPosition(this.doc, mouseX, mouseY);
+            if(nearestPosition.distance === null) console.info('no nearest position found, how is it poussible?', mouseX, mouseY);
             this.markPosition(nearestPosition);
           }
           elementData.destination = nearestPosition;
@@ -42,9 +42,9 @@ class MoveHandler {
         default:
           if(droppableUnderMouse === null) {
             droppableUnderMouse = {
-              parent: this.findDroppableUnderMouse(this.doc, clientX, clientY)
+              parent: this.findDroppableUnderMouse(this.doc, mouseX, mouseY)
             };
-            if(droppableUnderMouse.parent === null) console.info('no droppable under the mouse found, how is it poussible!', clientX, clientY);
+            if(droppableUnderMouse.parent === null) console.info('no droppable under the mouse found, how is it poussible!', mouseX, mouseY);
           }
           elementData.destination = droppableUnderMouse;
           break;
@@ -74,8 +74,9 @@ class MoveHandler {
       if(!droppableList[idx].closest('.selected')) {
         droppable.push(droppableList[idx]);
       }
-      else
-        console.log('this is NOT droppable because it is selected', droppableList[idx]);
+      else {
+        console.info('this is NOT droppable because it is selected');
+      }
     }
     return droppable;    
   }
@@ -83,15 +84,15 @@ class MoveHandler {
    * display the position marker atthe given positionin the dom
    */
   markPosition(position) {
-    if(position.nextSibling) {
-      position.nextSibling.parentNode.insertBefore(this.positionMarker, position.nextSibling);
+    if(position.nextElementSibling) {
+      position.nextElementSibling.parentNode.insertBefore(this.positionMarker, position.nextElementSibling);
     }
     else if(position.parent) {
       position.parent.appendChild(this.positionMarker);
     }
     let bbMarker = this.positionMarker.getBoundingClientRect();
     let bbTargetPrev = this.positionMarker.previousSibling ? this.positionMarker.previousSibling.getBoundingClientRect() : null;
-    let bbTargetNext = this.positionMarker.nextSibling ? this.positionMarker.nextSibling.getBoundingClientRect() : null;
+    let bbTargetNext = this.positionMarker.nextElementSibling ? this.positionMarker.nextElementSibling.getBoundingClientRect() : null;
     if((!bbTargetPrev || bbMarker.top >= bbTargetPrev.bottom)
       && (!bbTargetNext || bbMarker.bottom <= bbTargetNext.top)) {
       // horizontal
@@ -117,7 +118,6 @@ class MoveHandler {
     // get a list of all droppable zone under the point (x, y)
     let droppable = this.getDroppable(doc).filter(dropZone => {
       let bb = dropZone.getBoundingClientRect();
-      console.log('under the mouse: ', dropZone, bb, x, y)
       return bb.left < x && bb.right > x 
         && bb.top < y && bb.bottom > y;      
     });
@@ -142,17 +142,17 @@ class MoveHandler {
     });
     // init the result to 'not found'
     let nearestPosition = {
-      nextSibling: null,
+      nextElementSibling: null,
       distance: null,
     };
     // browse all drop zone and find the nearest point
-    for(let dropZone of droppable) {
+    droppable.forEach(dropZone => {
       for(let idx=0; idx<dropZone.childNodes.length; idx++) {
         let sibling = dropZone.childNodes[idx];
         dropZone.insertBefore(phantom, sibling);
         let distance = this.getDistance(phantom, x, y);
         if(nearestPosition.distance === null || nearestPosition.distance > distance) {
-          nearestPosition.nextSibling = sibling;
+          nearestPosition.nextElementSibling = sibling;
           nearestPosition.parent = dropZone;
           nearestPosition.distance = distance;
         }
@@ -162,12 +162,12 @@ class MoveHandler {
       dropZone.appendChild(phantom);
       let distance = this.getDistance(phantom, x, y);
       if(nearestPosition.distance === null || nearestPosition.distance > distance) {
-        nearestPosition.nextSibling = null;
+        nearestPosition.nextElementSibling = null;
         nearestPosition.parent = dropZone;
         nearestPosition.distance = distance;
       }
       dropZone.removeChild(phantom);
-    }
+    });
     return nearestPosition;
   }
   getDistance(el, x, y) {
