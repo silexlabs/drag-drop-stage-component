@@ -1,13 +1,8 @@
-var should = require('should'),
-  assert = require('assert'),
-  jsdom = require('mocha-jsdom');
+var assert = require('assert');
 
 describe('Stage', function() {
 
   var Stage;
-  
-  // create some jsdom magic to allow jQuery to work
-  jsdom();
 
   before(function () {
     document.body.innerHTML = '<iframe id="iframe" />';
@@ -16,12 +11,14 @@ describe('Stage', function() {
 
   it('should expose iframe doc and win', function() {
     var stage = new Stage(document.querySelector('#iframe'));
-    stage.getIFrame().tagName.toUpperCase().should.equal('IFRAME');
-    document.querySelector('#iframe').should.equal(stage.getIFrame());
-    stage.getDocument().should.have.properties(['createElement', 'body']);
-    stage.getWindow().should.have.properties(['location', 'name']);
+    assert.equal('IFRAME', stage.getIFrame().tagName.toUpperCase());
+    assert.equal(stage.getIFrame(), document.querySelector('#iframe'));
+    assert.notEqual(undefined, stage.getDocument().createElement);
+    assert.notEqual(undefined, stage.getDocument().body);
+    assert.notEqual(undefined, stage.getWindow().location);
+    assert.notEqual(undefined, stage.getWindow().name);
   });
-  it('add selectable', function() {
+  it('should add a selectable', function() {
     var stage = new Stage(document.querySelector('#iframe')),
         doc = stage.getDocument(),
         win = stage.getWindow(),

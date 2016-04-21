@@ -1,13 +1,8 @@
-var should = require('should'),
-  assert = require('assert'),
-  jsdom = require('mocha-jsdom');
+var assert = require('assert');
 
 describe('Selection', function() {
 
   var Selection;
-  
-  // create some jsdom magic to allow jQuery to work
-  jsdom();
 
   before(function () {
     Selection = require('../src/js/Selection.js').Selection;
@@ -20,11 +15,11 @@ describe('Selection', function() {
     var selection = new Selection();
 
     selection.add(elem1);
-    elem1.className.should.equal('selectable selected');
-    selection.selected.length.should.equal(1);
+    assert.equal('selectable selected', elem1.className.toLowerCase());
+    assert.equal(1, selection.selected.length);
 
-    selection.isSelected(elem1).should.be.true();
-    selection.isSelected(elem2).should.be.false();
+    assert.equal(true, selection.isSelected(elem1));
+    assert.equal(false, selection.isSelected(elem2));
   });
 
   it('should be able to select an element only one time', function() {
@@ -33,12 +28,12 @@ describe('Selection', function() {
     var selection = new Selection();
 
     selection.add(elem1);
-    elem1.className.should.equal('selectable selected');
-    selection.selected.length.should.equal(1);
+    assert.equal('selectable selected', elem1.className.toLowerCase());
+    assert.equal(1, selection.selected.length);
 
     selection.add(elem1);
-    elem1.className.should.equal('selectable selected');
-    selection.selected.length.should.equal(1);
+    assert.equal('selectable selected', elem1.className.toLowerCase());
+    assert.equal(1, selection.selected.length);
   });
 
   it('should be able to select 2 elements', function() {
@@ -48,12 +43,12 @@ describe('Selection', function() {
     var selection = new Selection();
 
     selection.add(elem1);
-    elem1.className.should.equal('selectable selected');
-    selection.selected.length.should.equal(1);
+    assert.equal('selectable selected', elem1.className.toLowerCase());
+    assert.equal(1, selection.selected.length);
 
     selection.add(elem2);
-    elem2.className.should.equal('selectable selected');
-    selection.selected.length.should.equal(2);
+    assert.equal('selectable selected', elem2.className.toLowerCase());
+    assert.equal(2, selection.selected.length);
   });
 
   it('should be able to remove 1 of zero or several elements', function() {
@@ -65,19 +60,20 @@ describe('Selection', function() {
 
     selection.add(elem1);
     selection.add(elem2);
+    selection.add(elem2);
     selection.add(elem3);
-    elem1.className.should.equal('selectable selected');
-    elem2.className.should.equal('selectable selected');
-    elem3.className.should.equal('selectable selected');
-    selection.selected.length.should.equal(3);
+    assert.equal('selectable selected', elem1.className.toLowerCase());
+    assert.equal('selectable selected', elem2.className.toLowerCase());
+    assert.equal('selectable selected', elem3.className.toLowerCase());
+    assert.equal(3, selection.selected.length);
 
     // a function which will do something only the first time it is called
     function removeElem2() {
       selection.remove(elem2);
-      elem1.className.should.equal('selectable selected');
-      elem2.className.should.equal('selectable');
-      elem3.className.should.equal('selectable selected');
-      selection.selected.length.should.equal(2);
+      assert.equal('selectable selected', elem1.className.toLowerCase());
+      assert.equal('selectable', elem2.className.toLowerCase());
+      assert.equal('selectable selected', elem3.className.toLowerCase());
+      assert.equal(2, selection.selected.length);
     }
     removeElem2();
     removeElem2();
@@ -93,16 +89,16 @@ describe('Selection', function() {
     selection.add(elem1);
     selection.add(elem2);
     selection.add(elem3);
-    elem1.className.should.equal('selectable selected');
-    elem2.className.should.equal('selectable selected');
-    elem3.className.should.equal('selectable selected');
-    selection.selected.length.should.equal(3);
+    assert.equal('selectable selected', elem1.className.toLowerCase());
+    assert.equal('selectable selected', elem2.className.toLowerCase());
+    assert.equal('selectable selected', elem3.className.toLowerCase());
+    assert.equal(3, selection.selected.length);
 
     selection.reset();
-    elem1.className.should.equal('selectable');
-    elem2.className.should.equal('selectable');
-    elem3.className.should.equal('selectable');
-    selection.selected.length.should.equal(0);
+    assert.equal('selectable', elem1.className.toLowerCase());
+    assert.equal('selectable', elem2.className.toLowerCase());
+    assert.equal('selectable', elem3.className.toLowerCase());
+    assert.equal(0, selection.selected.length);
   });
 
   it('should be able to toggle elements', function() {
@@ -118,11 +114,10 @@ describe('Selection', function() {
     selection.toggle(elem3);
     selection.toggle(elem3);
 
-    elem1.className.should.equal('selectable selected');
-    elem2.className.should.equal('selectable');
-    elem3.className.should.equal('selectable');
-
-    selection.selected.length.should.equal(1);
+    assert.equal('selectable selected', elem1.className.toLowerCase());
+    assert.equal('selectable', elem2.className.toLowerCase());
+    assert.equal('selectable', elem3.className.toLowerCase());
+    assert.equal(1, selection.selected.length);
   });
 
   it('should be able to set an arbitrary selection', function() {
@@ -133,21 +128,21 @@ describe('Selection', function() {
     var selection = new Selection();
 
     selection.set([elem1]);
-    elem1.className.should.equal('selectable selected');
-    elem2.className.should.equal('selectable');
-    elem3.className.should.equal('selectable');
-    selection.selected.length.should.equal(1);
+    assert.equal('selectable selected', elem1.className.toLowerCase());
+    assert.equal('selectable', elem2.className.toLowerCase());
+    assert.equal('selectable', elem3.className.toLowerCase());
+    assert.equal(1, selection.selected.length);
 
     selection.set([elem2, elem3]);
-    elem1.className.should.equal('selectable');
-    elem2.className.should.equal('selectable selected');
-    elem3.className.should.equal('selectable selected');
-    selection.selected.length.should.equal(2);
+    assert.equal('selectable', elem1.className.toLowerCase());
+    assert.equal('selectable selected', elem2.className.toLowerCase());
+    assert.equal('selectable selected', elem3.className.toLowerCase());
+    assert.equal(2, selection.selected.length);
 
     selection.set([]);
-    elem1.className.should.equal('selectable');
-    elem2.className.should.equal('selectable');
-    elem3.className.should.equal('selectable');
-    selection.selected.length.should.equal(0);
+    assert.equal('selectable', elem1.className.toLowerCase());
+    assert.equal('selectable', elem2.className.toLowerCase());
+    assert.equal('selectable', elem3.className.toLowerCase());
+    assert.equal(0, selection.selected.length);
   });
 });

@@ -52,7 +52,7 @@ class MoveHandler {
     });
   }
 
-  release(e) {
+  release() {
     this.elementsData.forEach((elementData) => {
       let el = elementData.target;
       // reset style

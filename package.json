@@ -4,7 +4,7 @@
   "description": "",
   "main": "pub/js/stage.js",
   "scripts": {
-    "test": "browserify test/test.move-handler.js -o pub/js/test.js -t [ babelify --presets [ es2015 ] ] --debug && mocha-phantomjs test/runner.html",
+    "test": "npm run build:test && mocha-phantomjs test/runner.html",
     "postinstall": "npm run build",
     "serve": "http-server pub -o",
     "build": "mkdir -p pub/js && npm run build:js && npm run build:less && npm run build:demo",
@@ -13,7 +13,8 @@
     "livereload": "livereload pub",
     "build:less": "lessc src/less/stage.less pub/css/stage.css",
     "build:js": "browserify src/js/index.js -o pub/js/stage.js -t [ babelify --presets [ es2015 ] ] --debug",
-    "build:demo": "browserify src/js/demo.js -o pub/js/demo.js -t [ babelify --presets [ es2015 ] ] --debug && jade src/jade -o pub && lessc src/less/demo.less pub/css/demo.css"
+    "build:demo": "browserify src/js/demo.js -o pub/js/demo.js -t [ babelify --presets [ es2015 ] ] --debug && jade src/jade -o pub && lessc src/less/demo.less pub/css/demo.css",
+    "build:test": "browserify test/test.*.js -o pub/js/test.js -t [ babelify --presets [ es2015 ] ] --debug"
   },
   "author": "lexoyo",
   "license": "MIT",

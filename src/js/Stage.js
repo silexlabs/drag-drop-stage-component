@@ -60,8 +60,8 @@ class Stage extends Event  {
 	}
 	stopDrag(e) {
     if(this.handler) {
+      this.handler.release();
       e.elementsData = this.handler.elementsData;
-      this.handler.release(e);
       this.emit('drop', e);
     }
     this.handler = null;
