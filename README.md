@@ -1,3 +1,5 @@
+[ ![Codeship Status for lexoyo/stage](https://codeship.com/projects/3bbb51a0-ea08-0133-a1fa-5a99213623df/status?branch=master)](https://codeship.com/projects/147777)
+
 # About this project
 
 > this README is an effort to document the work in progress and what I plan to do
