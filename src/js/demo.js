@@ -5,9 +5,9 @@ window.onload = function() {
   var stage = new Stage(document.querySelector('#iframe'));
   var doc = stage.getDocument();
   var win = stage.getWindow();
-  stage.on('drop', e => {
-    if(e.elementsData) {
-      e.elementsData.forEach(data => {
+  stage.on('drop', elementsData => {
+    if(elementsData) {
+      elementsData.forEach(data => {
         let destination = data.destination;
         let target = data.target;
         // reset relative position
