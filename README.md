@@ -1,27 +1,34 @@
 [ ![Codeship Status for lexoyo/stage](https://codeship.com/projects/3bbb51a0-ea08-0133-a1fa-5a99213623df/status?branch=master)](https://codeship.com/projects/147777)
+[![Code Climate](https://codeclimate.com/github/lexoyo/stage/badges/gpa.svg)](https://codeclimate.com/github/lexoyo/stage)
 
 # About this project
 
 > this README is an effort to document the work in progress and what I plan to do
 
-This is an attempt to make a "stage" component which lets the user select elements, drag and drop them, resize them. The goal is to be able to
+This is an attempt to make a "stage" component which lets the user select elements, drag and drop them, resize them. 
 
-A component like this will be useful to the developer building any tool which includes a WYSIWYG. 
+**A component like this will be useful to the developer building any tool which includes a WYSIWYG.**
 
 The source code is written in ES2015 with less and jade.
 
 ## Use
 
-The component can be initialized like this, which will make all the elements with the `.selectable` css class be selected, moved and resized.
+The component can be initialized like this, which will make it possible to select, move and resize all the elements marked with the `.selectable` css class.
 
 ```javascript
 let iframe = document.querySelector('#iframe')
 let stage = new Stage(iframe)
 ```
 
-The iframe is where the elements to be manipulated live. The component itself is also acting on the outside of the iframe since the user can drag an element in the iframe and release the mouse outside the iframe.
+The iframe is where you add elements with the `.selectable` css class, which can then be moved and resized. But the stage component is also acting on the outside of the iframe since the user can drag an element in the iframe and release the mouse outside the iframe, which will move the elements to the desired position in the iframe.
 
-Your application will be in charge of catching events and applying the style to the element after the drop.
+Your application is in charge of catching events and applying the new style to the elements after a drop.
+
+```
+stage.on('drop', e => {
+	console.log('elements have been moved or resized, apply the new style to them as you wish', e.elementsData);
+});
+```
 
 ## Build
 
@@ -34,5 +41,7 @@ Run `npm install` and `npm run build` to build these files.
 
 ## Contribute
 
-If you want to help and use this code in your project, [read this readme for an introduction to the source code](./src/js/) and [read these issues to see what needs to be done](https://github.com/lexoyo/stage/labels/ready).
+Please [vote for the features which matter to you here](https://github.com/lexoyo/stage/labels/enhancement).
+
+If you want to contribute code, [read this readme for an introduction to the source code](./src/js/). And then you can help fixing the [issues found in the code by Code Climat](https://codeclimate.com/github/lexoyo/stage/issues) or find things to do [in these issues which need to be done](https://github.com/lexoyo/stage/labels/ready). 
 
