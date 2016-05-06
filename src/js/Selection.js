@@ -48,6 +48,9 @@ class Selection {
       this.add(el);
     });
   }
+  get() {
+    return this.selected;
+  }
 }
 
 exports.Selection = Selection
