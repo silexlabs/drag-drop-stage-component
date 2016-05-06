@@ -7,8 +7,8 @@ class MoveHandler {
       let style = window.getComputedStyle(el);
       let bb = el.getBoundingClientRect();
       return {
-        target: el, 
-        offsetX: 0, // relative translation 
+        target: el,
+        offsetX: 0, // relative translation
         offsetY: 0, // relative translation
         position: style.position,
         left: bb.left,
@@ -67,18 +67,8 @@ class MoveHandler {
    */
   getDroppable(doc) {
     let droppableList = doc.querySelectorAll('.droppable');
-    let droppable = [];
-    for(let idx=0; idx<droppableList.length; idx++) {
-      // only the not selected droppable elements
-      // TODO: abstraction for getSelectable and getDroppable and getSelected
-      if(!droppableList[idx].closest('.selected')) {
-        droppable.push(droppableList[idx]);
-      }
-      else {
-        console.info('this is NOT droppable because it is selected');
-      }
-    }
-    return droppable;    
+    let droppable = Array.from(droppableList).filter(el => !el.closest('.selected'));
+    return droppable;
   }
   /**
    * display the position marker atthe given positionin the dom
@@ -118,8 +108,8 @@ class MoveHandler {
     // get a list of all droppable zone under the point (x, y)
     let droppable = this.getDroppable(doc).filter(dropZone => {
       let bb = dropZone.getBoundingClientRect();
-      return bb.left < x && bb.right > x 
-        && bb.top < y && bb.bottom > y;      
+      return bb.left < x && bb.right > x
+        && bb.top < y && bb.bottom > y;
     });
     // the last one in the list is supposed to be the top most one
     return droppable.length>0 ? droppable[droppable.length-1] : null;
@@ -137,8 +127,8 @@ class MoveHandler {
     // get a list of all droppable zone under the point (x, y)
     let droppable = this.getDroppable(doc).filter(dropZone => {
       let bb = dropZone.getBoundingClientRect();
-      return bb.left < x && bb.right > x 
-        && bb.top < y && bb.bottom > y;      
+      return bb.left < x && bb.right > x
+        && bb.top < y && bb.bottom > y;
     });
     // init the result to 'not found'
     let nearestPosition = {

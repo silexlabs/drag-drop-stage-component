@@ -32,5 +32,8 @@
     "mocha-phantomjs": "^4.0.2",
     "mouse": "0.0.1",
     "watch": "~0.17.1"
+  },
+  "devDependencies": {
+    "babel-polyfill": "^6.8.0"
   }
 }

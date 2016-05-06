@@ -1,4 +1,5 @@
 var assert = require('assert');
+require("babel-polyfill");
 
 describe('MoveHandler', function() {
 
@@ -6,7 +7,7 @@ describe('MoveHandler', function() {
   var elem1;
   var elem2;
   var elem3;
-  
+
   before(function () {
     MoveHandler = require('../src/js/MoveHandler').MoveHandler;
     Element.prototype.closest = function () {
@@ -72,5 +73,15 @@ describe('MoveHandler', function() {
     assert.equal('container2', handler.elementsData[1].destination.parent.id);
     handler.release();
     elem1.style.position = '';
+  });
+
+  it('should list all dropzones', function() {
+    elem1.classList.add('selected');
+    var handler = new MoveHandler([], document);
+    var dropzones = handler.getDroppable(document);
+    assert.equal(2, dropzones.length);
+    assert.equal(true, dropzones instanceof Array);
+    assert.equal(false, dropzones.indexOf(elem1) >= 0);
+    elem1.classList.remove('selected');
   });
 });
