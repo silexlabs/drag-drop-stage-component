@@ -37,14 +37,12 @@ class DrawHandler extends Event {
     }
     // handle removed elements
     this.elements.filter(el => !newSelection.includes(el)).forEach(el => {
-      console.log('removed from region:', el);
       this.emit('toggleSelect', {
         target: el,
       });
     });
     // handle added elements
     newSelection.filter(el => !this.elements.includes(el)).forEach(el => {
-      console.log('added to region:', el);
       this.emit('toggleSelect', {
         target: el,
       });
