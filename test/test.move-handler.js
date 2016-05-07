@@ -1,5 +1,13 @@
 var assert = require('assert');
+// polyfills
 require("babel-polyfill");
+document.elementsFromPoint = function(x, y) {
+  return Array.from(document.body.querySelectorAll('*')).filter(function(el) {
+    var pos = el.getBoundingClientRect();
+    return pos.left <= x && x <= pos.right && pos.top <= y && y <= pos.bottom;
+  });
+}
+//
 
 describe('MoveHandler', function() {
 
@@ -28,15 +36,11 @@ describe('MoveHandler', function() {
 
     document.body.innerHTML = `
       <div class="droppable" id="container1">
-        <div class="selectable" id="elem1">
-        </div>
-        <div class="selectable" id="elem2">
-        </div>
-        <div class="selectable" id="elem3">
-        </div>
+        <div class="selectable" id="elem1"></div>
+        <div class="selectable" id="elem2"></div>
+        <div class="selectable" id="elem3"></div>
       </div>
-      <div class="droppable" id="container2">
-      </div>
+      <div class="droppable" id="container2"></div>
     `;
 
     elem1 = document.querySelector('#elem1');
@@ -75,13 +79,11 @@ describe('MoveHandler', function() {
     elem1.style.position = '';
   });
 
-  it('should list all dropzones', function() {
-    elem1.classList.add('selected');
-    var handler = new MoveHandler([], document);
-    var dropzones = handler.getDroppable(document);
-    assert.equal(2, dropzones.length);
+  it('should find 1 dropzone at (10, 10) while dragging elem1', function() {
+    var handler = new MoveHandler([elem1], document);
+    var dropzones = handler.findDroppablesUnderMouse(10, 10);
+    assert.equal(1, dropzones.length);
     assert.equal(true, dropzones instanceof Array);
     assert.equal(false, dropzones.indexOf(elem1) >= 0);
-    elem1.classList.remove('selected');
   });
 });

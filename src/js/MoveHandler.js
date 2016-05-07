@@ -3,6 +3,7 @@ class MoveHandler {
     this.doc = doc;
     this.positionMarker = this.doc.createElement('div');
     this.positionMarker.classList.add('position-marker');
+    this.elements = elements;
     this.elementsData = elements.map((el) => {
       let style = window.getComputedStyle(el);
       let bb = el.getBoundingClientRect();
@@ -17,41 +18,33 @@ class MoveHandler {
     });
   }
 
+
+  /**
+   * Called by the Stage class when mouse moves
+   */
   update(movementX, movementY, mouseX, mouseY) {
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
-    let nearestPosition = null;
-    let droppableUnderMouse = null;
+    let droppables = this.findDroppablesUnderMouse(mouseX, mouseY);
+    let nearestPosition = this.findNearestPosition(droppables, mouseX, mouseY);
+    // the first one is supposed to be the top most one
+    let droppableUnderMouse = droppables[0];
+    // update the destination of each element
     this.elementsData.forEach((elementData) => {
-      // compute the new position relative to the initial position
-      elementData.offsetX += movementX;
-      elementData.offsetY += movementY;
-      // compute new position in the client area
-      elementData.left += movementX;
-      elementData.top += movementY;
-      // visually move the element
-      elementData.target.style.transform = `translate(${elementData.offsetX}px, ${elementData.offsetY}px)`;
+      this.moveElementData(elementData, movementX, movementY);
       switch(elementData.position) {
         case 'static':
-          if(nearestPosition === null) {
-            nearestPosition = this.findNearestPosition(this.doc, mouseX, mouseY);
-            if(nearestPosition.distance === null) console.info('no nearest position found, how is it poussible?', mouseX, mouseY);
-            this.markPosition(nearestPosition);
-          }
-          elementData.destination = nearestPosition;
+          this.updateDestinationNonAbsolute(elementData, nearestPosition);
           break;
         default:
-          if(droppableUnderMouse === null) {
-            droppableUnderMouse = {
-              parent: this.findDroppableUnderMouse(this.doc, mouseX, mouseY)
-            };
-            if(droppableUnderMouse.parent === null) console.info('no droppable under the mouse found, how is it poussible!', mouseX, mouseY);
-          }
-          elementData.destination = droppableUnderMouse;
-          break;
+          this.updateDestinationAbsolute(elementData, droppableUnderMouse);
       }
     });
   }
 
+
+  /**
+   * Called by the Stage class when mouse button is released
+   */
   release() {
     this.elementsData.forEach((elementData) => {
       let el = elementData.target;
@@ -63,13 +56,52 @@ class MoveHandler {
 
 
   /**
-   * @returns an array of the possible drop zones
+   * move an element and update its data in elementsData
    */
-  getDroppable(doc) {
-    let droppableList = doc.querySelectorAll('.droppable');
-    let droppable = Array.from(droppableList).filter(el => !el.closest('.selected'));
-    return droppable;
+  moveElementData(elementData, movementX, movementY) {
+    // compute the new position relative to the initial position
+    elementData.offsetX += movementX;
+    elementData.offsetY += movementY;
+    // compute new position in the client area
+    elementData.left += movementX;
+    elementData.top += movementY;
+    // visually move the element
+    elementData.target.style.transform = `translate(${elementData.offsetX}px, ${elementData.offsetY}px)`;
   }
+
+
+  /**
+   * update the destination of the absolutely positioned elements
+   */
+  updateDestinationAbsolute(elementData, droppableUnderMouse) {
+    if(droppableUnderMouse === null) {
+      // FIXME: should fallback on the body?
+      console.info('no droppable under the mouse found, how is it poussible!');
+    }
+    else {
+      elementData.destination = {
+        parent: droppableUnderMouse,
+      };
+    }
+  }
+
+
+  /**
+   * update the destination of the NOT absolutely positioned elements
+   * and display a marker in the flow
+   */
+  updateDestinationNonAbsolute(elementData, nearestPosition) {
+    if(nearestPosition.distance === null) {
+      // FIXME: should fallback on the body?
+      console.info('no nearest position found, how is it poussible?');
+    }
+    else {
+      this.markPosition(nearestPosition);
+      elementData.destination = nearestPosition;
+    }
+  }
+
+
   /**
    * display the position marker atthe given positionin the dom
    */
@@ -98,21 +130,14 @@ class MoveHandler {
 
 
   /**
-   * find the top most element which is under the mouse
+   * find the droppable elements which are under the mouse
+   * the first one in the list is supposed to be the top most one
    */
-  findDroppableUnderMouse(doc, x, y) {
-    // does not work because the dragged element is under the mouse:
-    // let hovered = doc.querySelectorAll( '.droppable:hover' );
-    // does not work because the dragged element is under the mouse:
-    // let element = doc.elementFromPoint(x, y);
+  findDroppablesUnderMouse(x, y) {
     // get a list of all droppable zone under the point (x, y)
-    let droppable = this.getDroppable(doc).filter(dropZone => {
-      let bb = dropZone.getBoundingClientRect();
-      return bb.left < x && bb.right > x
-        && bb.top < y && bb.bottom > y;
-    });
-    // the last one in the list is supposed to be the top most one
-    return droppable.length>0 ? droppable[droppable.length-1] : null;
+    return this.doc.elementsFromPoint(x, y)
+      .filter(el => !this.elements.includes(el)
+        && el.classList.contains('droppable'));
   }
 
 
@@ -120,23 +145,17 @@ class MoveHandler {
    * place an empty div (phantom) at each possible place in the dom
    * find the place where it is the nearest from the mouse
    */
-  findNearestPosition(doc, x, y) {
+  findNearestPosition(droppables, x, y) {
     // create an empty div to measure distance to the mouse
-    let phantom = doc.createElement('div');
+    let phantom = this.doc.createElement('div');
     phantom.classList.add('phantom');
-    // get a list of all droppable zone under the point (x, y)
-    let droppable = this.getDroppable(doc).filter(dropZone => {
-      let bb = dropZone.getBoundingClientRect();
-      return bb.left < x && bb.right > x
-        && bb.top < y && bb.bottom > y;
-    });
     // init the result to 'not found'
     let nearestPosition = {
       nextElementSibling: null,
       distance: null,
     };
     // browse all drop zone and find the nearest point
-    droppable.forEach(dropZone => {
+    droppables.forEach(dropZone => {
       for(let idx=0; idx<dropZone.childNodes.length; idx++) {
         let sibling = dropZone.childNodes[idx];
         dropZone.insertBefore(phantom, sibling);
