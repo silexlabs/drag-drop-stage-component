@@ -1,16 +1,69 @@
-<head><style>
-      #container {
-        width: 1000px;
-        height: 1000px;
-        position: absolute;
-        background-color: red;
-      }
-      #elem1 {
-        position: absolute;
-        background-color: green;
-      }
-      #elem1, #elem2, #elem3 {
-        min-width: 200px;
-        min-height: 200px;
-      }
-    </style></head><body><div class="droppable" id="container"><div class="selectable" id="elem1"><div class="selectable" id="elem2"><div class="selectable" id="elem3"></div></div></div></div></body>
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+header {
+    background-color:black;
+    color:white;
+    text-align:center;
+    padding:5px;
+}
+nav {
+    line-height:30px;
+    background-color:#eeeeee;
+    min-height:300px;
+    min-width:100px;
+    float:left;
+    padding:5px;
+}
+section {
+    float:left;
+    padding:10px;
+}
+section.abs {
+  position: absolute;
+  width: 400px;
+  left: 120px;
+  top: 210px;
+}
+footer {
+    background-color:black;
+    color:white;
+    clear:both;
+    text-align:center;
+    padding:5px;
+}
+</style>
+</head>
+<body class="droppable">
+
+  <header class="selectable droppable">
+    <h1 class="selectable">City Gallery</h1>
+  </header>
+
+  <nav class="selectable droppable">
+    <p class="selectable">London</p>
+    <p class="selectable">Paris</p>
+    <p class="selectable">Tokyo</p>
+  </nav>
+
+  <section class="selectable droppable">
+    <h1 class="selectable">London</h1>
+    <p class="selectable">London is the capital city of England. It is the most populous city in the United Kingdom,
+    with a metropolitan area of over 13 million inhabitants.</p>
+    <p class="selectable">Standing on the River Thames, London has been a major settlement for two millennia,
+    its history going back to its founding by the Romans, who named it Londinium.</p>
+  </section>
+
+  <section class="selectable droppable abs">
+    <h1 class="selectable">Absolute block</h1>
+    <p class="selectable">London is the capital city of England. It is the most populous city in the United Kingdom,
+    with a metropolitan area of over 13 million inhabitants.</p>
+  </section>
+
+  <footer class="selectable droppable">
+    <p class="selectable">Copyright © W3Schools.com</p>
+  </footer>
+
+</body>
+</html>
