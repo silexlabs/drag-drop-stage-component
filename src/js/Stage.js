@@ -1,3 +1,4 @@
+import {Polyfill} from "./Polyfill";
 import {Selection, Selectable} from "./Selection";
 import {MouseController} from "./MouseController";
 import {MoveHandler} from "./MoveHandler";
@@ -8,6 +9,8 @@ class Stage extends Event  {
     super();
     // store the iframe and use its document and window
     this.iframe = iframe;
+    // polyfill the iframe
+    Polyfill.patchWindow(this.getWindow());
     // create useful classes
     this.selection = new Selection();
     this.handler = null;
