@@ -1,6 +1,8 @@
 class MoveHandler {
   constructor(elements, doc) {
+    // store the iframe document
     this.doc = doc;
+    // FIXME: the region marker should be outside the iframe
     this.positionMarker = this.doc.createElement('div');
     this.positionMarker.classList.add('position-marker');
     this.elements = elements;

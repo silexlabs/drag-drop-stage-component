@@ -1,13 +1,15 @@
-@dark: rgba(0, 0, 0, 1);
-@light: rgba(255, 255, 255, 1);
+@dark: rgba(81, 130, 252, 1);
+@bright: rgba(244, 86, 86, 1);
+@dark-transparent: rgba(81, 130, 252, .2);
+@bright-transparent: rgba(244, 86, 86, .2);
 
 
 .selectable:hover {
-  box-shadow: inset 1px 1px 1px @dark, inset -1px -1px 1px @dark, 
-    inset 1px 1px 1px @light, inset -1px -1px 1px @light;
+  box-shadow: inset 1px 1px 1px @dark, inset -1px -1px 1px @dark,
+    inset 1px 1px 1px @bright, inset -1px -1px 1px @bright;
 }
 .selected {
-  box-shadow: inset 1px 1px 1px @light, inset -1px -1px 1px @light, 
+  box-shadow: inset 1px 1px 1px @bright, inset -1px -1px 1px @bright,
     inset 1px 1px 1px @dark, inset -1px -1px 1px @dark;
 }
 .position-marker {
@@ -20,4 +22,15 @@
 }
 .position-phantom {
   display: inline-block;
+}
+
+.region-marker {
+  background-color: @dark-transparent;
+  border: 1px solid @bright-transparent;
+  display: flex;
+  position: absolute;
+  left: 0;
+  top: 0;
+  min-width: 1px;
+  min-height: 1px;
 }

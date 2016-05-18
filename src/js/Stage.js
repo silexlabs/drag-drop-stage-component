@@ -2,6 +2,7 @@ import {Polyfill} from "./Polyfill";
 import {Selection, Selectable} from "./Selection";
 import {MouseController} from "./MouseController";
 import {MoveHandler} from "./MoveHandler";
+import {DrawHandler} from "./DrawHandler";
 import Event from "emitter-js";
 
 class Stage extends Event  {
@@ -20,12 +21,12 @@ class Stage extends Event  {
     link.setAttribute('rel', 'stylesheet');
     link.setAttribute('href', /*FIXME: Url.makeAbsolute*/('css/stage.css'));
     doc.head.appendChild(link);
-    // register mouse events
+    // register events
     let mouseController = new MouseController(this.getWindow());
-    mouseController.on('toggleSelect', (e) => this.toggleSelect(e));
-    mouseController.on('drag', (e) => this.drag(e));
-    mouseController.on('startDrag', (e) => this.startDrag(e));
-    mouseController.on('stopDrag', (e) => this.stopDrag(e));
+    mouseController.on('toggleSelect', e => this.toggleSelect(e.target, e.shiftKey));
+    mouseController.on('drag', e => this.drag(e));
+    mouseController.on('startDrag', e => this.startDrag(e));
+    mouseController.on('stopDrag', e => this.stopDrag(e));
   }
   getIFrame() {
     return this.iframe;
@@ -36,12 +37,13 @@ class Stage extends Event  {
   getWindow() {
     return this.iframe.contentWindow;
   }
-  toggleSelect(e) {
-    let selectable = this.selection.getSelectable(e.target);
+  toggleSelect(target, shiftKey) {
+    let selectable = this.selection.getSelectable(target);
+    console.log('toggleSelect', target, shiftKey, selectable);
     if(selectable) {
-      if(e.shiftKey)
+      if(shiftKey)
         // add or remove
-        this.selection.toggle(selectable, e.shiftKey);
+        this.selection.toggle(selectable, shiftKey);
       else
         // select this one and only this one
         this.selection.set([selectable]);
@@ -54,12 +56,14 @@ class Stage extends Event  {
   }
   startDrag(e) {
     let selectable = this.selection.getSelectable(e.target);
-    if(selectable) {
-      if(this.selection.isSelected(selectable))
-          this.handler = new MoveHandler(this.selection.selected, this.getDocument());
-      else console.log('todo: handle this drag');
+    if(selectable && this.selection.isSelected(selectable)) {
+      this.handler = new MoveHandler(this.selection.selected, this.getDocument());
     }
-    else console.info('element is not selectable');
+    else {
+      this.selection.set([]);
+      this.handler = new DrawHandler(e.clientX, e.clientY, this.getDocument());
+      this.handler.on('toggleSelect', e => this.toggleSelect(e.target, true));
+    }
   }
   stopDrag(e) {
     if(this.handler) {
