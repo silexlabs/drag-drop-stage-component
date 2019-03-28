@@ -26,13 +26,12 @@ class MouseController extends Event {
     super.emit(type, e);
   }
   down(e) {
-    let element = e.target;
     this.state = State.DOWN;
+    this.emit('select', e);
     // prevent default text selection
     e.preventDefault();
   }
   up(e) {
-    let element = e.target;
     if(this.state === State.DOWN) {
       this.emit('toggleSelect', e);
     }

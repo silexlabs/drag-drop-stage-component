@@ -26,17 +26,16 @@ class MoveHandler {
    */
   update(movementX, movementY, mouseX, mouseY) {
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
-    let droppables = this.findDroppablesUnderMouse(mouseX, mouseY);
-    let nearestPosition = this.findNearestPosition(droppables, mouseX, mouseY);
-    // the first one is supposed to be the top most one
-    let droppableUnderMouse = droppables[0];
     // update the destination of each element
     this.elementsData.forEach((elementData) => {
+      let droppables = this.findDroppablesUnderMouse(mouseX, mouseY);
+      let nearestPosition = this.findNearestPosition(droppables, mouseX, mouseY);
+      let droppableUnderMouse = droppables[0]; // the first one is supposed to be the top most one
       this.moveElementData(elementData, movementX, movementY);
       switch(elementData.position) {
         case 'static':
-          this.updateDestinationNonAbsolute(elementData, nearestPosition);
-          break;
+        this.updateDestinationNonAbsolute(elementData, nearestPosition);
+        break;
         default:
           this.updateDestinationAbsolute(elementData, droppableUnderMouse);
       }

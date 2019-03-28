@@ -3,7 +3,12 @@
 @dark-transparent: rgba(81, 130, 252, .2);
 @bright-transparent: rgba(244, 86, 86, .2);
 
-
+.selectable {
+  cursor: pointer;
+}
+.selected {
+  cursor: move;
+}
 .selectable:hover {
   box-shadow: inset 1px 1px 1px @dark, inset -1px -1px 1px @dark,
     inset 1px 1px 1px @bright, inset -1px -1px 1px @bright;

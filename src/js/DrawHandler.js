@@ -36,14 +36,18 @@ class DrawHandler extends Event {
       }
     }
     // handle removed elements
-    this.elements.filter(el => !newSelection.includes(el)).forEach(el => {
-      this.emit('toggleSelect', {
+    this.elements
+    .filter(el => !newSelection.includes(el))
+    .forEach(el => {
+      this.emit('unSelect', {
         target: el,
       });
     });
     // handle added elements
-    newSelection.filter(el => !this.elements.includes(el)).forEach(el => {
-      this.emit('toggleSelect', {
+    newSelection
+    // .filter(el => !this.elements.includes(el))
+    .forEach(el => {
+      this.emit('select', {
         target: el,
       });
     });

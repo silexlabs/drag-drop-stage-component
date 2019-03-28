@@ -1,11 +1,11 @@
 import {Polyfill} from "./Polyfill";
-import {Selection, Selectable} from "./Selection";
+import {Selection} from "./Selection";
 import {MouseController} from "./MouseController";
 import {MoveHandler} from "./MoveHandler";
 import {DrawHandler} from "./DrawHandler";
 import Event from "emitter-js";
 
-let State = {
+const State = {
   NONE: 'NONE',
   DRAGGING: 'DRAGGING'
 }
@@ -39,11 +39,14 @@ class Stage extends Event  {
     link.setAttribute('href', /*FIXME: Url.makeAbsolute*/('css/stage.css'));
     doc.head.appendChild(link);
     // register mouse events
-    let mouseController = new MouseController(this.getWindow());
+    const mouseController = new MouseController(this.getWindow());
+    mouseController.on('select', (e) => this.select(e.target, e.shiftKey));
     mouseController.on('toggleSelect', (e) => this.toggleSelect(e.target, e.shiftKey));
     mouseController.on('drag', (e) => this.drag(e.movementX, e.movementY, e.clientX, e.clientY));
     mouseController.on('startDrag', (e) => this.startDrag(e.clientX, e.clientY, e.target));
     mouseController.on('stopDrag', (e) => this.stopDrag());
+    // sync selection with components
+    // this.selection.on('change', (e) => mouseController.setSelection(this.selection.get()));
     // keyboard shortcuts
     window.addEventListener("keydown", (e) => this.keyDown(e.keyCode));
     this.getWindow().addEventListener("keydown", (e) => this.keyDown(e.keyCode));
@@ -98,20 +101,43 @@ class Stage extends Event  {
    * @param  {Element}
    * @param  {Boolean}
    */
+  select(target, shiftKey) {
+    const selectable = this.selection.getSelectable(target);
+    console.log('select', selectable);
+    this.wasMultiSelected = !!selectable && this.selection.get().length > 1 && this.selection.isSelected(selectable);
+    this.selection.add(selectable, shiftKey);
+  }
+
+
+  /**
+   * @param  {Element}
+   * @param  {Boolean}
+   */
+  unSelect(target) {
+    const selectable = this.selection.getSelectable(target);
+    console.log('unSelect', selectable);
+    this.selection.remove(selectable);
+  }
+
+
+  /**
+   * @param  {Element}
+   * @param  {Boolean}
+   */
   toggleSelect(target, shiftKey) {
-    let selectable = this.selection.getSelectable(target);
-    if(selectable) {
-      if(shiftKey)
-        // add or remove
-        this.selection.toggle(selectable, shiftKey);
-      else
-        // select this one and only this one
+    const selectable = this.selection.getSelectable(target);
+    if(selectable && this.wasMultiSelected) {
+      this.selection.toggle(selectable, shiftKey);
+    }
+    else if(selectable) {
+      if(!shiftKey)
         this.selection.set([selectable]);
     }
     else if(!shiftKey) {
       console.info('element is not selectable');
       this.selection.reset();
     }
+    this.wasMultiSelected = false;
   }
 
 
@@ -132,14 +158,15 @@ class Stage extends Event  {
    * @private
    */
   startDrag(clientX, clientY, target) {
-    let selectable = this.selection.getSelectable(target);
-    if(selectable && this.selection.isSelected(selectable)) {
+    const selectable = this.selection.getSelectable(target);
+    if(selectable) {
       this.handler = new MoveHandler(this.selection.selected, this.getDocument());
     }
     else {
       this.selection.set([]);
       this.handler = new DrawHandler(clientX, clientY, this.getDocument());
-      this.handler.on('toggleSelect', e => this.toggleSelect(e.target, true));
+      this.handler.on('unSelect', e => this.unSelect(e.target, true));
+      this.handler.on('select', e => this.select(e.target, true));
     }
   }
 
