@@ -29,8 +29,8 @@ class DrawHandler extends IMouseMoveHandler {
     let endX = Math.max(this.initialX, mouseX);
     let startY = Math.min(this.initialY, mouseY);
     let endY = Math.max(this.initialY, mouseY);
-    for (let x = startX; x < endX; x += 10) {
-      for (let y = startY; y < endY; y += 10) {
+    for (let x = startX; x < endX; x += 2) {
+      for (let y = startY; y < endY; y += 2) {
         newSelection = newSelection.concat(
           this.doc.elementsFromPoint(x, y)
           .filter(el => this.isSelectableHook(el) && !newSelection.includes(el))
@@ -47,7 +47,7 @@ class DrawHandler extends IMouseMoveHandler {
     });
     // handle added elements
     newSelection
-    // .filter(el => !this.elements.includes(el))
+    .filter(el => !this.elements.includes(el))
     .forEach(el => {
       this.emit('select', {
         target: el,

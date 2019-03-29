@@ -40,36 +40,68 @@ describe('DrawHandler', function() {
   });
 
   it('should select 1, 2 and 3 elements in the dom', function() {
-    var handler = new DrawHandler(5, 5, document);
-    var numElements = 0;
-    handler.on('toggleSelect', (el) => {
-      numElements++;
+    var handler = new DrawHandler(5, 5, document, el => true);
+    var numCallsSelect = 0;
+    var numCallsUnselect = 0;
+    handler.on('select', (el) => {
+      numCallsSelect++;
+    });
+    handler.on('unSelect', (el) => {
+      numCallsUnselect++;
     });
     // FIXME: should pass with handler.update(0, 1, 5, 6);
     handler.update(1, 1, 6, 6);
-    assert.equal(1, numElements);
+    assert.equal(1, numCallsSelect, `select should have been fired exactly 1 times and has been ${numCallsSelect}`);
+    assert.equal(0, numCallsUnselect, `unselect has been fired ${numCallsUnselect} times and it should not`);
+    assert.equal(1, handler.elements.length, `there should be exactly 1 elements selected insted of ${handler.elements.length}`)
+
     handler.update(0, 10, 6, 16);
-    assert.equal(2, numElements);
+    assert.equal(2, numCallsSelect, `select should have been fired exactly 2 times and has been ${numCallsSelect}`);
+    assert.equal(0, numCallsUnselect, `unselect has been fired ${numCallsUnselect} times and it should not`);
+    assert.equal(2, handler.elements.length, `there should be exactly 2 elements selected insted of ${handler.elements.length}`)
+
     handler.update(0, 10, 6, 26);
-    assert.equal(3, numElements);
+    assert.equal(3, numCallsSelect, `select should have been fired exactly 3 times and has been ${numCallsSelect}`);
+    assert.equal(0, numCallsUnselect, `unselect has been fired ${numCallsUnselect} times and it should not`);
+    assert.equal(3, handler.elements.length, `there should be exactly 3 elements selected insted of ${handler.elements.length}`)
+    
     handler.release();
+    assert.equal(false, !!handler.regionMarker.parentNode, 'The region marker should have been removed');
+    assert.equal(0, handler.elements.length, 'The selection should have been reset now');
   });
 
   it('should un-select 1, 2 and 3 elements in the dom', function() {
-    var handler = new DrawHandler(5, 5, document);
-    var numElements = 0;
-    handler.on('toggleSelect', (el) => {
-      numElements++;
+    var handler = new DrawHandler(-1, -1, document, el => true);
+    var numCallsSelect = 0;
+    var numCallsUnselect = 0;
+    handler.on('select', (el) => {
+      console.log('select')
+      numCallsSelect++;
     });
-    // FIXME: should pass with handler.update(0, 30, 5, 35);
-    handler.update(1, 30, 6, 35);
-    assert.equal(3, numElements);
-    handler.update(0, -10, 6, 25);
-    assert.equal(4, numElements);
-    handler.update(0, -10, 6, 15);
-    assert.equal(5, numElements);
-    handler.update(0, -10, 6, 5);
-    assert.equal(6, numElements);
+    handler.on('unSelect', (el) => {
+      console.log('unSelect')
+      numCallsUnselect++;
+    });
+    handler.update(7, 27, 6, 26);
+    assert.equal(3, handler.elements.length, `there should be exactly 3 elements selected insted of ${handler.elements.length}`)
+    numCallsUnselect = 0;
+    numCallsSelect = 0;
+
+    handler.update(0, -10, 6, 16);
+    assert.equal(1, numCallsUnselect, `unselect should have been fired exactly 1 times and has been ${numCallsUnselect}`);
+    assert.equal(0, numCallsSelect, `select has been fired ${numCallsSelect} times and it should not`);
+    assert.equal(2, handler.elements.length, `there should be exactly 2 elements selected insted of ${handler.elements.length}`)
+    
+    handler.update(0, -10, 6, 6);
+    assert.equal(2, numCallsUnselect, `unselect should have been fired exactly 1 times and has been ${numCallsUnselect}`);
+    assert.equal(0, numCallsSelect, `select has been fired ${numCallsSelect} times and it should not`);
+    assert.equal(1, handler.elements.length, `there should be exactly 1 elements selected insted of ${handler.elements.length}`)
+    
+    handler.update(0, -10, 6, -4);
+    assert.equal(3, numCallsUnselect, `unselect should have been fired exactly 1 times and has been ${numCallsUnselect}`);
+    assert.equal(0, numCallsSelect, `select has been fired ${numCallsSelect} times and it should not`);
+    assert.equal(0, handler.elements.length, `there should be exactly 0 elements selected insted of ${handler.elements.length}`)
+
     handler.release();
   });
 });

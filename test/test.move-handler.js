@@ -31,9 +31,9 @@ describe('MoveHandler', function() {
 
     document.body.innerHTML = `
       <div class="droppable" id="container1">
-        <div class="selectable" id="elem1"></div>
-        <div class="selectable" id="elem2"></div>
-        <div class="selectable" id="elem3"></div>
+        <div class="selectable draggable" id="elem1"></div>
+        <div class="selectable draggable" id="elem2"></div>
+        <div class="selectable draggable" id="elem3"></div>
       </div>
       <div class="droppable" id="container2"></div>
     `;
@@ -45,7 +45,7 @@ describe('MoveHandler', function() {
 
   it('should move an absolute element in the dom', function() {
     elem1.style.position = 'absolute';
-    var handler = new MoveHandler([elem1], document);
+    var handler = new MoveHandler([elem1], document, (el) => el.classList.contains('droppable'));
     handler.update(10, 10, 50, 150);
     assert.equal('translate(10px, 10px)', elem1.style.transform);
     assert.equal('container2', handler.elementsData[0].destination.parent.id);
@@ -54,7 +54,7 @@ describe('MoveHandler', function() {
   });
 
   it('should move an element in the flow', function() {
-    var handler = new MoveHandler([elem1], document);
+    var handler = new MoveHandler([elem1], document, (el) => el.classList.contains('droppable'));
     handler.update(10, 10, 50, 150);
     assert.equal('translate(10px, 10px)', elem1.style.transform);
     assert.equal('container2', handler.elementsData[0].destination.parent.id);
@@ -63,7 +63,7 @@ describe('MoveHandler', function() {
 
   it('should move a positioned element and one in the flow', function() {
     elem1.style.position = 'absolute';
-    var handler = new MoveHandler([elem1, elem2], document);
+    var handler = new MoveHandler([elem1, elem2], document, (el) => el.classList.contains('droppable'));
     handler.update(10, 10, 50, 150);
     assert.equal('translate(10px, 10px)', elem1.style.transform);
     assert.equal('translate(10px, 10px)', elem2.style.transform);
@@ -75,7 +75,7 @@ describe('MoveHandler', function() {
   });
 
   it('should find 1 dropzone at (10, 10) while dragging elem1', function() {
-    var handler = new MoveHandler([elem1], document);
+    var handler = new MoveHandler([elem1], document, (el) => el.classList.contains('droppable'));
     var dropzones = handler.findDroppablesUnderMouse(10, 10);
     assert.equal(1, dropzones.length);
     assert.equal(true, dropzones instanceof Array);

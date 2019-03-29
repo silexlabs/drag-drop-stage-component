@@ -4,7 +4,7 @@
   "description": "",
   "main": "pub/js/stage.js",
   "scripts": {
-    "test": "npm run build:test && mocha-phantomjs test/runner.html",
+    "test": "npm run build:test && npm run build && mocha-phantomjs test/runner.html",
     "postinstall": "npm run build",
     "serve": "http-server pub -o",
     "build": "mkdir -p pub/js && npm run build:js && npm run build:less && npm run build:demo",
