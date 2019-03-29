@@ -11,6 +11,9 @@ class MoveHandler extends IMouseMoveHandler {
     this.positionMarker = this.doc.createElement('div');
     this.positionMarker.classList.add('position-marker');
     this.elements = elements;
+    // add a style
+    elements.forEach(el => el.classList.add('dragging'));
+    // build the data for all the elements
     this.elementsData = elements.map((el) => {
       let style = window.getComputedStyle(el);
       let bb = el.getBoundingClientRect();
@@ -57,6 +60,7 @@ class MoveHandler extends IMouseMoveHandler {
       let el = elementData.target;
       // reset style
       el.style.transform = '';
+      el.classList.remove('dragging');
     });
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
   }

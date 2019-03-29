@@ -7,7 +7,13 @@
   cursor: pointer;
 }
 .selected {
-  cursor: move;
+  cursor: default;
+}
+.selected.draggable {
+  cursor: grab;
+}
+.selected.draggable.dragging {
+  cursor: grabbing;
 }
 .selectable:hover {
   box-shadow: inset 1px 1px 1px @dark, inset -1px -1px 1px @dark,

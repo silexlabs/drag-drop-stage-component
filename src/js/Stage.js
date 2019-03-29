@@ -27,6 +27,7 @@ class Stage extends Event  {
     // store the iframe and use its document and window
     this.iframe = iframe;
     this.isSelectableHook = options.isSelectableHook || (el => el.classList.contains('selectable'));
+    this.isDraggableHook = options.isDraggableHook || (el => el.classList.contains('draggable'));
     this.isDroppableHook = options.isDroppableHook || ((el, selection) => el.classList.contains('droppable'));
     // polyfill the iframe
     Polyfill.patchWindow(this.getWindow());
@@ -176,6 +177,18 @@ class Stage extends Event  {
         this.handler.update(movementX, movementY, clientX, clientY);
   }
 
+  
+  hasASelectedDraggableParent(selectable) {
+    const selectableParent = this.selection.getSelectable(selectable.parentElement);
+    if(selectableParent) {
+      if(this.selection.isSelected(selectableParent) && this.isDraggableHook(selectableParent)) return true;
+      else return this.hasASelectedDraggableParent(selectableParent);
+    }
+    else {
+      return false;
+    }
+  }
+
 
   /**
    * @param  {Element}
@@ -183,9 +196,9 @@ class Stage extends Event  {
    */
   startDrag(clientX, clientY, target) {
     const selectable = this.selection.getSelectable(target);
-    if(selectable) {
-      this.handler = new MoveHandler(this.selection.selected
-        .filter(el => !this.selection.hasASelectedParent(el)), 
+    if(selectable && this.isDraggableHook(selectable)) {
+      this.handler = new MoveHandler(this.selection.get()
+        .filter(el => !this.hasASelectedDraggableParent(el) && this.isDraggableHook(el)),
         this.getDocument(),
         this.isDroppableHook);
     }

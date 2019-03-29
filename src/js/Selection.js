@@ -20,16 +20,6 @@ class Selection extends Event {
   isSelected(selectable) {
     return this.selected.indexOf(selectable) >= 0;
   }
-  hasASelectedParent(selectable) {
-    const selectableParent = this.getSelectable(selectable.parentElement);
-    if(selectableParent) {
-      if(this.isSelected(selectableParent)) return true;
-      else return this.hasASelectedParent(selectableParent);
-    }
-    else {
-      return false;
-    }
-  }
   /**
    * returns the first container which is selectable
    * or null if the element and none of its parents are selectable
