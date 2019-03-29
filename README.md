@@ -22,7 +22,7 @@ Your application is in charge of catching events and applying the new style to t
 
 ```
 stage.on('drop', e => {
-	console.log('elements have been moved or resized, apply the new style to them as you wish', e.elementsData);
+	console.log('elements have been moved or resized, store their new styles if you wish', e.elements);
 });
 ```
 

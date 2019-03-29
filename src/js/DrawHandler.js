@@ -1,6 +1,6 @@
-import Event from "emitter-js";
+import {IMouseMoveHandler} from './IMouseMoveHandler.js';
 
-class DrawHandler extends Event {
+class DrawHandler extends IMouseMoveHandler {
   constructor(initialX, initialY, doc) {
     super();
     // store the iframe document and initial coords
@@ -57,6 +57,7 @@ class DrawHandler extends Event {
 
 
   release() {
+    super.release();
     this.regionMarker.parentNode.removeChild(this.regionMarker);
     this.elements = [];
   }

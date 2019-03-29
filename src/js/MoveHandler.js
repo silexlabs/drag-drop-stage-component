@@ -1,5 +1,8 @@
-class MoveHandler {
+import {IMouseMoveHandler} from './IMouseMoveHandler.js';
+
+class MoveHandler extends IMouseMoveHandler {
   constructor(elements, doc) {
+    super();
     // store the iframe document
     this.doc = doc;
     // FIXME: the region marker should be outside the iframe
@@ -47,6 +50,7 @@ class MoveHandler {
    * Called by the Stage class when mouse button is released
    */
   release() {
+    super.release();
     this.elementsData.forEach((elementData) => {
       let el = elementData.target;
       // reset style
@@ -138,9 +142,14 @@ class MoveHandler {
     // get a list of all droppable zone under the point (x, y)
     return this.doc.elementsFromPoint(x, y)
       .filter(el => !this.elements.includes(el)
-        && el.classList.contains('droppable'));
+        && this.isDroppable(el));
   }
 
+  isDroppable(el) {
+    // let the main app specify getSelectable and getDroppable
+    if(this.isDroppableHook) return this.isDroppableHook(el, this.elements);
+    else return el.classList.contains('droppable');
+  }
 
   /**
    * place an empty div (phantom) at each possible place in the dom
@@ -178,6 +187,9 @@ class MoveHandler {
       }
       dropZone.removeChild(phantom);
     });
+    // the next element can not be our position marker (it happens)
+    if(nearestPosition.nextElementSibling === this.positionMarker)
+      nearestPosition.nextElementSibling = this.positionMarker.nextSibling;
     return nearestPosition;
   }
   getDistance(el, x, y) {
