@@ -1,6 +1,6 @@
-import {IMouseMoveHandler} from './IMouseMoveHandler.js';
+import {MouseHandlerBase} from './MouseHandlerBase.js';
 
-class DrawHandler extends IMouseMoveHandler {
+class DrawHandler extends MouseHandlerBase {
   constructor(initialX, initialY, doc, isSelectableHook) {
     super();
     this.type = 'DrawHandler';
@@ -19,7 +19,8 @@ class DrawHandler extends IMouseMoveHandler {
     this.elements = [];
   }
 
-  update(movementX, movementY, mouseX, mouseY) {
+  update(movementX, movementY, mouseX, mouseY, shiftKey) {
+    super.update(movementX, movementY, mouseX, mouseY, shiftKey)
     // update the drawing
     this.moveRegion(this.initialX, this.initialY, mouseX, mouseY);
     // add and remove elements depending on wether they are in the region

@@ -13,9 +13,6 @@ describe('MoveHandler', function() {
 
   before(function () {
     MoveHandler = require('../src/js/MoveHandler').MoveHandler;
-    Element.prototype.closest = function () {
-      return null;
-    };
     document.head.innerHTML = `<style>
       .droppable {
         width: 100px;
@@ -47,8 +44,8 @@ describe('MoveHandler', function() {
     elem1.style.position = 'absolute';
     var handler = new MoveHandler([elem1], document, (el) => el.classList.contains('droppable'));
     handler.update(10, 10, 50, 150);
-    assert.equal('translate(10px, 10px)', elem1.style.transform);
-    assert.equal('container2', handler.elementsData[0].destination.parent.id);
+    assert.equal(elem1.style.transform, 'translate(10px, 10px)');
+    assert.equal(handler.elementsData[0].destination.parent.id, 'container2');
     handler.release();
     elem1.style.position = '';
   });
@@ -56,20 +53,23 @@ describe('MoveHandler', function() {
   it('should move an element in the flow', function() {
     var handler = new MoveHandler([elem1], document, (el) => el.classList.contains('droppable'));
     handler.update(10, 10, 50, 150);
-    assert.equal('translate(10px, 10px)', elem1.style.transform);
-    assert.equal('container2', handler.elementsData[0].destination.parent.id);
+    assert.equal(elem1.style.transform, 'translate(10px, 10px)');
+    assert.equal(handler.elementsData[0].destination.parent.id, 'container2');
     handler.release();
+    assert.equal(elem1.style.transform, '');
+    assert.equal(elem1.style.left, '10px', 'left is supposed to be 10px');
+    assert.equal(elem1.style.top, '10px', 'top is supposed to be 10px');
   });
 
   it('should move a positioned element and one in the flow', function() {
     elem1.style.position = 'absolute';
     var handler = new MoveHandler([elem1, elem2], document, (el) => el.classList.contains('droppable'));
     handler.update(10, 10, 50, 150);
-    assert.equal('translate(10px, 10px)', elem1.style.transform);
-    assert.equal('translate(10px, 10px)', elem2.style.transform);
-    assert.equal(undefined, elem3.style.transform);
-    assert.equal('container2', handler.elementsData[0].destination.parent.id);
-    assert.equal('container2', handler.elementsData[1].destination.parent.id);
+    assert.equal(elem1.style.transform, 'translate(10px, 10px)');
+    assert.equal(elem2.style.transform, 'translate(10px, 10px)');
+    assert.equal(elem3.style.transform, undefined);
+    assert.equal(handler.elementsData[0].destination.parent.id, 'container2');
+    assert.equal(handler.elementsData[1].destination.parent.id, 'container2');
     handler.release();
     elem1.style.position = '';
   });
@@ -77,8 +77,8 @@ describe('MoveHandler', function() {
   it('should find 1 dropzone at (10, 10) while dragging elem1', function() {
     var handler = new MoveHandler([elem1], document, (el) => el.classList.contains('droppable'));
     var dropzones = handler.findDroppablesUnderMouse(10, 10);
-    assert.equal(1, dropzones.length);
-    assert.equal(true, dropzones instanceof Array);
-    assert.equal(false, dropzones.indexOf(elem1) >= 0);
+    assert.equal(dropzones.length, 1);
+    assert.equal(dropzones instanceof Array, true);
+    assert.equal(dropzones.indexOf(elem1) >= 0, false);
   });
 });

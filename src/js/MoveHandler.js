@@ -1,6 +1,6 @@
-import {IMouseMoveHandler} from './IMouseMoveHandler.js';
+import {MouseHandlerBase} from './MouseHandlerBase.js';
 
-class MoveHandler extends IMouseMoveHandler {
+class MoveHandler extends MouseHandlerBase {
   constructor(elements, doc, isDroppableHook) {
     super();
     this.type = 'MoveHandler';
@@ -14,25 +14,15 @@ class MoveHandler extends IMouseMoveHandler {
     // add a style
     elements.forEach(el => el.classList.add('dragging'));
     // build the data for all the elements
-    this.elementsData = elements.map((el) => {
-      let style = window.getComputedStyle(el);
-      let bb = el.getBoundingClientRect();
-      return {
-        target: el,
-        offsetX: 0, // relative translation
-        offsetY: 0, // relative translation
-        position: style.position,
-        left: bb.left,
-        top: bb.top,
-      };
-    });
+    this.elementsData = MouseHandlerBase.getElementsData(elements);
   }
 
 
   /**
    * Called by the Stage class when mouse moves
    */
-  update(movementX, movementY, mouseX, mouseY) {
+  update(movementX, movementY, mouseX, mouseY, shiftKey) {
+    super.update(movementX, movementY, mouseX, mouseY, shiftKey);
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
     // update the destination of each element
     this.elementsData.forEach((elementData) => {
@@ -40,7 +30,7 @@ class MoveHandler extends IMouseMoveHandler {
       let nearestPosition = this.findNearestPosition(droppables, mouseX, mouseY);
       let droppableUnderMouse = droppables[0]; // the first one is supposed to be the top most one
       this.moveElementData(elementData, movementX, movementY);
-      switch(elementData.position) {
+      switch(elementData.computedStyle.position) {
         case 'static':
         this.updateDestinationNonAbsolute(elementData, nearestPosition);
         break;
@@ -57,11 +47,49 @@ class MoveHandler extends IMouseMoveHandler {
   release() {
     super.release();
     this.elementsData.forEach((elementData) => {
-      let el = elementData.target;
+      const {clientRect, destination, target} = elementData;
+      let el = target;
       // reset style
       el.style.transform = '';
       el.classList.remove('dragging');
+
+      // reset relative position
+      target.style.left = '0';
+      target.style.top = '0';
+      // move to a different container
+      if(destination && destination.parent) {
+        if(destination.nextElementSibling) {
+          // if the target is not allready the sibling of the destination's sibling
+          // and if the destination's sibling is not the target itself
+          // then move to the desired position in the parent
+          if(destination.nextElementSibling !== target.nextElementSibling && destination.nextElementSibling !== target) {
+            try {
+              target.parentNode.removeChild(target);
+              destination.parent.insertBefore(target, destination.nextElementSibling);
+            }
+            catch(e) {
+              console.error(e)
+            }
+          }
+        }
+        else {
+          // if the destination parent is not already the target's parent
+          // or if the target is not the last child
+          // then append the target to the parent
+          if(destination.parent !== target.parentNode || target.nextElementSibling) {
+            target.parentNode.removeChild(target);
+            destination.parent.appendChild(target);
+          }
+        }
+      }
+      // check the actual position of the target
+      // and move it to match the provided absolute position
+      let bb = target.getBoundingClientRect();
+      target.style.left = (clientRect.left - bb.left) + 'px';
+      target.style.top = (clientRect.top - bb.top) + 'px';
     });
+
+    // remove the position marker
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
   }
 
@@ -74,8 +102,8 @@ class MoveHandler extends IMouseMoveHandler {
     elementData.offsetX += movementX;
     elementData.offsetY += movementY;
     // compute new position in the client area
-    elementData.left += movementX;
-    elementData.top += movementY;
+    elementData.clientRect.left += movementX;
+    elementData.clientRect.top += movementY;
     // visually move the element
     elementData.target.style.transform = `translate(${elementData.offsetX}px, ${elementData.offsetY}px)`;
   }

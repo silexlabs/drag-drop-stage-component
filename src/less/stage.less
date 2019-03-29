@@ -5,6 +5,7 @@
 
 .selectable {
   cursor: pointer;
+  box-sizing: content-box;
 }
 .selected {
   cursor: default;
@@ -14,6 +15,32 @@
 }
 .selected.draggable.dragging {
   cursor: grabbing;
+}
+.selectable {
+  &[resize-y="top"] {
+    cursor: n-resize;
+  }
+  &[resize-y="bottom"] {
+    cursor: s-resize;
+  }
+  &[resize-x="right"] {
+    cursor: e-resize;
+    &[resize-y="top"] {
+      cursor: ne-resize;
+    }
+    &[resize-y="bottom"] {
+      cursor: se-resize;
+    }
+  }
+  &[resize-x="left"] {
+    cursor: w-resize;
+    &[resize-y="top"] {
+      cursor: nw-resize;
+    }
+    &[resize-y="bottom"] {
+      cursor: sw-resize;
+    }
+  }
 }
 .selectable:hover {
   box-shadow: inset 1px 1px 1px @dark, inset -1px -1px 1px @dark,

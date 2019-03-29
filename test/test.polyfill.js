@@ -38,7 +38,7 @@ describe('Polyfill', function() {
 
   it('should find 3 elementsFromPoint', function() {
     var elements = document.elementsFromPoint(10, 10);
-    assert.equal(3, elements.length);
+    assert.equal(elements.length, 3);
   });
 
 });

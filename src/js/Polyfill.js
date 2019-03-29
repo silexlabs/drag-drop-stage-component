@@ -1,7 +1,7 @@
 exports.Polyfill = {
   patchWindow: function(win) {
     if(!win.document.elementsFromPoint) {
-      console.warn('Polyfill: polyfill document.elementsFromPoint', win);
+      // console.warn('Polyfill: polyfill document.elementsFromPoint', win);
       win.document.elementsFromPoint = function(x, y) {
         // FIXME: the order is important and the 1st element should be the one on top
         return Array.from(win.document.body.querySelectorAll('*')).filter(function(el) {

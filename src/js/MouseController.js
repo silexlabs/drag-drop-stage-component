@@ -59,6 +59,8 @@ class MouseController extends Event {
       case State.DRAGGING:
         this.emit('drag', e);
         break;
+      default:
+       this.emit('move', e);
     }
   }
 }

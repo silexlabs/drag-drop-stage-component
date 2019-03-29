@@ -11,8 +11,8 @@ describe('Stage', function() {
 
   it('should expose iframe doc and win', function() {
     var stage = new Stage(document.querySelector('#iframe'));
-    assert.equal('IFRAME', stage.getIFrame().tagName.toUpperCase());
-    assert.equal(stage.getIFrame(), document.querySelector('#iframe'));
+    assert.equal(stage.getIFrame().tagName.toUpperCase(), 'IFRAME');
+    assert.equal(document.querySelector('#iframe'), stage.getIFrame());
     assert.notEqual(undefined, stage.getDocument().createElement);
     assert.notEqual(undefined, stage.getDocument().body);
     assert.notEqual(undefined, stage.getWindow().location);
@@ -25,7 +25,7 @@ describe('Stage', function() {
         body = doc.body,
         head = doc.head,
         div = doc.createElement('div');
-    
+
     div.style.width = div.style.height = '200px';
     div.style.backgroundColor = 'black';
     body.appendChild(div);

@@ -4,6 +4,7 @@ import {MouseController} from "./MouseController";
 import {MoveHandler} from "./MoveHandler";
 import {DrawHandler} from "./DrawHandler";
 import Event from "emitter-js";
+import { ResizeHandler } from "./ResizeHandler";
 
 const State = {
   NONE: 'NONE',
@@ -29,6 +30,7 @@ class Stage extends Event  {
     this.isSelectableHook = options.isSelectableHook || (el => el.classList.contains('selectable'));
     this.isDraggableHook = options.isDraggableHook || (el => el.classList.contains('draggable'));
     this.isDroppableHook = options.isDroppableHook || ((el, selection) => el.classList.contains('droppable'));
+    this.isResizeableHook = options.isResizeableHook || ((el, selection) => el.classList.contains('resizeable'));
     // polyfill the iframe
     Polyfill.patchWindow(this.getWindow());
     // create useful classes
@@ -45,7 +47,8 @@ class Stage extends Event  {
     const mouseController = new MouseController(this.getWindow());
     mouseController.on('down', (e) => this.onDown(e.target, e.shiftKey));
     mouseController.on('up', (e) => this.onUp(e.target, e.shiftKey));
-    mouseController.on('drag', (e) => this.drag(e.movementX, e.movementY, e.clientX, e.clientY));
+    mouseController.on('move', (e) => this.onMove(e.clientX, e.clientY, e.target));
+    mouseController.on('drag', (e) => this.drag(e.movementX, e.movementY, e.clientX, e.clientY, e.shiftKey));
     mouseController.on('startDrag', (e) => this.startDrag(e.clientX, e.clientY, e.target));
     mouseController.on('stopDrag', (e) => this.stopDrag());
     // relay the selection events
@@ -132,13 +135,36 @@ class Stage extends Event  {
     const selectable = this.selection.getSelectable(target);
     if(selectable) {
       this.wasMultiSelected = this.selection.get().length > 1 && this.selection.isSelected(selectable);
-      if(this.wasMultiSelected || shiftKey)
+      if(this.wasMultiSelected || shiftKey) {
         this.selection.add(selectable);
-      else
+      }
+      else {
         this.selection.set([selectable]);
+      }
     }
     else {
       this.wasMultiSelected = false;
+    }
+  }
+
+
+  /**
+   * @param  {Element}
+   * @param  {Boolean}
+   */
+  onMove(clientX, clientY, target) {
+    const selectable = this.selection.getSelectable(target);
+    if(selectable && this.isResizeableHook(selectable)) {
+      const direction = ResizeHandler.getDirection(clientX, clientY, selectable);
+      selectable.setAttribute('resize-x', direction.x);
+      selectable.setAttribute('resize-y', direction.y);
+    }
+    else {
+      Array.from(this.getDocument().body.querySelectorAll('[resize-x], [resize-y]'))
+      .forEach(el => {
+        el.removeAttribute('resize-x');
+        el.removeAttribute('resize-y');
+      });
     }
   }
 
@@ -172,12 +198,12 @@ class Stage extends Event  {
    * @param  {Number}
    * @param  {Number}
    */
-  drag(movementX, movementY, clientX, clientY) {
+  drag(movementX, movementY, clientX, clientY, shiftKey) {
     if(this.handler)
-        this.handler.update(movementX, movementY, clientX, clientY);
+        this.handler.update(movementX, movementY, clientX, clientY, shiftKey);
   }
 
-  
+
   hasASelectedDraggableParent(selectable) {
     const selectableParent = this.selection.getSelectable(selectable.parentElement);
     if(selectableParent) {
@@ -196,18 +222,42 @@ class Stage extends Event  {
    */
   startDrag(clientX, clientY, target) {
     const selectable = this.selection.getSelectable(target);
-    if(selectable && this.isDraggableHook(selectable)) {
-      this.handler = new MoveHandler(this.selection.get()
-        .filter(el => !this.hasASelectedDraggableParent(el) && this.isDraggableHook(el)),
-        this.getDocument(),
-        this.isDroppableHook);
+    if(selectable) {
+      const direction = {
+        x: selectable.getAttribute('resize-x') || '',
+        y: selectable.getAttribute('resize-y') || '',
+      };
+      // start resize
+      if(this.isResizeableHook(selectable) && (direction.x != '' || direction.y != '')) {
+        this.handler = new ResizeHandler(this.selection.get()
+          .filter(el => this.isResizeableHook(el)),
+          this.getDocument(),
+          {
+            useMinHeightHook: el => true,
+            direction,
+          });
+      }
+      // start drag
+      else if(this.isDraggableHook(selectable)) {
+        this.handler = new MoveHandler(this.selection.get()
+          .filter(el => !this.hasASelectedDraggableParent(el) && this.isDraggableHook(el)),
+          this.getDocument(),
+          this.isDroppableHook);
+      }
+      else {
+        this.startDrawing(clientX, clientY);
+      }
     }
     else {
-      this.selection.set([]);
-      this.handler = new DrawHandler(clientX, clientY, this.getDocument(), this.isSelectableHook);
-      this.handler.on('unSelect', e => this.unSelect(e.target, true));
-      this.handler.on('select', e => this.select(e.target, true));
+      this.startDrawing(clientX, clientY);
     }
+  }
+
+  startDrawing(clientX, clientY) {
+    this.selection.set([]);
+    this.handler = new DrawHandler(clientX, clientY, this.getDocument(), this.isSelectableHook);
+    this.handler.on('unSelect', e => this.unSelect(e.target, true));
+    this.handler.on('select', e => this.select(e.target, true));
   }
 
 
@@ -219,7 +269,7 @@ class Stage extends Event  {
     if(this.handler) {
       this.handler.release();
       if(this.handler.type === 'MoveHandler' && this.handler.elementsData) { // not the draw handler
-        const elements = this.handler.elementsData.map(data => this.drop(data));
+        const elements = this.handler.elementsData.map(data => data.target);
         this.emit('drop', elements.slice());
       }
     }
@@ -237,46 +287,6 @@ class Stage extends Event  {
       this.emit('cancel', this.handler.elementsData);
     }
     this.handler = null;
-  }
-
-  drop({left, top, destination, target}) {
-    // reset relative position
-    target.style.left = '0';
-    target.style.top = '0';
-    // move to a different container
-    if(destination && destination.parent) {
-      if(destination.nextElementSibling) {
-        // if the target is not allready the sibling of the destination's sibling
-        // and if the destination's sibling is not the target itself
-        // then move to the desired position in the parent
-        if(destination.nextElementSibling !== target.nextElementSibling && destination.nextElementSibling !== target) {
-          try {
-            target.parentNode.removeChild(target);
-            destination.parent.insertBefore(target, destination.nextElementSibling);
-          }
-          catch(e) {
-            console.error(e)
-          }
-        }
-      }
-      else {
-        // if the destination parent is not already the target's parent
-        // or if the target is not the last child
-        // then append the target to the parent
-        if(destination.parent !== target.parentNode || target.nextElementSibling) {
-          target.parentNode.removeChild(target);
-          destination.parent.appendChild(target);
-        }
-      }
-    }
-    // check the actual position of the target
-    // and move it to match the provided absolute position
-    let bb = target.getBoundingClientRect();
-    target.style.left = (left - bb.left) + 'px';
-    target.style.top = (top - bb.top) + 'px';
-
-    // the target will be passed to the main app using this lib
-    return target;
   }
 }
 
