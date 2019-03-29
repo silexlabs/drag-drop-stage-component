@@ -1,7 +1,5 @@
 import {Stage} from "./Stage";
-import { cpus } from "os";
-
-window.onload = function() {
+window.addEventListener('load', function() {
   // find the empty iframe in the page
   const iframe = document.querySelector('#iframe');
   // write some content in the iframe
@@ -15,4 +13,4 @@ window.onload = function() {
   stage.on('selection', (elements) => {
     console.log(`${ elements.length } elements have been selected`)
   });
-}
+});

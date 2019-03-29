@@ -9,6 +9,8 @@ A component like this will be useful to the developer building any tool which in
 
 ## Use
 
+See [the online demo](https://lexoyo.me/stage/pub/) and its sources, [html here](https://github.com/lexoyo/stage/blob/master/src/jade/index.jade) and [js here](https://github.com/lexoyo/stage/blob/master/src/js/demo.js).
+
 The component can be initialized like this, which will make it possible to select, move and resize all the elements marked with the `.selectable` css class.
 
 ```javascript
