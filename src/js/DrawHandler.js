@@ -1,12 +1,14 @@
 import {IMouseMoveHandler} from './IMouseMoveHandler.js';
 
 class DrawHandler extends IMouseMoveHandler {
-  constructor(initialX, initialY, doc) {
+  constructor(initialX, initialY, doc, isSelectableHook) {
     super();
+    this.type = 'DrawHandler';
     // store the iframe document and initial coords
     this.doc = doc;
     this.initialX = initialX;
     this.initialY = initialY;
+    this.isSelectableHook = isSelectableHook;
     // create and attach a div to draw the region
     // FIXME: the region marker should be outside the iframe
     this.regionMarker = this.doc.createElement('div');
@@ -31,7 +33,7 @@ class DrawHandler extends IMouseMoveHandler {
       for (let y = startY; y < endY; y += 10) {
         newSelection = newSelection.concat(
           this.doc.elementsFromPoint(x, y)
-          .filter(el => el.classList.contains('selectable') && !newSelection.includes(el))
+          .filter(el => this.isSelectableHook(el) && !newSelection.includes(el))
         );
       }
     }

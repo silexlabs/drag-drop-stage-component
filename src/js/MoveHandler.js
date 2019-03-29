@@ -1,8 +1,10 @@
 import {IMouseMoveHandler} from './IMouseMoveHandler.js';
 
 class MoveHandler extends IMouseMoveHandler {
-  constructor(elements, doc) {
+  constructor(elements, doc, isDroppableHook) {
     super();
+    this.type = 'MoveHandler';
+    this.isDroppableHook = isDroppableHook;
     // store the iframe document
     this.doc = doc;
     // FIXME: the region marker should be outside the iframe
@@ -142,13 +144,7 @@ class MoveHandler extends IMouseMoveHandler {
     // get a list of all droppable zone under the point (x, y)
     return this.doc.elementsFromPoint(x, y)
       .filter(el => !this.elements.includes(el)
-        && this.isDroppable(el));
-  }
-
-  isDroppable(el) {
-    // let the main app specify getSelectable and getDroppable
-    if(this.isDroppableHook) return this.isDroppableHook(el, this.elements);
-    else return el.classList.contains('droppable');
+        && this.isDroppableHook(el, this.elements));
   }
 
   /**

@@ -12,18 +12,27 @@ A component like this will be useful to the developer building any tool which in
 The component can be initialized like this, which will make it possible to select, move and resize all the elements marked with the `.selectable` css class.
 
 ```javascript
-let iframe = document.querySelector('#iframe')
-let stage = new Stage(iframe)
+const iframe = document.querySelector('#iframe')
+const stage = new Stage(iframe)
 ```
 
 The iframe is where you add elements with the `.selectable` css class, which can then be moved and resized. But the stage component is also acting on the outside of the iframe since the user can drag an element in the iframe and release the mouse outside the iframe, which will move the elements to the desired position in the iframe.
 
-Your application is in charge of catching events and applying the new style to the elements after a drop.
+Your application can catch events and store the new style of the elements after a drop.
 
 ```
 stage.on('drop', e => {
 	console.log('elements have been moved or resized, store their new styles if you wish', e.elements);
 });
+```
+
+By default the elements which can be dragged or moved are those with the CSS classes `.selectable`,`.draggable`, `.resizeable` but you can override this as follow. The `.droppable` CSS class can be overrided too:
+
+```javascript
+const stage = new Stage(iframe, {
+	isSelectableHook: (el) => el.classList.contains('selectable'),
+	isDroppableHook: (el, selection) => el.classList.contains('droppable'),
+})
 ```
 
 ## Build

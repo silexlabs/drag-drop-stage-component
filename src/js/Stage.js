@@ -1,6 +1,5 @@
 import {Polyfill} from "./Polyfill";
 import {Selection} from "./Selection";
-import {IMouseMoveHandler} from './IMouseMoveHandler.js';
 import {MouseController} from "./MouseController";
 import {MoveHandler} from "./MoveHandler";
 import {DrawHandler} from "./DrawHandler";
@@ -23,14 +22,16 @@ class Stage extends Event  {
    * listen to mouse events in the iframe and outside
    * @constructor
    */
-  constructor(iframe) {
+  constructor(iframe, options={}) {
     super();
     // store the iframe and use its document and window
     this.iframe = iframe;
+    this.isSelectableHook = options.isSelectableHook || (el => el.classList.contains('selectable'));
+    this.isDroppableHook = options.isDroppableHook || ((el, selection) => el.classList.contains('droppable'));
     // polyfill the iframe
     Polyfill.patchWindow(this.getWindow());
     // create useful classes
-    this.selection = new Selection();
+    this.selection = new Selection(this.isSelectableHook);
     this.handler = null;
     this.state = State.NONE;
     // load styles for the UI in the iframe
@@ -41,13 +42,13 @@ class Stage extends Event  {
     doc.head.appendChild(link);
     // register mouse events
     const mouseController = new MouseController(this.getWindow());
-    mouseController.on('select', (e) => this.select(e.target, e.shiftKey));
-    mouseController.on('toggleSelect', (e) => this.toggleSelect(e.target, e.shiftKey));
+    mouseController.on('down', (e) => this.onDown(e.target, e.shiftKey));
+    mouseController.on('up', (e) => this.onUp(e.target, e.shiftKey));
     mouseController.on('drag', (e) => this.drag(e.movementX, e.movementY, e.clientX, e.clientY));
     mouseController.on('startDrag', (e) => this.startDrag(e.clientX, e.clientY, e.target));
     mouseController.on('stopDrag', (e) => this.stopDrag());
-    // sync selection with components
-    // this.selection.on('change', (e) => mouseController.setSelection(this.selection.get()));
+    // relay the selection events
+    this.selection.on('change', (selection) => this.emit('selection', selection));
     // keyboard shortcuts
     window.addEventListener("keydown", (e) => this.keyDown(e.keyCode));
     this.getWindow().addEventListener("keydown", (e) => this.keyDown(e.keyCode));
@@ -105,14 +106,7 @@ class Stage extends Event  {
   select(target, shiftKey) {
     const selectable = this.selection.getSelectable(target);
     if(selectable) {
-      this.wasMultiSelected = this.selection.get().length > 1 && this.selection.isSelected(selectable);
-      if(this.wasMultiSelected || shiftKey)
-        this.selection.add(selectable, shiftKey);
-      else
-        this.selection.set([selectable]);
-    }
-    else {
-      this.wasMultiSelected = false;
+      this.selection.add(selectable);
     }
   }
 
@@ -133,7 +127,26 @@ class Stage extends Event  {
    * @param  {Element}
    * @param  {Boolean}
    */
-  toggleSelect(target, shiftKey) {
+  onDown(target, shiftKey) {
+    const selectable = this.selection.getSelectable(target);
+    if(selectable) {
+      this.wasMultiSelected = this.selection.get().length > 1 && this.selection.isSelected(selectable);
+      if(this.wasMultiSelected || shiftKey)
+        this.selection.add(selectable);
+      else
+        this.selection.set([selectable]);
+    }
+    else {
+      this.wasMultiSelected = false;
+    }
+  }
+
+
+  /**
+   * @param  {Element}
+   * @param  {Boolean}
+   */
+  onUp(target, shiftKey) {
     const selectable = this.selection.getSelectable(target);
     if(selectable) {
       if(shiftKey) {
@@ -146,7 +159,6 @@ class Stage extends Event  {
       }
     }
     else if(!shiftKey) {
-      console.info('element is not selectable');
       this.selection.reset();
     }
     this.wasMultiSelected = false;
@@ -173,11 +185,13 @@ class Stage extends Event  {
     const selectable = this.selection.getSelectable(target);
     if(selectable) {
       this.handler = new MoveHandler(this.selection.selected
-        .filter(el => !this.selection.hasASelectedParent(el)), this.getDocument());
+        .filter(el => !this.selection.hasASelectedParent(el)), 
+        this.getDocument(),
+        this.isDroppableHook);
     }
     else {
       this.selection.set([]);
-      this.handler = new DrawHandler(clientX, clientY, this.getDocument());
+      this.handler = new DrawHandler(clientX, clientY, this.getDocument(), this.isSelectableHook);
       this.handler.on('unSelect', e => this.unSelect(e.target, true));
       this.handler.on('select', e => this.select(e.target, true));
     }
@@ -191,9 +205,9 @@ class Stage extends Event  {
   stopDrag() {
     if(this.handler) {
       this.handler.release();
-      if(this.handler.elementsData) {
+      if(this.handler.type === 'MoveHandler' && this.handler.elementsData) { // not the draw handler
         const elements = this.handler.elementsData.map(data => this.drop(data));
-        this.emit('drop', elements);
+        this.emit('drop', elements.slice());
       }
     }
     this.handler = null;

@@ -27,13 +27,13 @@ class MouseController extends Event {
   }
   down(e) {
     this.state = State.DOWN;
-    this.emit('select', e);
+    this.emit('down', e);
     // prevent default text selection
     e.preventDefault();
   }
   up(e) {
     if(this.state === State.DOWN) {
-      this.emit('toggleSelect', e);
+      this.emit('up', e);
     }
     else if (this.state === State.DRAGGING) {
       this.emit('stopDrag', e);
