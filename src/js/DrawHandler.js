@@ -75,9 +75,11 @@ class DrawHandler extends MouseHandlerBase {
       this.moveRegion(left, bottom, right, top);
     }
     else {
+      const scrollX = (this.doc.parentWindow || this.doc.defaultView).scrollX;
+      const scrollY = (this.doc.parentWindow || this.doc.defaultView).scrollY;
       this.regionMarker.style.width = (right - left) + 'px';
       this.regionMarker.style.height = (bottom - top) + 'px';
-      this.regionMarker.style.transform = `translate(${left}px, ${top}px)`; // scale(${width}, ${height})
+      this.regionMarker.style.transform = `translate(${left+scrollX}px, ${top+scrollY}px)`; // scale(${width}, ${height})
     }
   }
 }

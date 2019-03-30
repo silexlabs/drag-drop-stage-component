@@ -214,4 +214,28 @@ describe('ResizeHandler', function() {
     handler.release();
   });
 
+  // FIXME: Scroll does not work here?
+  //
+  // it('should resize 1 element from the top but not move it when the window is scrolled', function() {
+  //   elemAbs.style.top = '1000px';
+  //   (document.parentWindow || document.defaultView).scrollY = 1000;
+
+  //   var bb = elemAbs.getBoundingClientRect();
+  //   assert.equal(bb.width, 10, `The element should have an **INITIAL** width '10px' instead of '${bb.width}'`)
+  //   assert.equal(bb.height, 10, `The element should have an **INITIAL** height of '10px' instead of '${bb.height}'`)
+  //   assert.equal(bb.top, 1000, `The element should have an **INITIAL** top '1000px' instead of '${bb.width}'`)
+
+  //   var handler = new ResizeHandler([elemAbs], document, {
+  //     useMinHeightHook: el => true,
+  //     direction: {x: '', y: 'top'},
+  //   });
+
+  //   handler.update(0, -5, 10, 995, false);
+  //   var bb = elemAbs.getBoundingClientRect();
+  //   console.log(bb)
+  //   assert.equal(bb.height, 15, `The element should have a height of '15px' instead of '${bb.height}'`)
+  //   assert.equal(bb.top, 995, `The element should have top '1000px' instead of '${bb.top}'`)
+
+  //   handler.release();
+  // });
 });

@@ -24,6 +24,7 @@ export class ResizeHandler extends MouseHandlerBase {
 
   constructor(elements, doc, {useMinHeightHook, direction}) {
     super();
+    this.doc = doc;
     this.type = 'ResizeHandler';
     this.useMinHeightHook = useMinHeightHook;
     this.elements = elements;
@@ -75,16 +76,20 @@ export class ResizeHandler extends MouseHandlerBase {
         // compute the change
         elementData.computedStyle.left += movementX;
         // apply the position
-        elementData.target.style.left = Math.round(elementData.computedStyle.left - elementData.delta.left) + 'px';
+        // TODO: should we handle other scroll than the window?
+        const scroll = (this.doc.parentWindow || this.doc.defaultView).scrollX;
+        elementData.target.style.left = Math.round(elementData.computedStyle.left + scroll - elementData.delta.left) + 'px';
       }
       if(this.direction.y === 'top') {
         // correction when the content is too big
-        var bb = elementData.target.getBoundingClientRect();
+        const bb = elementData.target.getBoundingClientRect();
         // compute the change
         elementData.computedStyle.top += movementY;
         // apply the position
-        var delta = bb.height - elementData.computedStyle.height;
-        elementData.target.style.top = Math.round(elementData.computedStyle.top - elementData.delta.top - delta) + 'px';
+        // TODO: should we handle other scroll than the window?
+        const scroll = (this.doc.parentWindow || this.doc.defaultView).scrollY;
+        const delta = bb.height - elementData.computedStyle.height;
+        elementData.target.style.top = Math.round(elementData.computedStyle.top + scroll - elementData.delta.top - delta) + 'px';
       }
     });
   }
