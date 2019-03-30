@@ -67,18 +67,25 @@ export class ResizeHandler extends MouseHandlerBase {
         }
       }
       // apply the with and height
-      elementData.target.style.width = elementData.computedStyle.width + 'px';
-      elementData.target.style[heightAttr] = elementData.computedStyle.height + 'px';
+      elementData.target.style.width = Math.round(elementData.computedStyle.width - elementData.delta.width) + 'px';
+      elementData.target.style[heightAttr] = Math.round(elementData.computedStyle.height - elementData.delta.height) + 'px';
+
       // handle the position change
       if(this.direction.x === 'left') {
+        // compute the change
         elementData.computedStyle.left += movementX;
+        // apply the position
+        elementData.target.style.left = Math.round(elementData.computedStyle.left - elementData.delta.left) + 'px';
       }
       if(this.direction.y === 'top') {
+        // correction when the content is too big
+        var bb = elementData.target.getBoundingClientRect();
+        // compute the change
         elementData.computedStyle.top += movementY;
+        // apply the position
+        var delta = bb.height - elementData.computedStyle.height;
+        elementData.target.style.top = Math.round(elementData.computedStyle.top - elementData.delta.top - delta) + 'px';
       }
-      // apply the position
-      elementData.target.style.left = elementData.computedStyle.left + 'px';
-      elementData.target.style.top = elementData.computedStyle.top + 'px';
     });
   }
 
