@@ -15,6 +15,11 @@ class DrawHandler extends MouseHandlerBase {
     this.regionMarker.classList.add('region-marker');
     this.moveRegion(-999, -999, -999, -999);
     doc.body.appendChild(this.regionMarker);
+    // build the data for all the elements
+    // TODO: use continuation or a worker to prevent lag?
+    this.elementsData = MouseHandlerBase.getElementsData(Array
+      .from(doc.querySelectorAll('*'))
+      .filter(el => this.isSelectableHook(el)));
     // the elements which are in the region
     this.elements = [];
   }
@@ -23,21 +28,15 @@ class DrawHandler extends MouseHandlerBase {
     super.update(movementX, movementY, mouseX, mouseY, shiftKey)
     // update the drawing
     this.moveRegion(this.initialX, this.initialY, mouseX, mouseY);
-    // add and remove elements depending on wether they are in the region
-    let newSelection = [];
-    // browse every 10 pixels of the region to see which elements are hovered
-    let startX = Math.min(this.initialX, mouseX);
-    let endX = Math.max(this.initialX, mouseX);
-    let startY = Math.min(this.initialY, mouseY);
-    let endY = Math.max(this.initialY, mouseY);
-    for (let x = startX; x < endX; x += 2) {
-      for (let y = startY; y < endY; y += 2) {
-        newSelection = newSelection.concat(
-          this.doc.elementsFromPoint(x, y)
-          .filter(el => this.isSelectableHook(el) && !newSelection.includes(el))
-        );
-      }
-    }
+    // select all elements which intersect with the region
+    let newSelection = this.elementsData
+    .filter(data => {
+      return data.clientRect.left < Math.max(this.initialX, mouseX) &&
+      data.clientRect.right > Math.min(this.initialX, mouseX) &&
+      data.clientRect.top < Math.max(this.initialY, mouseY) &&
+      data.clientRect.bottom > Math.min(this.initialY, mouseY);
+    })
+    .map(data => data.target);
     // handle removed elements
     this.elements
     .filter(el => !newSelection.includes(el))

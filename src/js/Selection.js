@@ -6,26 +6,21 @@ class Selection extends Event {
     this.selected = [];
     this.isSelectableHook = isSelectableHook;
   }
-  toggle(selectable, keepPrevious) {
-    let wasSelected = this.isSelected(selectable);
-    if(keepPrevious === false)
-      this.selected.forEach(el => this.remove(el, true));
-    if(wasSelected === false)
-      this.add(selectable, true);
+  toggle(selectable) {
+    if(this.isSelected(selectable))
+      this.remove(selectable);
     else
-      this.remove(selectable, true);
-    
-    this.emit('change', this.selected.slice());
+      this.add(selectable);
   }
   isSelected(selectable) {
-    return this.selected.indexOf(selectable) >= 0;
+    return this.selected.includes(selectable);
   }
   /**
    * returns the first container which is selectable
    * or null if the element and none of its parents are selectable
    */
   getSelectable(element) {
-    // let the main app specify getSelectable and getDroppable
+    // let the main app.map(el) specify getSelectable and getDroppable
     let ptr = element;
     while(ptr && !this.isSelectableHook(ptr)) {
       ptr = ptr.parentElement;
@@ -54,16 +49,33 @@ class Selection extends Event {
     }
   }
   set(elements) {
-    // empty the selection
-    this.reset(true);
-    // refil the selection
-    elements.forEach(el => {
-      this.add(el, true);
-    });
-    this.emit('change', this.selected.slice());
+    if(!Selection.isEqual(elements, this.selected)) {
+      // empty the selection
+      this.reset(true);
+      // refil the selection
+      elements.forEach(el => {
+        this.add(el, true);
+      });
+      this.emit('change', this.selected.slice());
+    }
   }
   get() {
     return this.selected;
+  }
+
+  /**
+   * compare 2 arrays, just the references to elements
+   * this could also be done with JSON.stringify but it breaks the unit tests (circular reference)
+   * and I like it better like that
+   * @param {Array<Element>} a1
+   * @param {Array<Element>} a2
+   */
+  static isEqual(a1, a2) {
+    return a1
+    .filter(el => !a2.includes(el))
+    .concat(a2
+    .filter(el => !a1.includes(el)))
+    .length === 0;
   }
 }
 

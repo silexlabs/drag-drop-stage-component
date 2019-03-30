@@ -37,7 +37,7 @@ describe('DrawHandler', function() {
   });
 
   it('should select 1, 2 and 3 elements in the dom', function() {
-    var handler = new DrawHandler(5, 5, document, el => true);
+    var handler = new DrawHandler(5, 5, document, el => el.classList.contains('selectable'));
     var numCallsSelect = 0;
     var numCallsUnselect = 0;
     handler.on('select', (el) => {
@@ -68,7 +68,7 @@ describe('DrawHandler', function() {
   });
 
   it('should un-select 1, 2 and 3 elements in the dom', function() {
-    var handler = new DrawHandler(-1, -1, document, el => true);
+    var handler = new DrawHandler(-1, -1, document, el => el.classList.contains('selectable'));
     var numCallsSelect = 0;
     var numCallsUnselect = 0;
     handler.on('select', (el) => {

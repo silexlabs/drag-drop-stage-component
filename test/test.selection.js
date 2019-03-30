@@ -114,10 +114,10 @@ describe('Selection', function() {
     selection.toggle(elem3);
     selection.toggle(elem3);
 
-    assert.equal(elem1.className.toLowerCase(), 'selectable selected');
-    assert.equal(elem2.className.toLowerCase(), 'selectable');
-    assert.equal(elem3.className.toLowerCase(), 'selectable');
-    assert.equal(selection.selected.length, 1);
+    assert.equal(elem1.className.toLowerCase(), 'selectable selected', 'elem1 should be selected');
+    assert.equal(elem2.className.toLowerCase(), 'selectable', 'elem2 should not be selected');
+    assert.equal(elem3.className.toLowerCase(), 'selectable', 'elem3 should not be selected');
+    assert.equal(selection.selected.length, 1, 'there should only be 1 selected element');
   });
 
   it('should be able to set an arbitrary selection', function() {
