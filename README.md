@@ -1,11 +1,21 @@
 [ ![Codeship Status for lexoyo/stage](https://codeship.com/projects/3bbb51a0-ea08-0133-a1fa-5a99213623df/status?branch=master)](https://codeship.com/projects/147777)
 [![Code Climate](https://codeclimate.com/github/lexoyo/stage/badges/gpa.svg)](https://codeclimate.com/github/lexoyo/stage)
 
-# About this project
+## About this project
 
 This is an attempt to make a "stage" component which lets the user select elements, drag and drop them, resize them. 
 
 A component like this will be useful to the developer building any tool which includes a WYSIWYG.
+
+## Features
+
+* [x] move and resize elements
+* [x] callbacks to have full control over what is selectable, draggable, droppable, resizeable, a drop zone
+* [x] multi selection
+* [x] drawing mode, which let the user select multiple elements easily or draw a new element on the stage
+* [x] scroll when the user moves near the border of the stage, or to show a specific element
+
+Here is a [list of features](https://github.com/lexoyo/stage/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement) which is the current road map (please vote with :+1:s).
 
 ## Use
 
