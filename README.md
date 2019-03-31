@@ -9,11 +9,13 @@ A component like this will be useful to the developer building any tool which in
 
 ## Features
 
-* [x] move and resize elements
-* [x] callbacks to have full control over what is selectable, draggable, droppable, resizeable, a drop zone
-* [x] multi selection
+* [x] move and resize elements, with multi selection
+* [x] hooks give you full control over what is selectable, draggable, droppable, resizeable, a drop zone
+* [x] events to be notified of every action of the user
 * [x] drawing mode, which let the user select multiple elements easily or draw a new element on the stage
 * [x] scroll when the user moves near the border of the stage, or to show a specific element
+* [x] handle the events outside the iframe (the user can drag an element and release the mouse outside the iframe)
+
 
 Here is a [list of features](https://github.com/lexoyo/stage/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement) which is the current road map (please vote with :+1:s).
 
@@ -28,7 +30,7 @@ const iframe = document.querySelector('#iframe')
 const stage = new Stage(iframe)
 ```
 
-The iframe is where you add elements with the `.selectable` css class, which can then be moved and resized. But the stage component is also acting on the outside of the iframe since the user can drag an element in the iframe and release the mouse outside the iframe, which will move the elements to the desired position in the iframe.
+The iframe is where you add elements with the `.selectable`, `.draggable`, `.resizeable`, `.droppable` css classes, which can then be moved and resized.
 
 Your application can catch events and store the new style of the elements after a drop.
 
