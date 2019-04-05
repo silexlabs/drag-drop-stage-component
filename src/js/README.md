@@ -4,17 +4,17 @@
 
 This folder contains the classes for the stage. See the [main readme](../../../../) for a general introduction.
 
-## Stage 
+## Stage
 
-The [Stage class](./index.js) is the entry point and the main class. It instanciates the other classes and controls their interactions. 
+The [Stage class](./index.js) is the entry point and the main class. It instanciates the other classes and controls their interactions.
 
-## MouseController 
+## Mouse
 
-[MouseController](./MouseController.js) classe handle the mouse and emits high level events.
+[Mouse](./Mouse.js) classe handle the mouse and emits high level events.
 
 It listens to events in the iframe as well as outside the iframe, e.g. when the mouse goes outside the iframe while dragging an element, it is supposed to scroll the iframe.
 
-## Selection 
+## Selection
 
 [Selection](Selection.js) class handle selection and multiple selection.
 

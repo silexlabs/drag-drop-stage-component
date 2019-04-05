@@ -1,6 +1,7 @@
 import {MouseHandlerBase} from './MouseHandlerBase.js';
+import * as DomMetrics from '../utils/DomMetrics.js';
 
-class DrawHandler extends MouseHandlerBase {
+export class DrawHandler extends MouseHandlerBase {
   constructor(initialX, initialY, doc, isSelectableHook) {
     super();
     this.type = 'DrawHandler';
@@ -17,7 +18,7 @@ class DrawHandler extends MouseHandlerBase {
     doc.body.appendChild(this.regionMarker);
     // build the data for all the elements
     // TODO: use continuation or a worker to prevent lag?
-    this.elementsData = MouseHandlerBase.getElementsData(Array
+    this.elementsData = DomMetrics.getElementsData(Array
       .from(doc.querySelectorAll('*'))
       .filter(el => this.isSelectableHook(el)));
     // the elements which are in the region
@@ -68,6 +69,11 @@ class DrawHandler extends MouseHandlerBase {
    * display the position marker atthe given positionin the dom
    */
   moveRegion(left, top, right, bottom) {
+    this.left = left;
+    this.top = top;
+    this.right = right;
+    this.bottom = bottom;
+
     if(left > right) {
       this.moveRegion(right, top, left, bottom);
     }
@@ -80,6 +86,16 @@ class DrawHandler extends MouseHandlerBase {
       this.regionMarker.style.width = (right - left) + 'px';
       this.regionMarker.style.height = (bottom - top) + 'px';
       this.regionMarker.style.transform = `translate(${left+scrollX}px, ${top+scrollY}px)`; // scale(${width}, ${height})
+    }
+  }
+  getBoundingBox() {
+    return {
+      left: this.left,
+      top: this.top,
+      right: this.right,
+      bottom: this.bottom,
+      width: Math.abs(this.right - this.left),
+      height: Math.abs(this.bottom - this.top),
     }
   }
 }

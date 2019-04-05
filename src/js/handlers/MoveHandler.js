@@ -1,6 +1,7 @@
 import {MouseHandlerBase} from './MouseHandlerBase.js';
+import * as DomMetrics from '../utils/DomMetrics.js'
 
-class MoveHandler extends MouseHandlerBase {
+export class MoveHandler extends MouseHandlerBase {
   constructor(elements, doc, isDroppableHook) {
     super();
     this.type = 'MoveHandler';
@@ -14,7 +15,7 @@ class MoveHandler extends MouseHandlerBase {
     // add a style
     elements.forEach(el => el.classList.add('dragging'));
     // build the data for all the elements
-    this.elementsData = MouseHandlerBase.getElementsData(elements);
+    this.elementsData = DomMetrics.getElementsData(elements);
   }
 
 
@@ -47,15 +48,15 @@ class MoveHandler extends MouseHandlerBase {
   release() {
     super.release();
     this.elementsData.forEach((elementData) => {
-      const {clientRect, destination, target} = elementData;
-      let el = target;
+      const {clientRect, destination, target, computedStyle} = elementData;
       // reset style
-      el.style.transform = '';
-      el.classList.remove('dragging');
+      target.style.transform = '';
+      target.classList.remove('dragging');
 
       // reset relative position
       target.style.left = '0';
       target.style.top = '0';
+
       // move to a different container
       if(destination && destination.parent) {
         if(destination.nextElementSibling) {
@@ -87,7 +88,15 @@ class MoveHandler extends MouseHandlerBase {
       let bb = target.getBoundingClientRect();
       target.style.left = (clientRect.left - bb.left) + 'px';
       target.style.top = (clientRect.top - bb.top) + 'px';
-    });
+      // target.style.top = DomMetrics.getStyleValue(elementData.target, this.doc, 'top', {
+      //   computedStyle: elementData.computedStyle,
+      //   delta: Object.assign({}, elementData.delta, {top: elementData.delta.top + bb.top})
+      // });
+      // target.style.left = DomMetrics.getStyleValue(elementData.target, this.doc, 'left', {
+      //   computedStyle: elementData.computedStyle,
+      //   delta: Object.assign({}, elementData.delta, {top: elementData.delta.left + bb.left})
+      // });
+  });
 
     // remove the position marker
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
@@ -225,6 +234,7 @@ class MoveHandler extends MouseHandlerBase {
     let distance = Math.sqrt(((bb.left - x) * (bb.left - x)) + ((bb.top - y) * (bb.top - y)));
     return distance;
   }
+  getBoundingBox() {
+    return DomMetrics.getBoundingBox(this.elements);
+  }
 }
-
-exports.MoveHandler = MoveHandler;

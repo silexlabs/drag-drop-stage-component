@@ -11,23 +11,11 @@ describe('Stage', function() {
 
   it('should expose iframe doc and win', function() {
     var stage = new Stage(document.querySelector('#iframe'));
-    assert.equal(stage.getIFrame().tagName.toUpperCase(), 'IFRAME');
-    assert.equal(document.querySelector('#iframe'), stage.getIFrame());
-    assert.notEqual(undefined, stage.getDocument().createElement);
-    assert.notEqual(undefined, stage.getDocument().body);
-    assert.notEqual(undefined, stage.getWindow().location);
-    assert.notEqual(undefined, stage.getWindow().name);
-  });
-  it('should add a selectable', function() {
-    var stage = new Stage(document.querySelector('#iframe')),
-        doc = stage.getDocument(),
-        win = stage.getWindow(),
-        body = doc.body,
-        head = doc.head,
-        div = doc.createElement('div');
-
-    div.style.width = div.style.height = '200px';
-    div.style.backgroundColor = 'black';
-    body.appendChild(div);
+    assert.equal(stage.iframe.tagName.toUpperCase(), 'IFRAME');
+    assert.equal(document.querySelector('#iframe'), stage.iframe);
+    assert.notEqual(undefined, stage.contentDocument.createElement);
+    assert.notEqual(undefined, stage.contentDocument.body);
+    assert.notEqual(undefined, stage.contentWindow.location);
+    assert.notEqual(undefined, stage.contentWindow.name);
   });
 });

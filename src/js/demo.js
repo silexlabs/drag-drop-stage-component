@@ -1,4 +1,4 @@
-import {Stage} from "./Stage";
+import {Stage} from './Stage';
 window.addEventListener('load', function() {
   // find the empty iframe in the page
   const iframe = document.querySelector('#iframe');

@@ -1,0 +1,63 @@
+const SET = 'SET';
+const RESET = 'RESET';
+const TOGGLE = 'TOGGLE';
+const ADD = 'ADD';
+const REMOVE = 'REMOVE';
+
+export const set = selectables => ({
+  type: SET,
+  selectables,
+})
+export const reset = () => ({
+  type: RESET,
+})
+export const toggle = selectable => ({
+  type: TOGGLE,
+  selectable,
+})
+export const add = selectable => ({
+  type: ADD,
+  selectable,
+})
+export const remove = selectable => ({
+  type: REMOVE,
+  selectable,
+})
+
+/**
+ * reducer
+ */
+export const selection = (state, action) => {
+  switch (action.type) {
+    case TOGGLE:
+      return state.map(selectable => selectable === action.selectable ? {
+        ...selectable,
+        selected: !itme.selected,
+      } : selectable);
+    case REMOVE:
+      return state.map(selectable => selectable === action.selectable ? {
+        ...selectable,
+        selected: false,
+      } : selectable);
+    case RESET:
+      return state.map(selectable => ({
+        ...selectable,
+        selected: false,
+      }));
+    case ADD:
+      return state.map(selectable => selectable === action.selectable ? {
+        ...selectable,
+        selected: true,
+      } : selectable);
+    case SET:
+      return state.map(selectable => action.selectables.includes(selectable) ? {
+        ...selectable,
+        selected: true,
+      } : {
+        ...selectable,
+        selected: false,
+      });
+    default:
+      return state;
+  }
+}

@@ -1,10 +1,11 @@
-import {MouseHandlerBase} from './MouseHandlerBase.js';
+import {MouseHandlerBase} from './MouseHandlerBase';
+import * as Ui from '../store/Ui';
 
 export const BORDER_SIZE = 10;
 
 export class ResizeHandler extends MouseHandlerBase {
   static getDirection(clientX, clientY, selectable) {
-    const bb = selectable.getBoundingClientRect();
+    const bb = selectable.metrics.clientRect;
     const distFromBorder = {
       left: clientX - bb.left,
       right: bb.width + bb.left - clientX,
@@ -17,8 +18,20 @@ export class ResizeHandler extends MouseHandlerBase {
     else if(distFromBorder.right < BORDER_SIZE) direction.x = 'right';
     if(distFromBorder.top < BORDER_SIZE) direction.y = 'top';
     else if(distFromBorder.bottom < BORDER_SIZE) direction.y = 'bottom';
-
     return direction;
+  }
+
+  static getCursorClass(direction) {
+    if(direction.x === '' && direction.y === '') return Ui.CURSOR_DEFAULT;
+    else if(direction.x === 'left' && direction.y === 'top') return Ui.CURSOR_NW;
+    else if(direction.x === 'right' && direction.y === 'top') return Ui.CURSOR_NE;
+    else if(direction.x === 'left' && direction.y === 'bottom') return Ui.CURSOR_SW;
+    else if(direction.x === 'right' && direction.y === 'bottom') return Ui.CURSOR_SE;
+    else if(direction.x === 'left' && direction.y === '') return Ui.CURSOR_W;
+    else if(direction.x === 'right' && direction.y === '') return Ui.CURSOR_E;
+    else if(direction.x === '' && direction.y === 'top') return Ui.CURSOR_N;
+    else if(direction.x === '' && direction.y === 'bottom') return Ui.CURSOR_S;
+    throw new Error('direction not found');
   }
 
 
@@ -32,7 +45,7 @@ export class ResizeHandler extends MouseHandlerBase {
     // add a style
     elements.forEach(el => el.classList.add('resizing'));
     // build the data for all the elements
-    this.elementsData = MouseHandlerBase.getElementsData(elements);
+    this.elementsData = DomMetrics.getElementsData(elements);
   }
 
   /**
@@ -68,17 +81,15 @@ export class ResizeHandler extends MouseHandlerBase {
         }
       }
       // apply the with and height
-      elementData.target.style.width = Math.round(elementData.computedStyle.width - elementData.delta.width) + 'px';
-      elementData.target.style[heightAttr] = Math.round(elementData.computedStyle.height - elementData.delta.height) + 'px';
+      elementData.target.style.width = DomMetrics.getStyleValue(elementData.target, this.doc, 'width', elementData) ;
+      elementData.target.style[heightAttr] = DomMetrics.getStyleValue(elementData.target, this.doc, 'height', elementData);
 
       // handle the position change
       if(this.direction.x === 'left') {
         // compute the change
         elementData.computedStyle.left += movementX;
         // apply the position
-        // TODO: should we handle other scroll than the window?
-        const scroll = (this.doc.parentWindow || this.doc.defaultView).scrollX;
-        elementData.target.style.left = Math.round(elementData.computedStyle.left + scroll - elementData.delta.left) + 'px';
+        elementData.target.style.left = DomMetrics.getStyleValue(elementData.target, this.doc, 'left', elementData);
       }
       if(this.direction.y === 'top') {
         // correction when the content is too big
@@ -86,10 +97,13 @@ export class ResizeHandler extends MouseHandlerBase {
         // compute the change
         elementData.computedStyle.top += movementY;
         // apply the position
-        // TODO: should we handle other scroll than the window?
-        const scroll = (this.doc.parentWindow || this.doc.defaultView).scrollY;
+        // handle the case where the content is too small
         const delta = bb.height - elementData.computedStyle.height;
-        elementData.target.style.top = Math.round(elementData.computedStyle.top + scroll - elementData.delta.top - delta) + 'px';
+        console.log('delta', delta)
+        elementData.target.style.top = DomMetrics.getStyleValue(elementData.target, this.doc, 'top', {
+          computedStyle: elementData.computedStyle,
+          delta: Object.assign({}, elementData.delta, {top: elementData.delta.top - delta})
+        });
       }
     });
   }
@@ -101,5 +115,8 @@ export class ResizeHandler extends MouseHandlerBase {
   release() {
     super.release();
     this.elements.forEach(el => el.classList.remove('resizing'));
+  }
+  getBoundingBox() {
+    DomMetrics.getBoundingBox(this.elements);
   }
 }

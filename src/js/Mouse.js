@@ -1,5 +1,5 @@
 import "mouse";
-import Event from "emitter-js";
+import Event from 'emitter-js';
 
 let State = {
   UP: 'UP',
@@ -7,7 +7,7 @@ let State = {
   DRAGGING: 'DRAGGING'
 }
 
-class MouseController extends Event {
+class Mouse extends Event {
   constructor(win) {
     super();
 
@@ -15,6 +15,7 @@ class MouseController extends Event {
     this.mouse = new window.mouse.constructor(win);
 
     this.state = State.UP;
+    this.mouse.on('scroll', (e) => this.scroll(e));
     this.mouse.on('down', (e) => this.down(e));
     this.mouse.on('up', (e) => this.up(e));
     this.mouse.on('grab', (e) => this.grab(e));
@@ -22,16 +23,20 @@ class MouseController extends Event {
     this.mouse.on('move', (e) => this.move(e));
   }
   emit(type, e) {
-    // console.log('emit', type, e.target, e.movementX);
+    console.log('emit', type, e.target, e.movementX);
     super.emit(type, e);
   }
+  scroll(e) {
+    e.preventDefault();
+    this.emit('down', e);
+  }
   down(e) {
+    e.preventDefault(); // prevent default text selection
     this.state = State.DOWN;
     this.emit('down', e);
-    // prevent default text selection
-    e.preventDefault();
   }
   up(e) {
+    e.preventDefault();
     if(this.state === State.DOWN) {
       this.emit('up', e);
     }
@@ -41,16 +46,18 @@ class MouseController extends Event {
     this.state = State.UP;
   }
   grab(e) {
+    e.preventDefault();
     this.state = State.DOWN;
   }
   drop(e) {
+    e.preventDefault();
     if(this.state === State.DRAGGING) {
       this.state = State.UP;
       this.emit('stopDrag', e);
     }
-    e.preventDefault();
   }
   move(e) {
+    e.preventDefault();
     switch(this.state) {
       case State.DOWN:
         this.state = State.DRAGGING;
@@ -65,4 +72,4 @@ class MouseController extends Event {
   }
 }
 
-exports.MouseController = MouseController;
+exports.Mouse = Mouse;

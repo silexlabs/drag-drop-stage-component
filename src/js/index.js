@@ -1,2 +1,2 @@
-import {Stage} from "./Stage";
+import {Stage} from './Stage';
 exports.Stage = Stage;

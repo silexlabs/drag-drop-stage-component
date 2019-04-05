@@ -1,3 +1,5 @@
+import * as Polyfill from '../src/js/utils/Polyfill';
+
 var assert = require('assert');
 
 describe('Polyfill', function() {
@@ -32,7 +34,6 @@ describe('Polyfill', function() {
     elem2 = document.querySelector('#elem2');
     elem3 = document.querySelector('#elem3');
 
-    var Polyfill = require('../src/js/Polyfill').Polyfill;
     Polyfill.patchWindow(window);
   });
 
