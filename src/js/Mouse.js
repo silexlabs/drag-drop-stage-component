@@ -15,7 +15,7 @@ class Mouse extends Event {
     this.mouse = new window.mouse.constructor(win);
 
     this.state = State.UP;
-    this.mouse.on('scroll', (e) => this.scroll(e));
+    win.addEventListener('scroll', (e) => this.scroll(e), true);
     this.mouse.on('down', (e) => this.down(e));
     this.mouse.on('up', (e) => this.up(e));
     this.mouse.on('grab', (e) => this.grab(e));
@@ -28,7 +28,7 @@ class Mouse extends Event {
   }
   scroll(e) {
     e.preventDefault();
-    this.emit('down', e);
+    this.emit('scroll', e);
   }
   down(e) {
     e.preventDefault(); // prevent default text selection

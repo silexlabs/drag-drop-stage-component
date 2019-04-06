@@ -24,6 +24,9 @@ export class MoveHandler extends MouseHandlerBase {
    */
   update(movementX, movementY, mouseX, mouseY, shiftKey) {
     super.update(movementX, movementY, mouseX, mouseY, shiftKey);
+
+    // TODO: update scroll
+
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
     // update the destination of each element
     this.elementsData.forEach((elementData) => {

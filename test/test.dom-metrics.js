@@ -105,7 +105,24 @@ describe('DomMetrics', function() {
     assert.deepEqual(metrics.clientRect, {"top": 1000,"left": 1000,"bottom": 1110,"right": 1110,"width": 110,"height": 110}, `clientRect is wrong`);
   });
 
-  it('getComputedStyleRectFromClientRect', function() {
+  it('setMetrics for an element in the flow with margin/padding/border', function() {
+    const metrics = {
+      position: "absolute",
+      computedStyleRect: {"width": 30, "height": 999, "left": 0, "top": 0},
+      border: {"left": 30,"top": 30,"right": 30,"bottom": 30},
+      padding: {"left": 20,"top": 20,"right": 20,"bottom": 20},
+      margin: {"left": 1000,"top": 1000,"right": 1000,"bottom": 1000},
+      clientRect: {"top": 1000,"left": 1000,"bottom": 1110,"right": 1110,"width": 110,"height": 110},
+    }
+    DomMetrics.setMetrics(elem1, metrics);
+    assert.equal(elem1.style.position, "", `position is wrong`); // position is already abs
+    assert.deepEqual({"width": elem1.style.width,"height": elem1.style.height,"left": elem1.style.left,"top": elem1.style.top}, {"width": "30px", "height": "999px", "left": "", "top": ""}, `computedStyleRect is wrong`);
+    assert.deepEqual({"left": elem1.style.borderLeft,"top": elem1.style.borderTop,"right": elem1.style.borderRight,"bottom": elem1.style.borderBottom}, {"left": "30px","top": "30px","right": "30px","bottom": "30px"}, `border is wrong`);
+    assert.deepEqual({"left": elem1.style.paddingLeft,"top": elem1.style.paddingTop,"right": elem1.style.paddingRight,"bottom": elem1.style.paddingBottom}, {"left": "20px","top": "20px","right": "20px","bottom": "20px"}, `padding is wrong`);
+    assert.deepEqual({"left": elem1.style.marginLeft,"top": elem1.style.marginTop,"right": elem1.style.marginRight,"bottom": elem1.style.marginBottom}, {"left": "1000px","top": "1000px","right": "1000px","bottom": "1000px"}, `margin is wrong`);
+  });
+
+  it('fromClientToComputed', function() {
     const metrics1 = {
       position: "static",
       computedStyleRect: {"width": "0px","height": "0px","left": "auto","top": "auto"},
@@ -116,7 +133,7 @@ describe('DomMetrics', function() {
     };
     const metrics2 = JSON.parse(JSON.stringify(metrics1));
     metrics2.computedStyleRect = {"width": "0px","height": "0px","left": "auto","top": "auto"};
-    const resultMetrics = DomMetrics.getComputedStyleRectFromClientRect(metrics2);
+    const resultMetrics = DomMetrics.fromClientToComputed(metrics2);
   });
 
   it('get/setScroll', function() {

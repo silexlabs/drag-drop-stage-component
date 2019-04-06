@@ -1,8 +1,8 @@
 import * as DomMetrics from '../utils/DomMetrics';
 
-const SET = 'SET';
+const SET = 'SCROLL_SET';
 
-export const set = scroll => ({
+export const setScroll = scroll => ({
   type: SET,
   scroll,
 });

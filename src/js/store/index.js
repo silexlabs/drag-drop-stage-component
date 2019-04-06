@@ -15,7 +15,7 @@ import * as Ui from './Ui';
  * }} ElementMetrics
  */
 
- /**
+/**
  * @typedef {{
  *   el: HTMLElement,
  *   selected: boolean,
@@ -26,14 +26,14 @@ import * as Ui from './Ui';
  * }} Selectable
  */
 
- /**
-  * @enum = {
-  * NONE
-  * DRAG
-  * RESIZE
-  * DRAW
-  * } ModeType
-  */
+/**
+ * @enum = {
+ * NONE
+ * DRAG
+ * RESIZE
+ * DRAW
+ * } ModeType
+ */
 
 /**
  * @typedef {{
@@ -42,7 +42,7 @@ import * as Ui from './Ui';
  *   ui: {{
  *     mode: ModeType,
  *     cursorDirection: {{x: string, y: string}},
- *     mouseHandlerData: {movementX: number, movementY: number, clientX: number, clientY: number, shiftKey: boolean},
+ *     mouseHandlerData: {movementX: number, movementY: number, mouseX: number, mouseY: number, shiftKey: boolean},
  *   }}
  * }} State
  */

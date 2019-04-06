@@ -43,13 +43,13 @@ class Stage extends Event  {
     link.setAttribute('href', /*FIXME: Url.makeAbsolute*/('css/stage.css'));
     this.contentDocument.head.appendChild(link);
 
+    // register store events
+    this.store = Store.createStore(this.contentDocument, hooks);
+    const storeEventsListener = new StoreEventsListener(this.contentDocument, this.store);
+
     // register mouse events
     const mouse = new Mouse(this.contentWindow);
     const mouseEventsListener = new MouseEventsListener(this.contentDocument, mouse, this.store);
-
-    // register store events
-    this.store = Store.createStore(this.contentDocument, hooks);
-    const storeEventsListener = new StoreEventsListener(this.store);
 
     // relay the store events to the calling app
     this.store.subscribe(() => this.emit('change', this.store.getState()))

@@ -1,6 +1,8 @@
-const UPDATE = 'UPDATE';
-const CREATE = 'CREATE';
-const DELETE = 'DELETE';
+import * as DomMetrics from '../utils/DomMetrics';
+
+const UPDATE = 'SELECTABLE_UPDATE';
+const CREATE = 'SELECTABLE_CREATE';
+const DELETE = 'SELECTABLE_DELETE';
 
 export const updateSelectable = selectable => ({
   type: UPDATE,
@@ -46,8 +48,8 @@ export const getDefaultState = (doc, hooks) => Array
 .map(el => ({
   el,
   selected: false,
-  draggable: hooks.isDraggable(el),
-  resizeable: hooks.isResizeable(el),
-  droppable: hooks.isDroppable(el),
+  draggable: hooks.isDraggableHook(el),
+  resizeable: hooks.isResizeableHook(el),
+  droppable: hooks.isDroppableHook(el),
   metrics: DomMetrics.getMetrics(el, doc),
 }));

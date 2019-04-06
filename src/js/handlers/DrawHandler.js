@@ -2,31 +2,34 @@ import {MouseHandlerBase} from './MouseHandlerBase.js';
 import * as DomMetrics from '../utils/DomMetrics.js';
 
 export class DrawHandler extends MouseHandlerBase {
-  constructor(initialX, initialY, doc, isSelectableHook) {
+  constructor(doc, store) {
     super();
     this.type = 'DrawHandler';
-    // store the iframe document and initial coords
     this.doc = doc;
-    this.initialX = initialX;
-    this.initialY = initialY;
-    this.isSelectableHook = isSelectableHook;
+    this.store = store;
+    const state = this.store.getState();
+    console.log('DrawHandler', state.ui.mouseHandlerData);
+
+    this.initialX = state.ui.mouseHandlerData.clientX;
+    this.initialY = state.ui.mouseHandlerData.clientY;
+
     // create and attach a div to draw the region
     // FIXME: the region marker should be outside the iframe
     this.regionMarker = this.doc.createElement('div');
     this.regionMarker.classList.add('region-marker');
     this.moveRegion(-999, -999, -999, -999);
     doc.body.appendChild(this.regionMarker);
-    // build the data for all the elements
-    // TODO: use continuation or a worker to prevent lag?
-    this.elementsData = DomMetrics.getElementsData(Array
-      .from(doc.querySelectorAll('*'))
-      .filter(el => this.isSelectableHook(el)));
-    // the elements which are in the region
-    this.elements = [];
+
+    // store the selection
+    this.selection = state.selectables
+    .filter(selectable => selectable.selected);
   }
 
-  update(movementX, movementY, mouseX, mouseY, shiftKey) {
+  update({movementX, movementY, mouseX, mouseY, shiftKey}) {
     super.update(movementX, movementY, mouseX, mouseY, shiftKey)
+
+    // TODO: update scroll
+
     // update the drawing
     this.moveRegion(this.initialX, this.initialY, mouseX, mouseY);
     // select all elements which intersect with the region

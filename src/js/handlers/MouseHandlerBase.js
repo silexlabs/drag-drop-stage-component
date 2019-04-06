@@ -5,6 +5,6 @@ export class MouseHandlerBase extends Event {
     super();
     this.type = 'MouseHandlerBase';
   }
-  update(movementX, movementY, mouseX, mouseY, shiftKey) {};
+  update(mouseHandlerData) {};
   release() {};
 }

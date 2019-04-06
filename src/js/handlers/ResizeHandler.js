@@ -21,31 +21,17 @@ export class ResizeHandler extends MouseHandlerBase {
     return direction;
   }
 
-  static getCursorClass(direction) {
-    if(direction.x === '' && direction.y === '') return Ui.CURSOR_DEFAULT;
-    else if(direction.x === 'left' && direction.y === 'top') return Ui.CURSOR_NW;
-    else if(direction.x === 'right' && direction.y === 'top') return Ui.CURSOR_NE;
-    else if(direction.x === 'left' && direction.y === 'bottom') return Ui.CURSOR_SW;
-    else if(direction.x === 'right' && direction.y === 'bottom') return Ui.CURSOR_SE;
-    else if(direction.x === 'left' && direction.y === '') return Ui.CURSOR_W;
-    else if(direction.x === 'right' && direction.y === '') return Ui.CURSOR_E;
-    else if(direction.x === '' && direction.y === 'top') return Ui.CURSOR_N;
-    else if(direction.x === '' && direction.y === 'bottom') return Ui.CURSOR_S;
-    throw new Error('direction not found');
-  }
-
-
-  constructor(elements, doc, {useMinHeightHook, direction}) {
+  constructor(doc, store) {
     super();
-    this.doc = doc;
     this.type = 'ResizeHandler';
-    this.useMinHeightHook = useMinHeightHook;
-    this.elements = elements;
-    this.direction = direction;
+    this.doc = doc;
+    this.store = store;
+    // store the selection
+    this.selection = this.store.getState().selectables
+    .filter(selectable => selectable.selected);
     // add a style
-    elements.forEach(el => el.classList.add('resizing'));
-    // build the data for all the elements
-    this.elementsData = DomMetrics.getElementsData(elements);
+    this.selection
+    .forEach(selectable => selectable.el.classList.add('resizing'));
   }
 
   /**
@@ -53,6 +39,9 @@ export class ResizeHandler extends MouseHandlerBase {
    */
   update(movementX, movementY, mouseX, mouseY, shiftKey) {
     super.update(movementX, movementY, mouseX, mouseY, shiftKey);
+
+    // TODO: update scroll
+
     this.elementsData.forEach((elementData) => {
       // handle the width and height computation
       const heightAttr = this.useMinHeightHook(elementData.target) ? 'minHeight' : 'height';
@@ -115,8 +104,5 @@ export class ResizeHandler extends MouseHandlerBase {
   release() {
     super.release();
     this.elements.forEach(el => el.classList.remove('resizing'));
-  }
-  getBoundingBox() {
-    DomMetrics.getBoundingBox(this.elements);
   }
 }

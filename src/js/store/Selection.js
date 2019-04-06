@@ -1,8 +1,8 @@
-const SET = 'SET';
-const RESET = 'RESET';
-const TOGGLE = 'TOGGLE';
-const ADD = 'ADD';
-const REMOVE = 'REMOVE';
+const SET = 'SELECTION_SET';
+const RESET = 'SELECTION_RESET';
+const TOGGLE = 'SELECTION_TOGGLE';
+const ADD = 'SELECTION_ADD';
+const REMOVE = 'SELECTION_REMOVE';
 
 export const set = selectables => ({
   type: SET,

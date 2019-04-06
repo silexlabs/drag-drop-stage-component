@@ -55,6 +55,11 @@ describe('MouseEventsListener', function() {
         selectables: [selectableElem1],
         scroll: {x: 0, y: 0},
         cursorDirection: {x: '', y: ''},
+        ui: {
+          mode: 'MODE_NONE',
+          cursorDirection: {x: '', y: ''},
+          mouseHandlerData: {},
+        }
       }),
       dispatch: action => window.cbkAction(action),
     }
@@ -94,8 +99,8 @@ describe('MouseEventsListener', function() {
 
     cbks['scroll']();
     assert.equal(numActions, 1, `1 action should have been fired instead of ${numActions}`);
-    assert.equal(lastAction.type, 'SET', `SET action should have been fired instead of ${lastAction}`);
-    assert.deepEqual(lastAction.scroll, {x:100,y:100}, `SET action with scroll 100 100 should have been fired instead of ${lastAction.scroll}`);
+    assert.equal(lastAction.type, 'SCROLL_SET', `SCROLL_SET action should have been fired instead of ${lastAction}`);
+    assert.deepEqual(lastAction.scroll, {x:100,y:100}, `SCROLL_SET action with scroll 100 100 should have been fired instead of ${lastAction.scroll}`);
   });
 
   it('onDown', function() {
@@ -109,22 +114,22 @@ describe('MouseEventsListener', function() {
     // elem1 with shift
     cbks['down']({target: elem1, shiftKey: true});
     assert.equal(numActions, 1, `1 action should have been fired instead of ${numActions}`);
-    assert.equal(lastAction.type, 'ADD', `The action should be ADD but was ${lastAction.type}`);
-    assert.equal(lastAction.selectable, selectableElem1, `The action should be ADD of elem1`);
+    assert.equal(lastAction.type, 'SELECTION_ADD', `The action should be SELECTION_ADD but was ${lastAction.type}`);
+    assert.equal(lastAction.selectable, selectableElem1, `The action should be SELECTION_ADD of elem1`);
 
     // elem1 with NO shift
     numActions = 0;
     cbks['down']({target: elem1, shiftKey: false});
     assert.equal(numActions, 1, `1 action should have been fired instead of ${numActions}`);
-    assert.equal(lastAction.type, 'SET', `The action should be SET but was ${lastAction.type}`);
-    assert.equal(lastAction.selectables[0], selectableElem1, `The action should be SET of elem1`);
+    assert.equal(lastAction.type, 'SELECTION_SET', `The action should be SELECTION_SET but was ${lastAction.type}`);
+    assert.equal(lastAction.selectables[0], selectableElem1, `The action should be SELECTION_SET of elem1`);
 
     // elem2 with shift
     numActions = 0;
     cbks['down']({target: elem2, shiftKey: false});
     assert.equal(numActions, 1, `1 action should have been fired instead of ${numActions}`);
-    assert.equal(lastAction.type, 'SET', `The action should be SET but was ${lastAction.type}`);
-    assert.equal(lastAction.selectables[0], selectableElem1, `The action should be SET of elem1`);
+    assert.equal(lastAction.type, 'SELECTION_SET', `The action should be SELECTION_SET but was ${lastAction.type}`);
+    assert.equal(lastAction.selectables[0], selectableElem1, `The action should be SELECTION_SET of elem1`);
   });
 
   it('onMove', function() {
@@ -139,7 +144,7 @@ describe('MouseEventsListener', function() {
     cbks['move']({target: elem1, clientX: 100, clientY: 100});
     assert.equal(numActions, 1, `1 action should have been fired instead of ${numActions}`);
     assert.equal(lastAction.type, 'CURSOR_DIRECTION', `The action should be CURSOR_DIRECTION but was ${lastAction.type}`);
-    assert.deepEqual(lastAction.cursorDirection, {x:'left', y:'top'}, `The action should be SET of elem1`);
+    assert.deepEqual(lastAction.cursorDirection, {x:'left', y:'top'}, `The action's direction is wrong`);
 
     console.info('    > TODO: onUp, onDrag, onStartDrag, onStopDrag');
   });

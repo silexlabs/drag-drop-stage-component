@@ -41,7 +41,45 @@ export function getDocument(el) {
 
 /**
  * @param {HTMLElement} el
- * @param {HTMLDocument} doc
+ */
+export function setMetrics(el, metrics) {
+  const doc = getDocument(el);
+  const win = getWindow(doc);
+  const style = win.getComputedStyle(el);
+  if(style.getPropertyValue('position') !== metrics.position) {
+    el.style.position = metrics.position;
+  }
+  function updateStyle(objName, propName, styleName) {
+    const styleValue = metrics[objName][propName];
+    if((parseInt(style.getPropertyValue(objName + '-' + propName)) || 0) !== styleValue) {
+      el.style[styleName] = styleValue + 'px';
+    }
+  }
+  updateStyle('computedStyleRect', 'top', 'top');
+  updateStyle('computedStyleRect', 'left', 'left');
+  updateStyle('computedStyleRect', 'bottom', 'bottom');
+  updateStyle('computedStyleRect', 'right', 'right');
+  updateStyle('computedStyleRect', 'width', 'width');
+  updateStyle('computedStyleRect', 'height', 'height');
+
+  updateStyle('margin', 'top', 'marginTop');
+  updateStyle('margin', 'left', 'marginLeft');
+  updateStyle('margin', 'bottom', 'marginBottom');
+  updateStyle('margin', 'right', 'marginRight');
+
+  updateStyle('padding', 'top', 'paddingTop');
+  updateStyle('padding', 'left', 'paddingLeft');
+  updateStyle('padding', 'bottom', 'paddingBottom');
+  updateStyle('padding', 'right', 'paddingRight');
+
+  updateStyle('border', 'top', 'borderTop');
+  updateStyle('border', 'left', 'borderLeft');
+  updateStyle('border', 'bottom', 'borderBottom');
+  updateStyle('border', 'right', 'borderRight');
+}
+
+/**
+ * @param {HTMLElement} el
  * @return {ElementMetrics} the element metrics
  */
 export function getMetrics(el) {
@@ -113,10 +151,9 @@ export function setScroll(doc, scroll) {
 /**
  *
  * @param {ElementMetrics} metrics
- * @param {{x: number, y: number}} scroll
  * @return {string} get the computedStyleRect that matches metrics.clientRect
  */
-export function getComputedStyleRectFromClientRect(metrics) {
+export function fromClientToComputed(metrics) {
   // TODO: should we handle other scroll than the window?
   return {
     position: metrics.position,

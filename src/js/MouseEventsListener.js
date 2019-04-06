@@ -76,10 +76,7 @@ export class MouseEventsListener {
    */
   onScroll() {
     const scroll = DomMetrics.getScroll(this.doc);
-    const oldScroll = this.store.getState().scroll;
-    if(scroll.x !== oldScroll.x || scroll.y !== oldScroll.y) {
-      this.store.dispatch(ScrollAction.set(scroll));
-    }
+    this.store.dispatch(ScrollAction.setScroll(scroll));
   }
 
   /**
@@ -109,7 +106,9 @@ export class MouseEventsListener {
   onMove(e) {
     const {clientX, clientY, target} = e;
     const selectable = this.getSelectable(target);
-    const oldDirection = this.store.getState().cursorDirection;
+    console.log('xxx', !!this.store.getState())
+    console.log('xxxyyy', !!this.store.getState().ui)
+    const oldDirection = this.store.getState().ui.cursorDirection;
     if(selectable && selectable.resizeable) {
       const direction = ResizeHandler.getDirection(clientX, clientY, selectable);
       if(direction.x !== oldDirection.x || direction.y !== oldDirection.y){
@@ -118,7 +117,7 @@ export class MouseEventsListener {
     }
     else {
       if('' !== oldDirection.x || '' !== oldDirection.y){
-        this.store.dispatch(UiAction.setCursorDirection({x: '', y: ''}))
+        this.store.dispatch(UiAction.setCursorDirection(null))
       }
     }
   }
@@ -171,7 +170,7 @@ export class MouseEventsListener {
   onStartDrag(e) {
     const selectable = this.getSelectable(e.target);
     if(selectable) {
-      const direction = this.store.getState().direction;
+      const direction = this.store.getState().ui.cursorDirection;
       // start resize
       if(selectable.resizeable && (direction.x != '' || direction.y != '')) {
         this.store.dispatch(UiAction.setModeResize(this.eventToMouseHandlerData(e)));
