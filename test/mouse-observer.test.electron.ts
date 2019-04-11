@@ -42,20 +42,20 @@ describe('MouseObserver', function() {
 
   it('onStateChanged', function() {
     // scroll
-    // SCROLL TEST CAN NOT BE RUN BECAUSE window.scroll IS NOT IMPLEMENTED IN JsDom
-    // stageStoreMock.state = {
-    //   ...stageStoreMock.state,
-    //   mouse: {
-    //     ...stageStoreMock.state.mouse,
-    //     scrollData: {
-    //       x: 0,
-    //       y: 100,
-    //     }
-    //   }
-    // };
-    // stageStoreMock.dispatch(null);
-    // expect(window.scrollX).toBe(0);
-    // expect(window.scrollY).toBe(100);
+    stageStoreMock.state = {
+      ...stageStoreMock.state,
+      mouse: {
+        ...stageStoreMock.state.mouse,
+        scrollData: {
+          x: 0,
+          y: 100,
+        }
+      }
+    };
+    stageStoreMock.dispatch(null);
+    expect(window.scrollX).toBe(0);
+    expect(window.scrollY).toBe(100);
+
     // css class
     stageStoreMock.state = {
       ...stageStoreMock.state,

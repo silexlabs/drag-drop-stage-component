@@ -40,10 +40,8 @@ describe('Polyfill', function() {
   });
 
   it('should find 3 elementsFromPoint', function() {
-    // CAN NOT RUN TEST BECAUSE getBoundingClientRect NOT IMPLEMENTED IN JsDom
-    // https://github.com/jsdom/jsdom/issues/1581
-    // var elements = document.elementsFromPoint(10, 10);
-    // expect(elements.length).toBe(3);
+    var elements = document.elementsFromPoint(10, 10);
+    expect(elements.length).toBe(3);
   });
 
 });

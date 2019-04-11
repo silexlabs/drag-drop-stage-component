@@ -66,14 +66,16 @@ describe('Mouse', function() {
   });
 
   it('onScroll, a callback should listen for scroll event on mouse', function() {
-    // SCROLL TEST CAN NOT BE RUN BECAUSE window.scroll IS NOT IMPLEMENTED IN JsDom
-    // window.scroll(100, 100);
-    // assert.equal(window.scrollY, 100, `Scroll should be 100 but was ${window.scrollY}`);
+    window.scroll(100, 100);
+    // window.dispatchEvent(new MouseEvent('scroll'));
+    expect(window.scrollY).toBe(100);
 
-    // cbks['scroll']();
-    // assert.equal(numActions, 1, `1 action should have been fired instead of ${numActions}`);
-    // assert.equal(lastAction.type, 'SCROLL_SET', `SCROLL_SET action should have been fired instead of ${lastAction}`);
-    // assert.deepEqual(lastAction.scroll, {x:100,y:100}, `SCROLL_SET action with scroll 100 100 should have been fired instead of ${lastAction.scroll}`);
+    var calls = stageStoreMock.dispatch['mock'].calls;
+    expect(calls.length).toBe(1);
+
+    var lastAction = calls[calls.length - 1][0];
+    expect(lastAction.type).toBe('SCROLL_SET');
+    expect(lastAction.scroll).toMatchObject({x:100,y:100});
   });
 
   it('mouse modes', function() {
