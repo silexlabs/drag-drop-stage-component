@@ -35,8 +35,6 @@ export class Mouse {
     this.win.addEventListener('down', (e) => this.down(e), true);
     this.win.addEventListener('up', (e) => this.up(e), true);
     this.win.addEventListener('move', (e) => this.move(e), true);
-    this.win.addEventListener('scroll', (e) => this.scroll(e), true);
-    this.win.addEventListener('scroll', (e) => this.scroll(e), true);
   }
   //////////////////////////////
   scroll(e: MouseEvent) {

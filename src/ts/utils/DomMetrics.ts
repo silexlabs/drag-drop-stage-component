@@ -5,7 +5,6 @@ export const SCROLL_ZONE_SIZE = 50;
 export function getScrollToShow(doc, boundingBox) {
   const scroll = getScroll(doc);
   const win = getWindow(doc);
-
   // vertical
   if(scroll.y > boundingBox.top - SCROLL_ZONE_SIZE) {
     scroll.y = boundingBox.top - SCROLL_ZONE_SIZE;

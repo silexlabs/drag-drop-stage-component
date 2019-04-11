@@ -65,17 +65,19 @@ describe('Mouse', function() {
     expect(result3).toBe(true);
   });
 
-  it('onScroll, a callback should listen for scroll event on mouse', function() {
-    window.scroll(100, 100);
-    // window.dispatchEvent(new MouseEvent('scroll'));
+  it('onScroll, a callback should listen for scroll event on mouse', function(done) {
+    window.scroll(0, 100);
     expect(window.scrollY).toBe(100);
 
-    var calls = stageStoreMock.dispatch['mock'].calls;
-    expect(calls.length).toBe(1);
+    // needed to wait i don't know why
+    setTimeout(() => {
+      var calls = stageStoreMock.dispatch['mock'].calls;
+      expect(calls.length).toBe(1);
 
-    var lastAction = calls[calls.length - 1][0];
-    expect(lastAction.type).toBe('SCROLL_SET');
-    expect(lastAction.scroll).toMatchObject({x:100,y:100});
+      var lastAction = calls[calls.length - 1][0];
+      expect(lastAction.type).toBe('MOUSE_SCROLL');
+      done();
+    }, 0);
   });
 
   it('mouse modes', function() {

@@ -221,7 +221,8 @@ export class MoveHandler extends MouseHandlerBase {
   findDropZonesUnderMouse(x, y) {
     // get a list of all dropZone zone under the point (x, y)
     return this.doc.elementsFromPoint(x, y)
-      .filter((el: HTMLElement) => !this.selection.find(s => s.el === el)
+      .filter((el: HTMLElement) => el.tagName !== 'html'
+        && !this.selection.find(s => s.el === el)
         && this.hooks.canDrop(el, this.selection));
   }
 

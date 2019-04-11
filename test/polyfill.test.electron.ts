@@ -1,7 +1,5 @@
 import {patchWindow} from '../src/ts/utils/Polyfill';
 
-var elem1: HTMLElement, elem2: HTMLElement, elem3: HTMLElement;
-
 describe('Polyfill', function() {
 
   beforeEach(function () {
@@ -31,17 +29,11 @@ describe('Polyfill', function() {
       </div>
       <div class="isDropZone" id="container2"></div>
     `;
-
-    elem1 = document.querySelector('#elem1');
-    elem2 = document.querySelector('#elem2');
-    elem3 = document.querySelector('#elem3');
-
-
   });
 
   it('should find 3 elementsFromPoint', function() {
     var elements = document.elementsFromPoint(10, 10);
-    expect(elements.length).toBe(3);
+    expect(elements.length).toBe(5);
   });
 
 });

@@ -1,4 +1,5 @@
 import * as DomMetrics from '../src/ts/utils/DomMetrics';
+import * as electron from 'electron';
 
 describe('DomMetrics', function() {
   var elem1;
@@ -17,7 +18,7 @@ describe('DomMetrics', function() {
         height: 10px;
       }
       body {
-        min-height: 10000px;
+        min-height: 30000px;
       }
       .abs {
         position: absolute;
@@ -40,7 +41,7 @@ describe('DomMetrics', function() {
         margin: 10px;
         padding: 20px;
         border: 30px solid;
-        top: 500px;
+        top: 15000px;
         left: 500px;
       }
     </style>
@@ -84,11 +85,11 @@ describe('DomMetrics', function() {
   it('getMetrics for absolute element with margin/padding/border', function() {
     const metrics = DomMetrics.getMetrics(elem4);
     expect(metrics.position).toBe('absolute');
-    expect(metrics.computedStyleRect).toMatchObject({"width":"10px","height":"10px","left":"500px","top":"500px"});
+    expect(metrics.computedStyleRect).toMatchObject({"width":"10px","height":"10px","left":"500px","top":"15000px"});
     expect(metrics.border).toMatchObject({"left":30,"top":30,"right":30,"bottom":30});
     expect(metrics.padding).toMatchObject({"left":20,"top":20,"right":20,"bottom":20});
     expect(metrics.margin).toMatchObject({"left":10,"top":10,"right":10,"bottom":10});
-    expect(metrics.clientRect).toMatchObject({"top":510,"left":510,"bottom":620,"right":620,"width":110,"height":110});
+    expect(metrics.clientRect).toMatchObject({"top":15010,"left":510,"bottom":15120,"right":620,"width":110,"height":110});
   });
 
   it('getMetrics for an element in the flow with margin/padding/border', function() {
@@ -151,25 +152,25 @@ describe('DomMetrics', function() {
 
   it('getScrollToShow a zone', function() {
     // check initial state
-    const style = window.getComputedStyle(elem1);
-    expect(style.getPropertyValue('top')).toBe('100px');
+    const style = window.getComputedStyle(elem2);
+    expect(style.getPropertyValue('top')).toBe('500px');
+
     expect(window.scrollY).toBe(0);
     expect(window.scrollX).toBe(0);
-    expect(window.innerWidth).toBe(400);
-    expect(window.innerHeight).toBe(300);
+    expect(window.document.body.scrollHeight).toBe(30000);
 
     // element is already visible
-    var bb = elem1.getBoundingClientRect();
+    var bb = elem2.getBoundingClientRect();
     var scroll = DomMetrics.getScrollToShow(document, bb);
     expect(scroll.y).toBe(0);
     expect(scroll.x).toBe(0);
 
 
     // element not yet visible
-    var bb = elem2.getBoundingClientRect();
+    var bb = elem4.getBoundingClientRect();
     var scroll = DomMetrics.getScrollToShow(document, bb);
     // element position - size - SCROLL_ZONE_SIZE
-    expect(scroll.x).toBe(160);
-    expect(scroll.y).toBe(260);
+    expect(scroll.x).toBe(0);
+    expect(scroll.y).toBe(14595);
   });
 })

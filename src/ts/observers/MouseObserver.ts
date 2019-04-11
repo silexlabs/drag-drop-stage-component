@@ -21,7 +21,7 @@ export class MouseObserver {
    */
   onStateChanged(state: types.MouseState, prevState: types.MouseState) {
     if(state.scrollData.x !== prevState.scrollData.x || state.scrollData.y !== prevState.scrollData.y) {
-      DomMetrics.setScroll(this.doc, scroll);
+      DomMetrics.setScroll(this.doc, state.scrollData);
     }
     if(state.cursorData.cssClass !== prevState.cursorData.cssClass) {
       if(prevState.cursorData.cssClass !== '') this.doc.body.classList.remove(prevState.cursorData.cssClass);

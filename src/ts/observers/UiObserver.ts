@@ -34,7 +34,6 @@ export class UiObserver {
    */
   onUiStateChanged(state: types.UiState, prevState: types.UiState) {
     if(prevState.mode !== state.mode) {
-      console.log('Change mode', prevState.mode, state.mode)
       if(this.handler) {
         this.handler.release();
         this.handler = null;
