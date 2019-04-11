@@ -1,5 +1,5 @@
-import {SelectablesObserver} from '../src/ts/observers/SelectablesObserver';
-import {StageStoreMock, hooks} from './StageStoreMock';
+import {SelectablesObserver} from '../../src/ts/observers/SelectablesObserver';
+import {StageStoreMock, hooks} from '../flux/StageStoreMock';
 
 describe('SelectablesObserver', function() {
   var observer;

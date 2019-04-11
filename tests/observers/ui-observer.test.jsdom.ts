@@ -1,7 +1,7 @@
-import * as types from '../src/ts/Types';
-import {UiObserver} from '../src/ts/observers/UiObserver';
-import {StageStoreMock, hooks} from './StageStoreMock';
-import { DrawHandler } from '../src/ts/handlers/DrawHandler';
+import * as types from '../../src/ts/Types';
+import {UiObserver} from '../../src/ts/observers/UiObserver';
+import {StageStoreMock, hooks} from '../flux/StageStoreMock';
+import { DrawHandler } from '../../src/ts/handlers/DrawHandler';
 
 describe('UiObserver', function() {
   var observer;

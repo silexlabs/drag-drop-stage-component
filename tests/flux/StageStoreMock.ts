@@ -1,5 +1,5 @@
-import {StageStore} from '../src/ts/flux/StageStore';
-import * as types from '../src/ts/Types';
+import {StageStore} from '../../src/ts/flux/StageStore';
+import * as types from '../../src/ts/Types';
 
 export const hooks = {
   isSelectableHook: (el => el.classList.contains('i-am-selectable')),

@@ -1,4 +1,4 @@
-import * as DomMetrics from '../src/ts/utils/DomMetrics';
+import * as DomMetrics from '../../src/ts/utils/DomMetrics';
 import * as electron from 'electron';
 
 describe('DomMetrics', function() {

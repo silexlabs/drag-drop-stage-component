@@ -1,4 +1,4 @@
-import {patchWindow} from '../src/ts/utils/Polyfill';
+import {patchWindow} from '../../src/ts/utils/Polyfill';
 
 describe('Polyfill', function() {
 

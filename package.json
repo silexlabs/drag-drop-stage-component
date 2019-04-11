@@ -5,7 +5,7 @@
   "main": "pub/js/stage.js",
   "scripts": {
     "test": "jest",
-    "watch:test": "watch 'npm run test' src test",
+    "watch:test": "watch 'npm run test' src tests",
     "postinstall": "npm run build",
     "serve": "http-server pub -o",
     "build": "mkdir -p pub/js && npm run build:js && npm run build:less && npm run build:demo",

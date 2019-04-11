@@ -1,5 +1,5 @@
-import {MouseObserver} from '../src/ts/observers/MouseObserver';
-import {StageStoreMock, hooks} from './StageStoreMock';
+import {MouseObserver} from '../../src/ts/observers/MouseObserver';
+import {StageStoreMock, hooks} from '../flux/StageStoreMock';
 
 describe('MouseObserver', function() {
   var observer;

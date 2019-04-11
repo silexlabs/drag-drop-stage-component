@@ -1,5 +1,5 @@
 // import * as redux from 'redux';
-import {StageStore} from '../src/ts/flux/StageStore';
+import {StageStore} from '../../src/ts/flux/StageStore';
 
 describe('StageStore', function() {
   let instance;

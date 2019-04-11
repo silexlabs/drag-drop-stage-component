@@ -1,5 +1,5 @@
 import {Mouse, MouseMode} from '../src/ts/Mouse';
-import { StageStoreMock } from './StageStoreMock';
+import { StageStoreMock } from './flux/StageStoreMock';
 import { UiMode } from '../src/ts/Types';
 
 describe('Mouse', function() {
