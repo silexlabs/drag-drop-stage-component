@@ -1,7 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "outFile": "test/test.js",
+    "outFile": "tests/test.js",
     "module": "amd",
     "target": "es3",
     "lib": ["dom", "esnext"],
@@ -10,7 +10,7 @@
     "removeComments": false,
   },
   "include": [
-    "test/test.*.ts",
+    "tests/test.*.ts",
     "node_modules/redux/dist/redux.js",
   ],
 }

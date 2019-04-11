@@ -2,7 +2,30 @@ import * as types from '../Types';
 
 export const SCROLL_ZONE_SIZE = 50;
 
-export function getScrollToShow(doc, boundingBox) {
+type Box = {
+  top: number,
+  left: number,
+  bottom: number,
+  right: number,
+}
+
+export function getBoundingBox(selectables: Array<types.SelectableState>): Box {
+  const box: Box = {
+    top: Infinity,
+    left: Infinity,
+    bottom: -Infinity,
+    right: -Infinity,
+  }
+  selectables.forEach(s => {
+    box.top = Math.min(box.top, s.metrics.clientRect.top);
+    box.left = Math.min(box.left, s.metrics.clientRect.left);
+    box.bottom = Math.max(box.bottom, s.metrics.clientRect.bottom);
+    box.right = Math.max(box.right, s.metrics.clientRect.right);
+  });
+  return box;
+}
+
+export function getScrollToShow(doc, boundingBox: Box): {x: number, y: number} {
   const scroll = getScroll(doc);
   const win = getWindow(doc);
   // vertical
@@ -20,7 +43,10 @@ export function getScrollToShow(doc, boundingBox) {
   else if(scroll.x < boundingBox.right + SCROLL_ZONE_SIZE - win.innerWidth) {
     scroll.x = boundingBox.right + SCROLL_ZONE_SIZE - win.innerWidth;
   }
-  return scroll;
+  return {
+    x: Math.max(0, scroll.x),
+    y: Math.max(0, scroll.y),
+  };
 }
 
 
@@ -28,15 +54,15 @@ export function getScrollToShow(doc, boundingBox) {
  * @param {HTMLDocument} doc
  * @return {Window}
  */
-export function getWindow(doc) {
-  return doc.parentWindow || doc.defaultView;
+export function getWindow(doc): Window {
+  return doc['parentWindow'] || doc.defaultView;
 }
 
 /**
  * @param {HTMLElement} el
  * @return {HTMLDocument}
  */
-export function getDocument(el) {
+export function getDocument(el): HTMLDocument {
   return el.ownerDocument;
 }
 
@@ -91,13 +117,14 @@ export function getMetrics(el): types.ElementMetrics {
   const clientRect = el.getBoundingClientRect();
   return {
     position: style.getPropertyValue('position'),
+    proportions: clientRect.y / (clientRect.x || .000000000001),
     computedStyleRect: {
-      width: style.width,
-      height: style.height,
-      left: style.left,
-      top: style.top,
-      bottom: style.bottom,
-      right: style.right,
+      width: parseInt(style.getPropertyValue('width')) || 0,
+      height: parseInt(style.getPropertyValue('height')) || 0,
+      left: parseInt(style.getPropertyValue('left')) || 0,
+      top: parseInt(style.getPropertyValue('top')) || 0,
+      bottom: parseInt(style.getPropertyValue('bottom')) || 0,
+      right: parseInt(style.getPropertyValue('right')) || 0,
     },
     border: {
       left: parseInt(style.getPropertyValue('border-left-width')) || 0,

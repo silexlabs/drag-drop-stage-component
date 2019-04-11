@@ -24,8 +24,7 @@ export class MouseObserver {
       DomMetrics.setScroll(this.doc, state.scrollData);
     }
     if(state.cursorData.cssClass !== prevState.cursorData.cssClass) {
-      if(prevState.cursorData.cssClass !== '') this.doc.body.classList.remove(prevState.cursorData.cssClass);
-      if(state.cursorData.cssClass !== '') this.doc.body.classList.add(state.cursorData.cssClass);
+      this.doc.body.style.cursor = state.cursorData.cssClass;
     }
     if(state.mouseData.target !== prevState.mouseData.target) {
       if(prevState.mouseData.target) prevState.mouseData.target.classList.remove('hovered');

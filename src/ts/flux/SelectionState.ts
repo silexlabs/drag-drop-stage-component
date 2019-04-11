@@ -1,25 +1,27 @@
+import { SelectableState } from "../Types";
+
 const SET = 'SELECTION_SET';
 const RESET = 'SELECTION_RESET';
 const TOGGLE = 'SELECTION_TOGGLE';
 const ADD = 'SELECTION_ADD';
 const REMOVE = 'SELECTION_REMOVE';
 
-export const set = selectables => ({
+export const set = (selectables: Array<SelectableState>) => ({
   type: SET,
   selectables,
 })
 export const reset = () => ({
   type: RESET,
 })
-export const toggle = selectable => ({
+export const toggle = (selectable: SelectableState) => ({
   type: TOGGLE,
   selectable,
 })
-export const add = selectable => ({
+export const add = (selectable: SelectableState) => ({
   type: ADD,
   selectable,
 })
-export const remove = selectable => ({
+export const remove = (selectable: SelectableState) => ({
   type: REMOVE,
   selectable,
 })
@@ -27,7 +29,7 @@ export const remove = selectable => ({
 /**
  * reducer
  */
-export const selection = (state=[], action) => {
+export const selection = (state: Array<SelectableState>=[], action) => {
   switch (action.type) {
     case TOGGLE:
       return state.map(selectable => selectable === action.selectable ? {

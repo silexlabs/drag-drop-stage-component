@@ -6,7 +6,7 @@ import * as mouseState from './MouseState';
 import * as uiState from './UiState';
 import * as DomMetrics from '../utils/DomMetrics';
 
-export class StageStore implements redux.Store<types.State, redux.AnyAction> {
+export class StageStore implements redux.Store<types.State> {
   /**
    * @param {Hooks}
    * @return {DomModel}
@@ -22,6 +22,7 @@ export class StageStore implements redux.Store<types.State, redux.AnyAction> {
       draggable: hooks.isDraggableHook(el),
       resizeable: hooks.isResizeableHook(el),
       isDropZone: hooks.isDropZoneHook(el),
+      useMinHeight: hooks.useMinHeightHook(el),
       metrics: DomMetrics.getMetrics(el),
     }));
   }
@@ -29,20 +30,20 @@ export class StageStore implements redux.Store<types.State, redux.AnyAction> {
    * Create a redux store with composed reducers
    * @return redux.Store
    */
-  protected static createStore(): redux.Store<types.State, redux.AnyAction> {
+  protected static createStore(): redux.Store<types.State> {
     const reducer = redux.combineReducers({
       selectables: (state: Array<types.SelectableState>, action) => selectableState.selectables(selection(state, action), action),
       ui: (state: types.UiState, action) => uiState.ui(state, action),
       mouse: (state: types.MouseState, action) => mouseState.mouse(state, action),
     });
-    return redux.createStore(reducer);
+    return redux.createStore(reducer) as redux.Store<types.State>;
   };
 
   /**
    * the main redux store
    * @type {redux.Store}
    */
-  protected store: redux.Store = StageStore.createStore();
+  protected store: redux.Store<types.State> = StageStore.createStore();
 
   /**
    * Subscribe to state changes with the ability to filter by substate

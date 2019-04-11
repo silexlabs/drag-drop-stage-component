@@ -30,7 +30,7 @@ describe('Mouse', function() {
     elem3 = document.querySelector('#elem3');
     elem4 = document.querySelector('#elem4');
 
-    stageStoreMock = new StageStoreMock()
+    stageStoreMock = new StageStoreMock();
     jest.spyOn(stageStoreMock, 'subscribe');
     jest.spyOn(stageStoreMock, 'dispatch');
     jest.spyOn(stageStoreMock, 'getState');

@@ -14,17 +14,9 @@ export class UiObserver {
   constructor(private doc: HTMLDocument, private store: StageStore, private hooks: types.Hooks) {
     this.handler = null;
     store.subscribe(
-      (state: types.MouseState, prevState: types.MouseState) => this.onMouseStateChanged(state, prevState),
-      (state:types.State) => state.mouse
-    )
-    store.subscribe(
       (state: types.UiState, prevState: types.UiState) => this.onUiStateChanged(state, prevState),
       (state:types.State) => state.ui
     )
-  }
-
-  onMouseStateChanged(state: types.MouseState, prevState: types.MouseState) {
-    this.handler.update(state.mouseData);
   }
 
   /**

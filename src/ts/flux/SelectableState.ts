@@ -5,15 +5,15 @@ const UPDATE = 'SELECTABLE_UPDATE';
 const CREATE = 'SELECTABLE_CREATE';
 const DELETE = 'SELECTABLE_DELETE';
 
-export const updateSelectables = selectables => ({
+export const updateSelectables = (selectables: Array<SelectableState>) => ({
   type: UPDATE,
   selectables,
 });
-export const createSelectable = selectable => ({
+export const createSelectable = (selectable: SelectableState) => ({
   type: CREATE,
   selectable,
 });
-export const deleteSelectable = selectable => ({
+export const deleteSelectable = (selectable: SelectableState) => ({
   type: DELETE,
   selectable,
 });
@@ -26,9 +26,9 @@ export const selectables = (state=[], action) => {
         action.selectable
       ];
     case DELETE:
-      return state.filter(selectable => selectable.el !== action.selectable.el);
+      return state.filter((selectable: SelectableState) => selectable.el !== action.selectable.el);
     case UPDATE:
-      return state.map(selectable => action.selectables.find(s => s.el === selectable.el) || selectable);
+      return state.map((selectable: SelectableState) => action.selectables.find(s => s.el === selectable.el) || selectable);
     default:
       return state;
   }

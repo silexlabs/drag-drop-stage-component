@@ -32,9 +32,9 @@ export class Mouse {
   private wasMultiSelected: boolean = false;
   constructor(private win, private store: StageStore) {
     this.win.addEventListener('scroll', (e) => this.scroll(e), true);
-    this.win.addEventListener('down', (e) => this.down(e), true);
-    this.win.addEventListener('up', (e) => this.up(e), true);
-    this.win.addEventListener('move', (e) => this.move(e), true);
+    this.win.addEventListener('mousedown', (e) => this.down(e), true);
+    this.win.addEventListener('mouseup', (e) => this.up(e), true);
+    this.win.addEventListener('mousemove', (e) => this.move(e), true);
   }
   //////////////////////////////
   scroll(e: MouseEvent) {
@@ -175,7 +175,7 @@ export class Mouse {
     const selectable = this.getSelectable(target);
     if(selectable) {
       const direction = this.getDirection(clientX, clientY, selectable);
-      if(selectable.resizeable && direction) {
+      if(selectable.resizeable && (direction.x !== '' || direction.y !== '')) {
         this.store.dispatch(MouseState.setCursorData({
           x: direction.x,
           y: direction.y,

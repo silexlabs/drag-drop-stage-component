@@ -12,6 +12,8 @@ export class StageStoreMock extends StageStore {
   static elem1;
   static elem2;
 
+  preventDispatch = false;
+
   cbks = [];
   subscribe<SubState>(onChange: (state:SubState, prevState:SubState) => void, select=(state:types.State):SubState => (state as any)) {
     this.cbks.push((state:types.State, prevState:types.State) => onChange(select(state), select(prevState)));
@@ -19,8 +21,8 @@ export class StageStoreMock extends StageStore {
   }
 
   dispatch(action: any, idx: number = 0): any {
-    // console.log('dispatch mock', action, idx);
-    if(this.cbks[idx]) this.cbks[idx](this.getState(), this.initialState);
+    console.log('dispatch mock', action, idx);
+    if(! this.preventDispatch && this.cbks[idx]) this.cbks[idx](this.getState(), this.initialState);
     return null;
   }
 

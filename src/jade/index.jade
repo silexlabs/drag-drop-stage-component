@@ -2,8 +2,11 @@ doctype html
 html(lang="en")
   head
     title Stage demo
-    script(type='text/javascript', src='js/demo.js')
+    script(type='text/javascript')
+      include ../../node_modules/requirejs/require.js
     link(rel="stylesheet", href="css/demo.css")
+    script(type='text/javascript')
+      |   require(['js/demo'], function() {console.log('Starting')});
   body
     section
       iframe#iframe

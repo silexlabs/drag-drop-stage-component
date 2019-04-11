@@ -1,7 +1,7 @@
 import * as types from './Types';
 import * as Polyfill from './utils/Polyfill';
 import {Mouse} from './Mouse';
-import * as SelectionAction from './flux/SelectionState';
+import * as selectionState from './flux/SelectionState';
 import * as UiAction from './flux/UiState';
 import {SelectablesObserver} from './observers/SelectablesObserver';
 import {MouseObserver} from './observers/MouseObserver';
@@ -36,8 +36,13 @@ export class Stage {
     const hooks = {
       isSelectableHook: options.isSelectableHook || (el => el.classList.contains('selectable')),
       isDraggableHook: options.isDraggableHook || (el => el.classList.contains('draggable')),
-      isDropZoneHook: options.isDropZoneHook || ((el, selection) => el.classList.contains('droppable')),
-      isResizeableHook: options.isResizeableHook || ((el, selection) => el.classList.contains('resizeable')),
+      isDropZoneHook: options.isDropZoneHook || ((el) => el.classList.contains('droppable')),
+      isResizeableHook: options.isResizeableHook || ((el) => el.classList.contains('resizeable')),
+      useMinHeightHook: options.useMinHeightHook || ((el) => false),
+      canDrop: options.canDrop || ((el, selection) => true),
+      onDrag: options.onDrag,
+      onDrop: options.onDrop,
+      onResize: options.onResize,
     }
 
     // polyfill the iframe
@@ -58,15 +63,15 @@ export class Stage {
         selectable,
       })
     })
+    console.log('xxxxxxxxx', this.store)
 
     // state observers
-    new SelectablesObserver(this.store);
-    new UiObserver(this.store);
-    new MouseObserver(this.store);
+    new SelectablesObserver(this.contentDocument, this.store, hooks);
+    new UiObserver(this.contentDocument, this.store, hooks);
+    new MouseObserver(this.contentDocument, this.store, hooks);
 
-    // DOM observers
+    // controllers
     new Mouse(this.contentWindow, this.store);
-    new MouseController(this.contentDocument, this.store);
 
     // keyboard shortcuts
     window.addEventListener("keydown", (e) => this.onKeyDown(e.keyCode));
@@ -81,7 +86,7 @@ export class Stage {
     switch(key) {
       case 27:
         this.store.dispatch(UiAction.setMode(types.UiMode.NONE));
-        this.store.dispatch(SelectionAction.reset());
+        this.store.dispatch(selectionState.reset());
         break;
       default:
     }

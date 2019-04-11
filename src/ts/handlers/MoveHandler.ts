@@ -1,16 +1,18 @@
 import {MouseHandlerBase} from './MouseHandlerBase';
 import { StageStore } from '../flux/StageStore';
-import { Hooks, MouseData, SelectableState, DropZone } from '../Types';
-import { updateSelectables } from '../flux/SelectableState';
+import { Hooks, SelectableState, MouseData, DropZone } from '../Types';
+import * as selectableState from '../flux/SelectableState'
+import * as mouseState from '../flux/MouseState';
+import * as domMetrics from '../utils/DomMetrics';
 
 export class MoveHandler extends MouseHandlerBase {
   private positionMarker: HTMLElement;
-  private selection: Array<SelectableState>;
+
   constructor(doc: HTMLDocument, store: StageStore, hooks: Hooks) {
     super(doc, store, hooks);
 
-    // store selection
-    this.selection = store.getState().selectables.filter(s => s.selected && s.draggable);
+    // keep only draggable elements
+    this.selection = this.selection.filter(s => s.draggable);
 
     // FIXME: the region marker should be outside the iframe
     this.positionMarker = this.doc.createElement('div');
@@ -27,12 +29,15 @@ export class MoveHandler extends MouseHandlerBase {
   update(mouseData: MouseData) {
     super.update(mouseData);
 
-    console.log('TODO: update scroll');
-    // PUT THIS IN THE HANDLERS
-    // update scroll
-    // const scroll = DomMetrics.getScrollToShow(this.doc, '');
-    // this.store.dispatch(ScrollAction.set({movementX, movementY, clientX, clientY, shiftKey}));
-    // updateScroll(movementX, movementY, clientX, clientY, shiftKey) {
+    const bb = domMetrics.getBoundingBox(this.selection);
+    const initialScroll = this.store.getState().mouse.scrollData;
+    const scroll = domMetrics.getScrollToShow(this.doc, bb);
+    if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
+      this.store.dispatch(mouseState.setScroll(scroll));
+    }
+
+    console.info('todo: handle scroll on the side of the iframe');
+
     // handle scroll on the side of the iframe
     // if(this.handler) {
     //   const bb = this.handler.getBoundingBox();
@@ -50,8 +55,10 @@ export class MoveHandler extends MouseHandlerBase {
 
     // remove the marker
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
+
     // update elements postition
     this.moveSelectable(this.selection, mouseData.movementX, mouseData.movementY);
+
     // update the destination of each element
     this.selection.forEach((selectable) => {
       let dropZones = this.findDropZonesUnderMouse(mouseData.mouseX, mouseData.mouseY);
@@ -65,8 +72,9 @@ export class MoveHandler extends MouseHandlerBase {
           this.updateDestinationAbsolute(selectable, dropZoneUnderMouse);
       }
     });
+
     // update store
-    this.store.dispatch(updateSelectables(this.selection));
+    this.store.dispatch(selectableState.updateSelectables(this.selection));
   }
 
 
@@ -133,7 +141,7 @@ export class MoveHandler extends MouseHandlerBase {
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
 
     // update store
-    this.store.dispatch(updateSelectables(this.selection));
+    this.store.dispatch(selectableState.updateSelectables(this.selection));
   }
 
 
