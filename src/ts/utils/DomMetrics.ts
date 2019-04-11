@@ -1,3 +1,5 @@
+import * as types from '../Types';
+
 export const SCROLL_ZONE_SIZE = 50;
 
 export function getScrollToShow(doc, boundingBox) {
@@ -52,6 +54,7 @@ export function setMetrics(el, metrics) {
   function updateStyle(objName, propName, styleName) {
     const styleValue = metrics[objName][propName];
     if((parseInt(style.getPropertyValue(objName + '-' + propName)) || 0) !== styleValue) {
+      // console.log('UPDATE METRICS', objName, propName, styleName, styleValue, style.getPropertyValue(objName + '-' + propName));
       el.style[styleName] = styleValue + 'px';
     }
   }
@@ -82,7 +85,7 @@ export function setMetrics(el, metrics) {
  * @param {HTMLElement} el
  * @return {ElementMetrics} the element metrics
  */
-export function getMetrics(el) {
+export function getMetrics(el): types.ElementMetrics {
   const doc = getDocument(el);
   const win = getWindow(doc);
   const style = win.getComputedStyle(el);
@@ -94,6 +97,8 @@ export function getMetrics(el) {
       height: style.height,
       left: style.left,
       top: style.top,
+      bottom: style.bottom,
+      right: style.right,
     },
     border: {
       left: parseInt(style.getPropertyValue('border-left-width')) || 0,

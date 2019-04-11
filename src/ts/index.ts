@@ -1,27 +1,33 @@
-import Event from 'emitter-js';
+import * as types from './Types';
 import * as Polyfill from './utils/Polyfill';
 import {Mouse} from './Mouse';
-import {MouseEventsListener} from './MouseEventsListener';
-import {StoreEventsListener} from './StoreEventsListener';
-import * as Store from './store';
-import * as DomMetrics from './utils/DomMetrics';
-import * as SelectionAction from './store/Selection';
-import * as UiAction from './store/Ui';
+import * as SelectionAction from './flux/SelectionState';
+import * as UiAction from './flux/UiState';
+import {SelectablesObserver} from './observers/SelectablesObserver';
+import {MouseObserver} from './observers/MouseObserver';
+import {UiObserver} from './observers/UiObserver';
+import {StageStore} from './flux/StageStore';
 
 /**
  * This class is the entry point of the library
  * @see https://github.com/lexoyo/stage
  * @class Stage
  */
-class Stage extends Event  {
+export class Stage {
+  contentWindow: Window;
+  contentDocument: HTMLDocument;
+  iframe: HTMLIFrameElement;
+  store: StageStore;
+
   /**
    * Init the useful classes,
    * add styles to the iframe for the UI,
    * listen to mouse events in the iframe and outside
    * @constructor
    */
-  constructor(iframe, options={}) {
-    super();
+  constructor(iframe, options: types.Hooks={}) {
+    // expose for client app
+    window['Stage'] = Stage;
 
     // store the params
     this.iframe = iframe;
@@ -30,7 +36,7 @@ class Stage extends Event  {
     const hooks = {
       isSelectableHook: options.isSelectableHook || (el => el.classList.contains('selectable')),
       isDraggableHook: options.isDraggableHook || (el => el.classList.contains('draggable')),
-      isDroppableHook: options.isDroppableHook || ((el, selection) => el.classList.contains('droppable')),
+      isDropZoneHook: options.isDropZoneHook || ((el, selection) => el.classList.contains('droppable')),
       isResizeableHook: options.isResizeableHook || ((el, selection) => el.classList.contains('resizeable')),
     }
 
@@ -43,16 +49,25 @@ class Stage extends Event  {
     link.setAttribute('href', /*FIXME: Url.makeAbsolute*/('css/stage.css'));
     this.contentDocument.head.appendChild(link);
 
-    // register store events
-    this.store = Store.createStore(this.contentDocument, hooks);
-    const storeEventsListener = new StoreEventsListener(this.contentDocument, this.store);
+    // create the store and populate it
+    this.store = new StageStore();
+    StageStore.selectablesFromDom(this.contentDocument, hooks)
+    .forEach(selectable => {
+      this.store.dispatch({
+        type: 'SELECTABLE_CREATE',
+        selectable,
+      })
+    })
 
-    // register mouse events
-    const mouse = new Mouse(this.contentWindow);
-    const mouseEventsListener = new MouseEventsListener(this.contentDocument, mouse, this.store);
+    // state observers
+    new SelectablesObserver(this.store);
+    new UiObserver(this.store);
+    new MouseObserver(this.store);
 
-    // relay the store events to the calling app
-    this.store.subscribe(() => this.emit('change', this.store.getState()))
+    // DOM observers
+    new Mouse(this.contentWindow, this.store);
+    new MouseController(this.contentDocument, this.store);
+
     // keyboard shortcuts
     window.addEventListener("keydown", (e) => this.onKeyDown(e.keyCode));
     this.contentWindow.addEventListener("keydown", (e) => this.onKeyDown(e.keyCode));
@@ -65,29 +80,10 @@ class Stage extends Event  {
   onKeyDown(key) {
     switch(key) {
       case 27:
-        if(this.state != State.NONE) {
-          // cancel any pending operation
-          this.cancel();
-        }
-        else {
-          // or reset selection
-          this.store.dispatch(SelectionAction.reset());
-        }
+        this.store.dispatch(UiAction.setMode(types.UiMode.NONE));
+        this.store.dispatch(SelectionAction.reset());
         break;
       default:
     }
   }
-
-
-  /**
-   * Stop drag
-   * @private
-   */
-  cancel() {
-    this.store.dispatch(SelectionAction.reset());
-    this.store.dispatch(UiAction.setModeNone());
-  }
 }
-
-exports.Stage = Stage;
-if(window) window.Stage = Stage;

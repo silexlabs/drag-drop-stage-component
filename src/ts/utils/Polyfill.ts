@@ -1,4 +1,4 @@
-export function patchWindow(win) {
+export function patchWindow(win: Window) {
   if(!win.document.elementsFromPoint) {
     // console.warn('Polyfill: polyfill document.elementsFromPoint', win);
     win.document.elementsFromPoint = function(x, y) {

@@ -1,0 +1,15 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "outDir": "pub/js/",
+    "target": "es3",
+    "lib": ["dom", "esnext"],
+    "watch": false,
+    "inlineSourceMap": true,
+    "removeComments": false,
+  },
+  "include": [
+    "src/ts/index.ts",
+    "src/td/demo.ts",
+  ],
+}

@@ -3,13 +3,13 @@
 
 # About this project
 
-This is an attempt to make a "stage" component which lets the user select elements, drag and drop them, resize them. 
+This is an attempt to make a "stage" component which lets the user select elements, drag and drop them, resize them.
 
 A component like this will be useful to the developer building any tool which includes a WYSIWYG.
 
 ## Use
 
-See [the online demo](https://lexoyo.me/stage/pub/) and its sources, [html here](https://github.com/lexoyo/stage/blob/master/src/jade/index.jade) and [js here](https://github.com/lexoyo/stage/blob/master/src/js/demo.js).
+See [the online demo](https://lexoyo.me/stage/pub/) and its sources, [html here](https://github.com/lexoyo/stage/blob/master/src/jade/index.jade) and [js here](https://github.com/lexoyo/stage/blob/master/src/ts/demo.js).
 
 The component can be initialized like this, which will make it possible to select, move and resize all the elements marked with the `.selectable` css class.
 
@@ -33,7 +33,7 @@ By default the elements which can be dragged or moved are those with the CSS cla
 ```javascript
 const stage = new Stage(iframe, {
 	isSelectableHook: (el) => el.classList.contains('selectable'),
-	isDroppableHook: (el, selection) => el.classList.contains('droppable'),
+	isDroppable: (el, selection) => el.classList.contains('droppable'),
 })
 ```
 
@@ -50,6 +50,6 @@ Run `npm install` and `npm run build` to build these files.
 
 Please [vote for the features which matter to you here](https://github.com/lexoyo/stage/labels/enhancement).
 
-If you want to contribute code, [read this readme for an introduction to the source code](./src/js/). And then you can help fixing the [issues found in the code by Code Climat](https://codeclimate.com/github/lexoyo/stage/issues) or find things to do [in these issues which need to be done](https://github.com/lexoyo/stage/labels/ready).
+If you want to contribute code, [read this readme for an introduction to the source code](./src/ts/). And then you can help fixing the [issues found in the code by Code Climat](https://codeclimate.com/github/lexoyo/stage/issues) or find things to do [in these issues which need to be done](https://github.com/lexoyo/stage/labels/ready).
 
 The source code is written in ES2015 with less and jade.

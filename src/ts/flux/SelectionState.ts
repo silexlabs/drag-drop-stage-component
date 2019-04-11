@@ -27,12 +27,12 @@ export const remove = selectable => ({
 /**
  * reducer
  */
-export const selection = (state, action) => {
+export const selection = (state=[], action) => {
   switch (action.type) {
     case TOGGLE:
       return state.map(selectable => selectable === action.selectable ? {
         ...selectable,
-        selected: !itme.selected,
+        selected: !selectable.selected,
       } : selectable);
     case REMOVE:
       return state.map(selectable => selectable === action.selectable ? {
