@@ -32,9 +32,9 @@ export class Mouse {
   private wasMultiSelected: boolean = false;
   constructor(private win, private store: StageStore) {
     this.win.addEventListener('scroll', (e) => this.scroll(e), true);
-    this.win.addEventListener('mousedown', (e) => this.down(e), true);
-    this.win.addEventListener('mouseup', (e) => this.up(e), true);
-    this.win.addEventListener('mousemove', (e) => this.move(e), true);
+    this.win.document.body.addEventListener('mousedown', (e) => this.down(e), true);
+    this.win.document.body.addEventListener('mouseup', (e) => this.up(e), true);
+    this.win.document.body.addEventListener('mousemove', (e) => this.move(e), true);
   }
   //////////////////////////////
   scroll(e: MouseEvent) {
@@ -179,28 +179,28 @@ export class Mouse {
         this.store.dispatch(MouseState.setCursorData({
           x: direction.x,
           y: direction.y,
-          cssClass: this.getResizeCursorClass(direction),
+          cursorType: this.getResizeCursorClass(direction),
         }));
       }
       else if(selectable.draggable) {
         this.store.dispatch(MouseState.setCursorData({
           x: '',
           y: '',
-          cssClass: CURSOR_MOVE,
+          cursorType: CURSOR_MOVE,
         }));
       }
       else if(selectable.selected) {
         this.store.dispatch(MouseState.setCursorData({
           x: '',
           y: '',
-          cssClass: CURSOR_SELECT,
+          cursorType: CURSOR_SELECT,
         }));
       }
       else {
         this.store.dispatch(MouseState.setCursorData({
           x: '',
           y: '',
-          cssClass: CURSOR_DEFAULT,
+          cursorType: CURSOR_DEFAULT,
         }));
       }
     }
@@ -208,7 +208,7 @@ export class Mouse {
       this.store.dispatch(MouseState.setCursorData({
         x: '',
         y: '',
-        cssClass: CURSOR_DEFAULT,
+        cursorType: CURSOR_DEFAULT,
       }));
     }
   }

@@ -32,16 +32,15 @@ describe('UiObserver', function() {
     jest.spyOn(stageStoreMock, 'getState');
 
     observer = new UiObserver(document, stageStoreMock, hooks);
-    jest.spyOn(observer, 'onMouseStateChanged');
     jest.spyOn(observer, 'onUiStateChanged');
   });
 
   it('init', function() {
-    expect(stageStoreMock.subscribe).toHaveBeenCalledTimes(2);
+    expect(stageStoreMock.subscribe).toHaveBeenCalledTimes(1);
     expect(stageStoreMock.getState().ui.mode).toBe(types.UiMode.NONE);
   });
 
-  it('onUiStateChanged', function() {
+  it('onUiStateChanged UiMode', function() {
     expect(observer.handler).toBeNull();
 
     stageStoreMock.state = {
@@ -50,7 +49,7 @@ describe('UiObserver', function() {
         mode: types.UiMode.DRAW,
       }
     };
-    stageStoreMock.dispatch(null, 1);
+    stageStoreMock.dispatch(null);
     expect(observer.onUiStateChanged).toBeCalledTimes(1);
     expect(observer.handler).not.toBeNull();
     expect(observer.handler).toBeInstanceOf(DrawHandler);
@@ -67,12 +66,12 @@ describe('UiObserver', function() {
         mode: types.UiMode.NONE,
       }
     };
-    stageStoreMock.dispatch(null, 1);
+    stageStoreMock.dispatch(null);
     expect(observer.onUiStateChanged).toBeCalledTimes(2);
     expect(observer.handler).toBeNull();
   });
 
-  it('onMouseStateChanged', function() {
+  it('onUiStateChanged scrollData', function() {
     stageStoreMock.state = {
       ...stageStoreMock.state,
       ui: {
@@ -86,7 +85,7 @@ describe('UiObserver', function() {
         scrollData: {x: 0, y: 100},
       }
     };
-    stageStoreMock.dispatch(null, 1);
+    stageStoreMock.dispatch(null);
     expect(observer.onUiStateChanged).toBeCalledTimes(1);
   });
 

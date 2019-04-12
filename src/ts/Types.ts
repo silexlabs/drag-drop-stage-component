@@ -108,7 +108,7 @@ export interface ScrollData {
 export interface CursorData {
   x: string
   y: string
-  cssClass: string
+  cursorType: string
 }
 
 export interface MouseData {

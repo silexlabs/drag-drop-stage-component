@@ -81,26 +81,26 @@ describe('Mouse', function() {
   });
 
   it('mouse modes', function() {
-    mouse.down(new MouseEvent('down', {
+    mouse.down(new MouseEvent('mousedown', {
       shiftKey: false,
     }));
     expect(mouse.mouseMode).toBe(MouseMode.DOWN);
-    mouse.up(new MouseEvent('up', {
+    mouse.up(new MouseEvent('mouseup', {
       shiftKey: false,
     }));
     expect(mouse.mouseMode).toBe(MouseMode.UP);
-    mouse.down(new MouseEvent('down', {
+    mouse.down(new MouseEvent('mousedown', {
       shiftKey: false,
     }));
     expect(mouse.mouseMode).toBe(MouseMode.DOWN);
-    mouse.move(new MouseEvent('move', {
+    mouse.move(new MouseEvent('mousemove', {
       shiftKey: false,
     }));
     expect(mouse.mouseMode).toBe(MouseMode.DRAGGING);
   });
 
   it('selection', function() {
-    StageStoreMock.elem1.dispatchEvent(new MouseEvent('down', {
+    StageStoreMock.elem1.dispatchEvent(new MouseEvent('mousedown', {
       shiftKey: false,
     }));
     expect(mouse.onDown).toBeCalledTimes(1);
@@ -108,7 +108,7 @@ describe('Mouse', function() {
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('SELECTION_SET');
 
-    StageStoreMock.elem1.dispatchEvent(new MouseEvent('up', {
+    StageStoreMock.elem1.dispatchEvent(new MouseEvent('mouseup', {
       shiftKey: false,
     }));
     expect(mouse.onUp).toBeCalledTimes(1);
@@ -116,7 +116,7 @@ describe('Mouse', function() {
 
   it('multi selection', function() {
     // select elem1
-    StageStoreMock.elem1.dispatchEvent(new MouseEvent('down', {
+    StageStoreMock.elem1.dispatchEvent(new MouseEvent('mousedown', {
       shiftKey: true,
     }));
     expect(mouse.onDown).toBeCalledTimes(1);
@@ -124,13 +124,13 @@ describe('Mouse', function() {
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('SELECTION_ADD');
 
-    StageStoreMock.elem1.dispatchEvent(new MouseEvent('up', {
+    StageStoreMock.elem1.dispatchEvent(new MouseEvent('mouseup', {
       shiftKey: true,
     }));
     expect(mouse.onUp).toBeCalledTimes(1);
 
     // select elem2
-    StageStoreMock.elem2.dispatchEvent(new MouseEvent('down', {
+    StageStoreMock.elem2.dispatchEvent(new MouseEvent('mousedown', {
       shiftKey: true,
     }));
     expect(mouse.onDown).toBeCalledTimes(2);
@@ -138,19 +138,19 @@ describe('Mouse', function() {
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('SELECTION_ADD');
 
-    StageStoreMock.elem2.dispatchEvent(new MouseEvent('up', {
+    StageStoreMock.elem2.dispatchEvent(new MouseEvent('mouseup', {
       shiftKey: true,
     }));
     expect(mouse.onUp).toBeCalledTimes(2);
 
     // deselect elem2
     stageStoreMock.selectableElem2.selected = true;
-    StageStoreMock.elem2.dispatchEvent(new MouseEvent('down', {
+    StageStoreMock.elem2.dispatchEvent(new MouseEvent('mousedown', {
       shiftKey: true,
     }));
     expect(mouse.onDown).toBeCalledTimes(3);
     expect(stageStoreMock.dispatch).toBeCalledTimes(3);
-    StageStoreMock.elem2.dispatchEvent(new MouseEvent('up', {
+    StageStoreMock.elem2.dispatchEvent(new MouseEvent('mouseup', {
       shiftKey: true,
     }));
     expect(mouse.onUp).toBeCalledTimes(3);
@@ -158,10 +158,10 @@ describe('Mouse', function() {
     expect(calls[calls.length - 1][0].type).toBe('SELECTION_REMOVE');
 
     // reset selection,
-    elem4.dispatchEvent(new MouseEvent('down', {
+    elem4.dispatchEvent(new MouseEvent('mousedown', {
       shiftKey: false,
     }));
-    elem4.dispatchEvent(new MouseEvent('up', {
+    elem4.dispatchEvent(new MouseEvent('mouseup', {
       shiftKey: false,
     }));
     var calls = stageStoreMock.dispatch['mock'].calls;
@@ -170,30 +170,30 @@ describe('Mouse', function() {
 
   it('app modes', function() {
     // draw,
-    elem4.dispatchEvent(new MouseEvent('down', {
+    elem4.dispatchEvent(new MouseEvent('mousedown', {
       shiftKey: false,
     }));
-    elem4.dispatchEvent(new MouseEvent('move', {
+    elem4.dispatchEvent(new MouseEvent('mousemove', {
       shiftKey: false,
     }));
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('UI_SET_MODE');
     expect(calls[calls.length - 1][0].mode).toBe(UiMode.DRAW);
-    elem4.dispatchEvent(new MouseEvent('up', {
+    elem4.dispatchEvent(new MouseEvent('mouseup', {
       shiftKey: false,
     }));
 
     // drag,
-    StageStoreMock.elem1.dispatchEvent(new MouseEvent('down', {
+    StageStoreMock.elem1.dispatchEvent(new MouseEvent('mousedown', {
       shiftKey: false,
     }));
-    StageStoreMock.elem1.dispatchEvent(new MouseEvent('move', {
+    StageStoreMock.elem1.dispatchEvent(new MouseEvent('mousemove', {
       shiftKey: false,
     }));
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('UI_SET_MODE');
     expect(calls[calls.length - 1][0].mode).toBe(UiMode.DRAG);
-    StageStoreMock.elem1.dispatchEvent(new MouseEvent('up', {
+    StageStoreMock.elem1.dispatchEvent(new MouseEvent('mouseup', {
       shiftKey: false,
     }));
   });

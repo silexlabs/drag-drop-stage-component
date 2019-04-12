@@ -1,9 +1,8 @@
-// import * as redux from 'redux';
 import {StageStore} from '../../src/ts/flux/StageStore';
 
 describe('StageStore', function() {
-  let instance;
-  beforeAll(() => {
+  let instance: StageStore;
+  beforeAll((done) => {
     document.body.innerHTML = `
       <div class="i-am-selectable"></div>
       <div class="i-am-NOT-selectable"></div>
@@ -15,12 +14,16 @@ describe('StageStore', function() {
       isDraggableHook: (el => true),
       isDropZoneHook: (el => true),
       isResizeableHook: (el => true),
+      useMinHeightHook: (el => true),
     }).forEach(selectable => {
       instance.dispatch({
         type: 'SELECTABLE_CREATE',
         selectable,
       })
     })
+    setTimeout(() => {
+      done();
+    }, 0);
   })
   it('createStore to create a store with the DOM as selectables', () => {
     expect(instance).not.toBeNull();
@@ -29,7 +32,7 @@ describe('StageStore', function() {
     expect(instance.getState().selectables.length).toBe(2);
     expect(instance.getState().selectables[0].draggable).toBe(true);
   });
-  it('dispatch and subscribe', () => {
+  it('dispatch and subscribe', (done) => {
     let changeCount = 0;
     const unsubscribe = instance.subscribe((current, prev) => {
       changeCount++;
@@ -48,12 +51,19 @@ describe('StageStore', function() {
     }, state => state.ui);
 
     instance.dispatch({
-      type: 'SELECTABLE_UPDATE',
-      selectables: instance.getState().selectables,
+      type: 'UI_SET_MODE',
+      mode: instance.getState().ui.mode,
     });
-    expect(changeCount).toBe(1);
-    expect(mouseChangeCount).toBe(0);
-    expect(selectablesChangeCount).toBe(1);
-    expect(uiChangeCount).toBe(0);
+    instance.dispatch({
+      type: 'SELECTABLE_UPDATE',
+      selectables: instance.getState().selectables
+    });
+    setTimeout(() => {
+      expect(changeCount).toBe(2);
+      expect(mouseChangeCount).toBe(0);
+      expect(selectablesChangeCount).toBe(1);
+      expect(uiChangeCount).toBe(1);
+      done();
+    }, 0);
   });
 });

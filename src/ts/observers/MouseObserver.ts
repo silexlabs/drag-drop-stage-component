@@ -23,12 +23,8 @@ export class MouseObserver {
     if(state.scrollData.x !== prevState.scrollData.x || state.scrollData.y !== prevState.scrollData.y) {
       DomMetrics.setScroll(this.doc, state.scrollData);
     }
-    if(state.cursorData.cssClass !== prevState.cursorData.cssClass) {
-      this.doc.body.style.cursor = state.cursorData.cssClass;
-    }
-    if(state.mouseData.target !== prevState.mouseData.target) {
-      if(prevState.mouseData.target) prevState.mouseData.target.classList.remove('hovered');
-      if(state.mouseData.target) state.mouseData.target.classList.add('hovered');
+    if(state.cursorData.cursorType !== prevState.cursorData.cursorType) {
+      this.doc.body.style.cursor = state.cursorData.cursorType;
     }
   }
 }

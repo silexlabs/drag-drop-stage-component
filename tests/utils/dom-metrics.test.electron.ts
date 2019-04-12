@@ -75,17 +75,18 @@ describe('DomMetrics', function() {
   it('getMetrics for absolute element without margin/padding/border', function() {
     const metrics = DomMetrics.getMetrics(elem1);
     expect(metrics.position).toBe('absolute');
-    expect(metrics.computedStyleRect).toMatchObject({"width":"10px","height":"10px","left":"100px","top":"100px"});
+    expect(metrics.computedStyleRect).toMatchObject({"width":10,"height":10,"left":100,"top":100});
     expect(metrics.border).toMatchObject({"left":0,"top":0,"right":0,"bottom":0});
     expect(metrics.padding).toMatchObject({"left":0,"top":0,"right":0,"bottom":0});
     expect(metrics.margin).toMatchObject({"left":0,"top":0,"right":0,"bottom":0});
     expect(metrics.clientRect).toMatchObject({"top":100,"left":100,"bottom":110,"right":110,"width":10,"height":10});
+    expect(metrics.proportions).toBe(1);
   });
 
   it('getMetrics for absolute element with margin/padding/border', function() {
     const metrics = DomMetrics.getMetrics(elem4);
     expect(metrics.position).toBe('absolute');
-    expect(metrics.computedStyleRect).toMatchObject({"width":"10px","height":"10px","left":"500px","top":"15000px"});
+    expect(metrics.computedStyleRect).toMatchObject({"width":10,"height":10,"left":500,"top":15000});
     expect(metrics.border).toMatchObject({"left":30,"top":30,"right":30,"bottom":30});
     expect(metrics.padding).toMatchObject({"left":20,"top":20,"right":20,"bottom":20});
     expect(metrics.margin).toMatchObject({"left":10,"top":10,"right":10,"bottom":10});
@@ -95,7 +96,7 @@ describe('DomMetrics', function() {
   it('getMetrics for an element in the flow with margin/padding/border', function() {
     const metrics = DomMetrics.getMetrics(elem3);
     expect(metrics.position).toBe("static");
-    expect(metrics.computedStyleRect).toMatchObject({"width":"10px","height":"10px","left": "auto","top": "auto"});
+    expect(metrics.computedStyleRect).toMatchObject({"width":10,"height":10,"left": 0,"top": 0});
     expect(metrics.border).toMatchObject({"left": 30,"top": 30,"right": 30,"bottom": 30});
     expect(metrics.padding).toMatchObject({"left": 20,"top": 20,"right": 20,"bottom": 20});
     expect(metrics.margin).toMatchObject({"left": 1000,"top": 1000,"right": 1000,"bottom": 1000});
@@ -111,27 +112,34 @@ describe('DomMetrics', function() {
       margin: {"left": 1000,"top": 1000,"right": 1000,"bottom": 1000},
       clientRect: {"top": 1000,"left": 1000,"bottom": 1110,"right": 1110,"width": 110,"height": 110},
     }
-    DomMetrics.setMetrics(elem1, metrics);
+    DomMetrics.setMetrics(elem1, false, metrics);
     expect(elem1.style.position).toBe("");
     expect({"width": elem1.style.width,"height": elem1.style.height,"left": elem1.style.left,"top": elem1.style.top}).toMatchObject({"width": "30px", "height": "999px", "left": "", "top": ""});
-    expect({"left": elem1.style.borderLeft,"top": elem1.style.borderTop,"right": elem1.style.borderRight,"bottom": elem1.style.borderBottom}).toMatchObject({"left": "30px","top": "30px","right": "30px","bottom": "30px"});
+    expect({"left": elem1.style.borderLeftWidth,"top": elem1.style.borderTopWidth,"right": elem1.style.borderRightWidth,"bottom": elem1.style.borderBottomWidth}).toMatchObject({"left": "30px","top": "30px","right": "30px","bottom": "30px"});
+    expect({"left": elem1.style.paddingLeft,"top": elem1.style.paddingTop,"right": elem1.style.paddingRight,"bottom": elem1.style.paddingBottom}).toMatchObject({"left": "20px","top": "20px","right": "20px","bottom": "20px"});
+    expect({"left": elem1.style.marginLeft,"top": elem1.style.marginTop,"right": elem1.style.marginRight,"bottom": elem1.style.marginBottom}).toMatchObject({"left": "1000px","top": "1000px","right": "1000px","bottom": "1000px"});
+
+    DomMetrics.setMetrics(elem1, true, metrics);
+    expect(elem1.style.position).toBe("");
+    expect({"width": elem1.style.width,"height": elem1.style.minHeight,"left": elem1.style.left,"top": elem1.style.top}).toMatchObject({"width": "30px", "height": "999px", "left": "", "top": ""});
+    expect({"left": elem1.style.borderLeftWidth,"top": elem1.style.borderTopWidth,"right": elem1.style.borderRightWidth,"bottom": elem1.style.borderBottomWidth}).toMatchObject({"left": "30px","top": "30px","right": "30px","bottom": "30px"});
     expect({"left": elem1.style.paddingLeft,"top": elem1.style.paddingTop,"right": elem1.style.paddingRight,"bottom": elem1.style.paddingBottom}).toMatchObject({"left": "20px","top": "20px","right": "20px","bottom": "20px"});
     expect({"left": elem1.style.marginLeft,"top": elem1.style.marginTop,"right": elem1.style.marginRight,"bottom": elem1.style.marginBottom}).toMatchObject({"left": "1000px","top": "1000px","right": "1000px","bottom": "1000px"});
   });
 
-  it('fromClientToComputed', function() {
-    const metrics1 = {
-      position: "static",
-      computedStyleRect: {"width": "0px","height": "0px","left": "auto","top": "auto"},
-      border: {"left": 30,"top": 30,"right": 30,"bottom": 30},
-      padding: {"left": 20,"top": 20,"right": 20,"bottom": 20},
-      margin: {"left": 1000,"top": 1000,"right": 1000,"bottom": 1000},
-      clientRect: {"top": 1000,"left": 1000,"bottom": 1100,"right": 1100,"width": 100,"height": 100}
-    };
-    const metrics2 = JSON.parse(JSON.stringify(metrics1));
-    metrics2.computedStyleRect = {"width": "0px","height": "0px","left": "auto","top": "auto"};
-    const resultMetrics = DomMetrics.fromClientToComputed(metrics2);
-  });
+  // it('fromClientToComputed', function() {
+  //   const metrics1 = {
+  //     position: "static",
+  //     computedStyleRect: {"width": "0px","height": "0px","left": "auto","top": "auto"},
+  //     border: {"left": 30,"top": 30,"right": 30,"bottom": 30},
+  //     padding: {"left": 20,"top": 20,"right": 20,"bottom": 20},
+  //     margin: {"left": 1000,"top": 1000,"right": 1000,"bottom": 1000},
+  //     clientRect: {"top": 1000,"left": 1000,"bottom": 1100,"right": 1100,"width": 100,"height": 100}
+  //   };
+  //   const metrics2 = JSON.parse(JSON.stringify(metrics1));
+  //   metrics2.computedStyleRect = {"width": "0px","height": "0px","left": "auto","top": "auto"};
+  //   const resultMetrics = DomMetrics.fromClientToComputed(metrics2);
+  // });
 
   it('get/setScroll', function() {
     // check initial state

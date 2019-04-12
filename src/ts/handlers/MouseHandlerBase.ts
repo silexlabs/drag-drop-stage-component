@@ -8,7 +8,7 @@ export class MouseHandlerBase {
   constructor(protected doc: HTMLDocument, protected store: StageStore, protected hooks: Hooks) {
     // store the selection
     this.selection = store.getState().selectables
-    .filter(selectable => selectable.selected);
+    this.selection = this.selection.filter(selectable => selectable.selected);
 
     // kepp in sync with mouse
     this.unsubsribe = store.subscribe(

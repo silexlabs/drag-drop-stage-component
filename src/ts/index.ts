@@ -63,7 +63,6 @@ export class Stage {
         selectable,
       })
     })
-    console.log('xxxxxxxxx', this.store)
 
     // state observers
     new SelectablesObserver(this.contentDocument, this.store, hooks);

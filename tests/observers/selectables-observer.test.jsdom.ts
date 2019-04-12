@@ -70,19 +70,18 @@ describe('SelectablesObserver', function() {
     expect(observer.onDropping).toBeCalledTimes(0);
   });
   it('onMetrics', function() {
-    const state = stageStoreMock.getState();
     stageStoreMock.state = {
       ...stageStoreMock.state,
       selectables: [{
-      ...stageStoreMock.selectableElem1,
-      metrics: {
-        position: 'relative',
-        margin: {top: 0, left: 0, bottom: 0, right: 0 },
-        padding: {top: 0, left: 0, bottom: 0, right: 0 },
-        border: {top: 0, left: 0, bottom: 0, right: 0 },
-        computedStyleRect: {top: 200, left: 200, bottom: 200, right: 200, width: 100, height: 100 },
-        clientRect: {top: 200, left: 200, bottom: 200, right: 200, width: 100, height: 100 },
-      },
+        ...stageStoreMock.selectableElem1,
+        metrics: {
+          position: 'relative',
+          margin: {top: 0, left: 0, bottom: 0, right: 0 },
+          padding: {top: 0, left: 0, bottom: 0, right: 0 },
+          border: {top: 0, left: 0, bottom: 0, right: 0 },
+          computedStyleRect: {top: 200, left: 200, bottom: 200, right: 200, width: 100, height: 100 },
+          clientRect: {top: 200, left: 200, bottom: 200, right: 200, width: 100, height: 100 },
+        },
       },
       stageStoreMock.selectableElem2,
       ],

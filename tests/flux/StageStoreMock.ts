@@ -6,6 +6,8 @@ export const hooks = {
   isDraggableHook: (el => true),
   isDropZoneHook: (el => true),
   isResizeableHook: (el => true),
+  useMinHeight: (el => true),
+  canDrop: (el => true),
 };
 
 export class StageStoreMock extends StageStore {
@@ -17,12 +19,14 @@ export class StageStoreMock extends StageStore {
   cbks = [];
   subscribe<SubState>(onChange: (state:SubState, prevState:SubState) => void, select=(state:types.State):SubState => (state as any)) {
     this.cbks.push((state:types.State, prevState:types.State) => onChange(select(state), select(prevState)));
-    return () => console.log('unsubscribe called');
+    return () => {
+      // console.log('unsubscribe called')
+    };
   }
 
   dispatch(action: any, idx: number = 0): any {
-    console.log('dispatch mock', action, idx);
-    if(! this.preventDispatch && this.cbks[idx]) this.cbks[idx](this.getState(), this.initialState);
+    // console.log('Dispatch', action, 'to', idx+1, '/', this.cbks.length);
+    if(!this.preventDispatch && this.cbks[idx]) this.cbks[idx](this.getState(), this.initialState);
     return null;
   }
 
@@ -33,8 +37,10 @@ export class StageStoreMock extends StageStore {
     draggable: true,
     resizeable: true,
     isDropZone: true,
+    useMinHeight: true,
     metrics: {
       position: 'absolute',
+      proportions: 1,
       margin: {top: 0, left: 0, bottom: 0, right: 0 },
       padding: {top: 0, left: 0, bottom: 0, right: 0 },
       border: {top: 0, left: 0, bottom: 0, right: 0 },
@@ -49,12 +55,14 @@ export class StageStoreMock extends StageStore {
     draggable: true,
     resizeable: true,
     isDropZone: true,
+    useMinHeight: true,
     metrics: {
       position: 'static',
+      proportions: 1,
       margin: {top: 0, left: 0, bottom: 0, right: 0 },
       padding: {top: 0, left: 0, bottom: 0, right: 0 },
       border: {top: 0, left: 0, bottom: 0, right: 0 },
-      computedStyleRect: {top: 100, left: 100, bottom: 200, right: 200, width: 100, height: 100 },
+      computedStyleRect: {top: 10, left: 10, bottom: 20, right: 20, width: 10, height: 10 },
       clientRect: {top: 10, left: 10, bottom: 20, right: 20, width: 10, height: 10 },
     },
   };
@@ -63,7 +71,7 @@ export class StageStoreMock extends StageStore {
   };
   mouseState: types.MouseState = {
     scrollData: {x: 0, y: 0},
-    cursorData: {x: '', y: '', cssClass: ''},
+    cursorData: {x: '', y: '', cursorType: ''},
     mouseData: {
       movementX: 0,
       movementY: 0,

@@ -47,7 +47,7 @@ export class ResizeHandler extends MouseHandlerBase {
     // }
 
     // set a new size
-    this.selection.forEach((selectable: SelectableState) => {
+    this.selection = this.selection.map((selectable: SelectableState) => {
       // handle the width and height computation
       const clientRect = {
         ...selectable.metrics.clientRect,
@@ -56,7 +56,6 @@ export class ResizeHandler extends MouseHandlerBase {
         ...selectable.metrics.computedStyleRect,
       };
       const cursorData = this.store.getState().mouse.cursorData;
-      const heightAttr = selectable.useMinHeight ? 'minHeight' : 'height';
       switch(cursorData.x) {
         case '':
           break;
@@ -97,23 +96,38 @@ export class ResizeHandler extends MouseHandlerBase {
         // compute the change
         computedStyleRect.top += mouseData.movementY;
         clientRect.top += mouseData.movementY;
-        console.log('TODO: handle the case when the content is too big');
         // handle the case where the content is too big
-        // const bb = selectable.el.getBoundingClientRect();
-        // const delta = bb.height - computedStyleRect.height;
-        // console.log('delta', delta)
-        // selectable.el.style.top = DomMetrics.getStyleValue(selectable.el, this.doc, 'top', {
-        //   computedStyleRect: computedStyleRect,
-        //   delta: Object.assign({}, selectable.delta, {top: selectable.delta.top - delta})
-        // });
+        //  store initial data
+        const heightAttr = selectable.useMinHeight ? 'minHeight' : 'height';
+        const initialHeight = selectable.el.style[heightAttr];
+        const initialWidth = selectable.el.style.width;
+
+        // move to the final position will take the new parent offset
+        selectable.el.style[heightAttr] = computedStyleRect.height + 'px';
+        selectable.el.style.width = computedStyleRect.width + 'px';
+
+        // check for the offset and update the metrics
+        const bb = selectable.el.getBoundingClientRect();
+        const deltaHeight = clientRect.height - bb.height;
+        computedStyleRect.height -= deltaHeight;
+        clientRect.height -= deltaHeight;
+        computedStyleRect.top += deltaHeight;
+        clientRect.top += deltaHeight;
+
+        // restore the initial data
+        selectable.el.style[heightAttr] = initialHeight;
+        selectable.el.style.width = initialWidth;
       }
 
       // update the metrics
-      selectable.metrics = {
-        ...selectable.metrics,
-        clientRect,
-        computedStyleRect,
-      }
+      return {
+        ...selectable,
+        metrics: {
+          ...selectable.metrics,
+          clientRect,
+          computedStyleRect,
+        }
+      };
     });
     // dispatch all the changes at once
     this.store.dispatch(selectableState.updateSelectables(this.selection));

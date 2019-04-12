@@ -18,8 +18,11 @@ export class MoveHandler extends MouseHandlerBase {
     this.positionMarker = this.doc.createElement('div');
     this.positionMarker.classList.add('position-marker');
 
-    // add css class
-    this.selection.forEach(selectable => selectable.el.classList.add('dragging'));
+    // add css class and style
+    this.selection.forEach(selectable => {
+      selectable.el.classList.add('dragging');
+      selectable.el.style.position = 'absolute';
+    });
   }
 
 
@@ -44,7 +47,6 @@ export class MoveHandler extends MouseHandlerBase {
     //   if(bb) {
     //     const update = DomMetrics.getScrollToShow(this.contentDocument, bb);
     //     const updatingScroll = update.x != 0 || update.y != 0;
-    //     console.log('bb', bb, update);
     //     // this.handler.update(movementX + update.x, movementY + update.y, clientX + update.x, clientY + update.y, shiftKey);
     //     // if(updatingScroll) setTimeout(_ => this.updateScroll(0, 0, clientX, clientY, shiftKey), 100);
     //     if(updatingScroll) {
@@ -57,19 +59,20 @@ export class MoveHandler extends MouseHandlerBase {
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
 
     // update elements postition
-    this.moveSelectable(this.selection, mouseData.movementX, mouseData.movementY);
+    this.selection = this.selection
+    .map(selectable => this.move(selectable, mouseData.movementX, mouseData.movementY));
 
     // update the destination of each element
-    this.selection.forEach((selectable) => {
+    this.selection = this.selection
+    .map(selectable => {
       let dropZones = this.findDropZonesUnderMouse(mouseData.mouseX, mouseData.mouseY);
-      let nearestPosition = this.findNearestPosition(dropZones, mouseData.mouseX, mouseData.mouseY);
-      let dropZoneUnderMouse = dropZones[0]; // the first one is supposed to be the top most one
       switch(selectable.metrics.position) {
         case 'static':
-        this.updateDestinationNonAbsolute(selectable, nearestPosition);
-        break;
+          let nearestPosition = this.findNearestPosition(dropZones, mouseData.mouseX, mouseData.mouseY);
+          return this.updateDestinationNonAbsolute(selectable, nearestPosition);
         default:
-          this.updateDestinationAbsolute(selectable, dropZoneUnderMouse);
+          let dropZoneUnderMouse = dropZones[0]; // the first one is supposed to be the top most one
+          return this.updateDestinationAbsolute(selectable, dropZoneUnderMouse);
       }
     });
 
@@ -84,13 +87,9 @@ export class MoveHandler extends MouseHandlerBase {
   release() {
     super.release();
     this.selection.forEach((selectable) => {
-      // reset style
-      // selectable.el.style.transform = '';
+      // reset css class and style
       selectable.el.classList.remove('dragging');
-
-      // reset relative position
-      // selectable.el.style.left = '0';
-      // selectable.el.style.top = '0';
+      selectable.el.style.position = selectable.metrics.position;
 
       // move to a different container
       if(selectable.dropZone && selectable.dropZone.parent) {
@@ -112,7 +111,7 @@ export class MoveHandler extends MouseHandlerBase {
           // if the destination parent is not already the target's parent
           // or if the target is not the last child
           // then append the target to the parent
-          if(selectable.dropZone.parent !== selectable.el.parentNode || selectable.el.nextElementSibling) {
+          if(selectable.dropZone.parent !== selectable.el.parentElement || selectable.el.nextElementSibling) {
             selectable.el.parentNode.removeChild(selectable.el);
             selectable.dropZone.parent.appendChild(selectable.el);
           }
@@ -120,21 +119,22 @@ export class MoveHandler extends MouseHandlerBase {
       }
       // check the actual position of the target
       // and move it to match the provided absolute position
-      let bb = selectable.el.getBoundingClientRect();
-      selectable.metrics.computedStyleRect.top -= bb.top;
-      selectable.metrics.computedStyleRect.left -= bb.left;
+      //  store initial data
+      const initialTop = selectable.el.style.top;
+      const initialLeft = selectable.el.style.left;
 
-      // selectable.el.style.left = (clientRect.left - bb.left) + 'px';
-      // selectable.el.style.top = (clientRect.top - bb.top) + 'px';
+      // move to the final position will take the new parent offset
+      selectable.el.style.top = selectable.metrics.computedStyleRect.top + 'px';
+      selectable.el.style.left = selectable.metrics.computedStyleRect.left + 'px';
 
-      // selectable.el.style.top = DomMetrics.getStyleValue(selectable.el, this.doc, 'top', {
-      //   computedStyle: selectable.computedStyle,
-      //   delta: Object.assign({}, selectable.delta, {top: selectable.delta.top + bb.top})
-      // });
-      // selectable.el.style.left = DomMetrics.getStyleValue(selectable.el, this.doc, 'left', {
-      //   computedStyle: selectable.computedStyle,
-      //   delta: Object.assign({}, selectable.delta, {top: selectable.delta.left + bb.left})
-      // });
+      // check for the offset and update the metrics
+      const bb = selectable.el.getBoundingClientRect();
+      selectable.metrics.computedStyleRect.top += selectable.metrics.clientRect.top - bb.top;
+      selectable.metrics.computedStyleRect.left += selectable.metrics.clientRect.left - bb.left;
+
+      // restore the initial data
+      selectable.el.style.top = initialTop;
+      selectable.el.style.left = initialLeft;
     });
 
     // remove the position marker
@@ -148,32 +148,42 @@ export class MoveHandler extends MouseHandlerBase {
   /**
    * move an element and update its data in selection
    */
-  moveSelectable(selectables: Array<SelectableState>, movementX, movementY) {
-    selectables.forEach(selectable => {
-      // compute the new position relative to the initial position
-      selectable.metrics.clientRect.left += movementX;
-      selectable.metrics.clientRect.top += movementY;
-
-      // compute new position in the client area
-      selectable.metrics.clientRect.left += movementX;
-      selectable.metrics.clientRect.top += movementY;
-    });
-    // visually move the element
-    // selectable.el.style.transform = `translate(${selectable.offsetX}px, ${selectable.offsetY}px)`;
+  move(selectable: SelectableState, movementX, movementY): SelectableState {
+    return {
+      ...selectable,
+      metrics: {
+        ...selectable.metrics,
+        clientRect: {
+          ...selectable.metrics.clientRect,
+          top: selectable.metrics.clientRect.top + movementY,
+          left: selectable.metrics.clientRect.left + movementX,
+        },
+        computedStyleRect: {
+          ...selectable.metrics.computedStyleRect,
+          top: selectable.metrics.computedStyleRect.top + movementY,
+          left: selectable.metrics.computedStyleRect.left + movementX,
+        },
+      }
+    };
   }
 
 
   /**
    * update the destination of the absolutely positioned elements
    */
-  updateDestinationAbsolute(selectable: SelectableState, dropZoneUnderMouse) {
+  updateDestinationAbsolute(selectable: SelectableState, dropZoneUnderMouse: HTMLElement): SelectableState {
     if(dropZoneUnderMouse === null) {
       // FIXME: should fallback on the body?
       console.info('no dropZone under the mouse found, how is it poussible!');
+      return selectable;
     }
     else {
-      selectable.dropZone = {
-        parent: dropZoneUnderMouse,
+      return {
+        ...selectable,
+        dropZone: {
+          ...selectable.dropZone,
+          parent: dropZoneUnderMouse,
+        },
       };
     }
   }
@@ -183,14 +193,18 @@ export class MoveHandler extends MouseHandlerBase {
    * update the destination of the NOT absolutely positioned elements
    * and display a marker in the flow
    */
-  updateDestinationNonAbsolute(selectable: SelectableState, nearestPosition) {
+  updateDestinationNonAbsolute(selectable: SelectableState, nearestPosition): SelectableState {
     if(nearestPosition.distance === null) {
       // FIXME: should fallback on the body?
       console.info('no nearest position found, how is it poussible?');
+      return selectable;
     }
     else {
       this.markPosition(nearestPosition);
-      selectable.dropZone = nearestPosition;
+      return {
+        ...selectable,
+        dropZone: nearestPosition,
+      };
     }
   }
 
@@ -226,19 +240,23 @@ export class MoveHandler extends MouseHandlerBase {
    * find the dropZone elements which are under the mouse
    * the first one in the list is supposed to be the top most one
    */
-  findDropZonesUnderMouse(x, y) {
+  findDropZonesUnderMouse(x, y): Array<HTMLElement> {
     // get a list of all dropZone zone under the point (x, y)
     return this.doc.elementsFromPoint(x, y)
-      .filter((el: HTMLElement) => el.tagName !== 'html'
-        && !this.selection.find(s => s.el === el)
-        && this.hooks.canDrop(el, this.selection));
+    .filter((el: HTMLElement) => {
+      const selectable = this.store.getState().selectables.find(s => s.el === el);
+      return (!selectable || selectable.isDropZone)
+        && (!!selectable || this.hooks.isDropZoneHook(el))
+        && (!selectable || !this.selection.find(s => s.el === el))
+        && this.hooks.canDrop(el, this.selection);
+    }) as Array<HTMLElement>;
   }
 
   /**
    * place an empty div (phantom) at each possible place in the dom
    * find the place where it is the nearest from the mouse
    */
-  findNearestPosition(dropZones, x, y) {
+  findNearestPosition(dropZones: Array<HTMLElement>, x, y) {
     // create an empty div to measure distance to the mouse
     let phantom = this.doc.createElement('div');
     phantom.classList.add('phantom');
@@ -251,7 +269,7 @@ export class MoveHandler extends MouseHandlerBase {
     // browse all drop zone and find the nearest point
     dropZones.forEach(dropZone => {
       for(let idx=0; idx<dropZone.childNodes.length; idx++) {
-        let sibling = dropZone.childNodes[idx];
+        let sibling = dropZone.childNodes[idx] as HTMLElement;
         dropZone.insertBefore(phantom, sibling);
         let distance = this.getDistance(phantom, x, y);
         if(nearestPosition.distance === null || nearestPosition.distance > distance) {

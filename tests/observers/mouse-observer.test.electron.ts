@@ -64,24 +64,11 @@ describe('MouseObserver', function() {
         cursorData: {
           y: '',
           x: '',
-          cssClass: 'test-class',
+          cursorType: 'alias',
         }
       }
     };
     stageStoreMock.dispatch(null);
-    expect(document.body.className).toBe('test-class');
-    // target
-    stageStoreMock.state = {
-      ...stageStoreMock.state,
-      mouse: {
-        ...stageStoreMock.state.mouse,
-        mouseData: {
-          ...stageStoreMock.state.mouse.mouseData,
-          target: StageStoreMock.elem1,
-        }
-      }
-    };
-    stageStoreMock.dispatch(null);
-    expect(StageStoreMock.elem1.classList.contains('hovered')).toBe(true);
+    expect(document.body.style.cursor).toBe('alias');
   });
 });

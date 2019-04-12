@@ -44,7 +44,7 @@ export const mouse = (state: types.MouseState=getDefaultState(), action: any) =>
 export const getDefaultState = (): types.MouseState => {
   return {
     scrollData: {x: 0, y: 0},
-    cursorData: {x: '', y: '', cssClass: ''},
+    cursorData: {x: '', y: '', cursorType: ''},
     mouseData: {
       movementX: 0,
       movementY: 0,

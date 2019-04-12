@@ -25,6 +25,7 @@ export class SelectablesObserver {
     const filterBy = (propName, selectable) => {
       const oldSelectable = prevState.find(old => selectable.el === old.el);
       // FIXME: use JSON.stringify to compare?
+      // return !oldSelectable || JSON.stringify(oldSelectable[propName]) !== JSON.stringify(selectable[propName]);
       return !oldSelectable || oldSelectable[propName] !== selectable[propName];
     }
     const metrics = state.filter(selectable => filterBy('metrics', selectable));
@@ -48,9 +49,9 @@ export class SelectablesObserver {
   // update elements position and size
   // TODO: ?? update element container: change container or the container size
   // TODO: ?? add or remove elements
-  onMetrics(selectables) {
+  onMetrics(selectables: Array<SelectableState>) {
     selectables.forEach(selectable => {
-      DomMetrics.setMetrics(selectable.el, selectable.metrics);
+      DomMetrics.setMetrics(selectable.el, selectable.useMinHeight, selectable.metrics);
     });
   }
   onSelection(selectables) {

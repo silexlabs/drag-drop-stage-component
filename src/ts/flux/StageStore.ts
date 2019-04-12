@@ -64,8 +64,23 @@ export class StageStore implements redux.Store<types.State> {
     }
     return this.store.subscribe(handleChange);
   }
+  // clone the object, not deep
+  clone<SubState>(obj: SubState): SubState {
+    let res: any;
+    if(obj instanceof Array) res = (obj as Array<any>).slice() as any as SubState;
+    else if(obj instanceof Object) res = {
+        ...(obj as any as Object),
+      } as SubState;
+    else res = obj;
+    if(obj === res) throw 'not cloned';
+    return res;
+  }
   dispatch(action: any): any {
-    return this.store.dispatch(action);
+    // avoid too much recursions
+    // TODO: queue?
+    // console.log('dispatch', action);
+    setTimeout(() => this.store.dispatch(action), 0);
+    return null;
   }
   getState(): types.State {
     return this.store.getState();

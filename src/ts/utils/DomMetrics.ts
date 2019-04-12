@@ -69,7 +69,7 @@ export function getDocument(el): HTMLDocument {
 /**
  * @param {HTMLElement} el
  */
-export function setMetrics(el, metrics) {
+export function setMetrics(el, useMinHeight, metrics) {
   const doc = getDocument(el);
   const win = getWindow(doc);
   const style = win.getComputedStyle(el);
@@ -79,16 +79,16 @@ export function setMetrics(el, metrics) {
   function updateStyle(objName, propName, styleName) {
     const styleValue = metrics[objName][propName];
     if((parseInt(style.getPropertyValue(objName + '-' + propName)) || 0) !== styleValue) {
-      // console.log('UPDATE METRICS', objName, propName, styleName, styleValue, style.getPropertyValue(objName + '-' + propName));
       el.style[styleName] = styleValue + 'px';
     }
   }
+
   updateStyle('computedStyleRect', 'top', 'top');
   updateStyle('computedStyleRect', 'left', 'left');
   updateStyle('computedStyleRect', 'bottom', 'bottom');
   updateStyle('computedStyleRect', 'right', 'right');
   updateStyle('computedStyleRect', 'width', 'width');
-  updateStyle('computedStyleRect', 'height', 'height');
+  updateStyle('computedStyleRect', 'height', useMinHeight ? 'minHeight' : 'height');
 
   updateStyle('margin', 'top', 'marginTop');
   updateStyle('margin', 'left', 'marginLeft');
@@ -100,10 +100,10 @@ export function setMetrics(el, metrics) {
   updateStyle('padding', 'bottom', 'paddingBottom');
   updateStyle('padding', 'right', 'paddingRight');
 
-  updateStyle('border', 'top', 'borderTop');
-  updateStyle('border', 'left', 'borderLeft');
-  updateStyle('border', 'bottom', 'borderBottom');
-  updateStyle('border', 'right', 'borderRight');
+  updateStyle('border', 'top', 'borderTopWidth');
+  updateStyle('border', 'left', 'borderLeftWidth');
+  updateStyle('border', 'bottom', 'borderBottomWidth');
+  updateStyle('border', 'right', 'borderRightWidth');
 }
 
 /**
@@ -117,7 +117,7 @@ export function getMetrics(el): types.ElementMetrics {
   const clientRect = el.getBoundingClientRect();
   return {
     position: style.getPropertyValue('position'),
-    proportions: clientRect.y / (clientRect.x || .000000000001),
+    proportions: clientRect.height / (clientRect.width || .000000000001),
     computedStyleRect: {
       width: parseInt(style.getPropertyValue('width')) || 0,
       height: parseInt(style.getPropertyValue('height')) || 0,
@@ -179,20 +179,20 @@ export function setScroll(doc, scroll) {
 }
 
 
-/**
- *
- * @param {ElementMetrics} metrics
- * @return {string} get the computedStyleRect that matches metrics.clientRect
- */
-export function fromClientToComputed(metrics) {
-  // TODO: should we handle other scroll than the window?
-  return {
-    position: metrics.position,
-    top: Math.round(metrics.clientRect.top + metrics.margin.top),
-    left: Math.round(metrics.clientRect.left + metrics.margin.left),
-    right: Math.round(metrics.clientRect.right + metrics.margin.left + metrics.padding.left + metrics.padding.right + metrics.border.left + metrics.border.right),
-    bottom: Math.round(metrics.clientRect.bottom + metrics.margin.top + metrics.padding.top + metrics.padding.bottom + metrics.border.top + metrics.border.bottom),
-    width: Math.round(metrics.clientRect.width + metrics.padding.left + metrics.padding.right + metrics.border.left + metrics.border.right),
-    height: Math.round(metrics.clientRect.height + metrics.border.top + metrics.border.bottom + metrics.padding.top + metrics.padding.bottom),
-  };
-}
+// /**
+//  *
+//  * @param {ElementMetrics} metrics
+//  * @return {string} get the computedStyleRect that matches metrics.clientRect
+//  */
+// export function fromClientToComputed(metrics) {
+//   // TODO: should we handle other scroll than the window?
+//   return {
+//     position: metrics.position,
+//     top: Math.round(metrics.clientRect.top + metrics.margin.top),
+//     left: Math.round(metrics.clientRect.left + metrics.margin.left),
+//     right: Math.round(metrics.clientRect.right + metrics.margin.left + metrics.padding.left + metrics.padding.right + metrics.border.left + metrics.border.right),
+//     bottom: Math.round(metrics.clientRect.bottom + metrics.margin.top + metrics.padding.top + metrics.padding.bottom + metrics.border.top + metrics.border.bottom),
+//     width: Math.round(metrics.clientRect.width + metrics.padding.left + metrics.padding.right + metrics.border.left + metrics.border.right),
+//     height: Math.round(metrics.clientRect.height + metrics.border.top + metrics.border.bottom + metrics.padding.top + metrics.padding.bottom),
+//   };
+// }
