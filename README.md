@@ -1,5 +1,6 @@
 [ ![Codeship Status for lexoyo/stage](https://codeship.com/projects/3bbb51a0-ea08-0133-a1fa-5a99213623df/status?branch=master)](https://codeship.com/projects/147777)
 [![Code Climate](https://codeclimate.com/github/lexoyo/stage/badges/gpa.svg)](https://codeclimate.com/github/lexoyo/stage)
+[![Démo stage wysiwyg drag and drop](http://monitoshi.lexoyo.me/badge/1555195980574-1501)](https://lexoyo.me/stage/pub/)
 
 ## About this project
 
@@ -7,7 +8,7 @@ This is an attempt to make a "stage" component which lets the user select elemen
 
 A component like this will be useful to the developer building any tool which includes a WYSIWYG.
 
-[Here is a very simple example](./pub).
+[Here is a very simple example](https://lexoyo.me/stage/pub/).
 
 ## Features
 
@@ -23,7 +24,7 @@ Here is a [list of features](https://github.com/lexoyo/stage/issues?q=is%3Aissue
 
 ## Use
 
-See [the online demo](https://lexoyo.me/stage/pub/) and its sources, [html here](https://github.com/lexoyo/stage/blob/master/src/jade/index.jade) and [js here](https://github.com/lexoyo/stage/blob/master/src/ts/demo.js).
+See [the online demo](https://lexoyo.me/stage/pub/) and its sources: [html here](https://github.com/lexoyo/stage/blob/master/src/jade/index.jade) and [js here](https://github.com/lexoyo/stage/blob/master/src/ts/demo.js).
 
 The component can be initialized like this, which will make it possible to select, move and resize all the elements marked with the `.selectable` css class.
 
@@ -59,6 +60,12 @@ The build requires nodejs and npm, and it produces these files:
 * `pub/demo.html`, which is a demo page for you to test the component
 
 Run `npm install` and `npm run build` to build these files.
+
+## Dependencies
+
+This component only depenency is [the redux library](https://www.npmjs.com/package/redux).
+
+It uses [Typescript](https://www.typescriptlang.org/) to compile to Javscript and [less](http://lesscss.org/) to compile to CSS. Also the unit tests are written with [Jest](https://jestjs.io/).
 
 ## Contribute
 
