@@ -1,4 +1,5 @@
 import * as types from '../Types';
+import { StageStore } from '../flux/StageStore';
 
 export const SCROLL_ZONE_SIZE = 50;
 
@@ -178,6 +179,131 @@ export function setScroll(doc, scroll) {
   win.scroll(scroll.x, scroll.y);
 }
 
+const BORDER_SIZE = 10;
+
+
+export const CURSOR_DEFAULT = 'default';
+export const CURSOR_SELECT = 'pointer';
+export const CURSOR_MOVE = 'move';
+export const CURSOR_NW = 'nw-resize';
+export const CURSOR_NE = 'ne-resize';
+export const CURSOR_SW = 'sw-resize';
+export const CURSOR_SE = 'se-resize';
+export const CURSOR_W = 'w-resize';
+export const CURSOR_E = 'e-resize';
+export const CURSOR_N = 'n-resize';
+export const CURSOR_S = 's-resize';
+
+// check if the mouse is on the side of the selectable
+// this happens only when the mouse is over the selectable
+export function getDirection(clientX, clientY, scrollData: types.ScrollData, selectable: types.SelectableState): {x: string, y: string} {
+  const bb = selectable.metrics.clientRect;
+  const distFromBorder = {
+    left: clientX + scrollData.x - bb.left,
+    right: bb.width + bb.left - (clientX + scrollData.x),
+    top: clientY + scrollData.y - bb.top,
+    bottom: bb.height + bb.top - (clientY + scrollData.y),
+  }
+  // get resize direction
+  const direction = { x: '', y: '' };
+  if(distFromBorder.left < BORDER_SIZE) direction.x = 'left';
+  else if(distFromBorder.right < BORDER_SIZE) direction.x = 'right';
+  if(distFromBorder.top < BORDER_SIZE) direction.y = 'top';
+  else if(distFromBorder.bottom < BORDER_SIZE) direction.y = 'bottom';
+  return direction;
+}
+
+export function getResizeCursorClass(direction) {
+  if(direction.x === 'left' && direction.y === 'top') return CURSOR_NW;
+  else if(direction.x === 'right' && direction.y === 'top') return CURSOR_NE;
+  else if(direction.x === 'left' && direction.y === 'bottom') return CURSOR_SW;
+  else if(direction.x === 'right' && direction.y === 'bottom') return CURSOR_SE;
+  else if(direction.x === 'left' && direction.y === '') return CURSOR_W;
+  else if(direction.x === 'right' && direction.y === '') return CURSOR_E;
+  else if(direction.x === '' && direction.y === 'top') return CURSOR_N;
+  else if(direction.x === '' && direction.y === 'bottom') return CURSOR_S;
+  throw new Error('direction not found');
+}
+
+export function getCursorData(clientX: number, clientY: number, scrollData: types.ScrollData, selectable: types.SelectableState): types.CursorData {
+  if(selectable) {
+    const direction = getDirection(clientX, clientY, scrollData, selectable);
+    if(selectable.resizeable && (direction.x !== '' || direction.y !== '')) {
+      return {
+        x: direction.x,
+        y: direction.y,
+        cursorType: getResizeCursorClass(direction),
+      };
+    }
+    else if(selectable.draggable) {
+      return {
+        x: '',
+        y: '',
+        cursorType: CURSOR_MOVE,
+      };
+    }
+    else if(selectable.selected) {
+      return {
+        x: '',
+        y: '',
+        cursorType: CURSOR_SELECT,
+      };
+    }
+    else {
+      return {
+        x: '',
+        y: '',
+        cursorType: CURSOR_DEFAULT,
+      };
+    }
+  }
+  else {
+    return {
+      x: '',
+      y: '',
+      cursorType: CURSOR_DEFAULT,
+    };
+  }
+}
+
+export function getSelectableState(store: StageStore, el) {
+  return store.getState().selectables.find(selectable => selectable.el === el);
+}
+
+
+export function getSelection(store: StageStore) {
+  return store.getState().selectables.filter(selectable => selectable.selected);
+}
+
+
+/**
+ * returns the state of the first container which is selectable
+ * or null if the element and none of its parents are selectable
+ */
+export function getSelectable(store: StageStore, element: HTMLElement) {
+  let el = element;
+  let data;
+  while(!!el && !(data = getSelectableState(store, el))) {
+    el = el.parentElement;
+  }
+  return data;
+}
+
+
+/**
+ * check if an element has a parent which is selected and draggable
+ * @param {HTMLElement} selectable
+ */
+export function hasASelectedDraggableParent(store: StageStore, selectable: HTMLElement) {
+  const selectableParent = getSelectable(store, selectable.parentElement);
+  if(selectableParent) {
+    if(selectableParent.selected && selectableParent.draggable) return true;
+    else return hasASelectedDraggableParent(store, selectableParent.el);
+  }
+  else {
+    return false;
+  }
+}
 
 // /**
 //  *

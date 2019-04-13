@@ -6,7 +6,7 @@ describe('Mouse', function() {
   var stageStoreMock: StageStoreMock;
   var elem3;
   var elem4;
-  var mouse;
+  var mouse: Mouse;
   beforeEach(function () {
     document.body.innerHTML = `
       <style>
@@ -41,28 +41,6 @@ describe('Mouse', function() {
     jest.spyOn(mouse, 'onMove');
     jest.spyOn(mouse, 'onDrag');
     jest.spyOn(mouse, 'onStartDrag');
-  });
-
-  it('getSelectable', function() {
-    const selectable1 = mouse.getSelectable(StageStoreMock.elem1);
-    expect(selectable1).not.toBeNull();
-    expect(selectable1.el).toBe(StageStoreMock.elem1);
-
-    const selectable3 = mouse.getSelectable(elem3);
-    expect(selectable3).not.toBeNull();
-    expect(selectable3.el).toBe(StageStoreMock.elem1);
-  });
-
-  it('hasASelectedDraggableParent', function() {
-    stageStoreMock.selectableElem1.selected = true;
-    const result1 = mouse.hasASelectedDraggableParent(StageStoreMock.elem1);
-    expect(result1).toBe(false);
-
-    const result2 = mouse.hasASelectedDraggableParent(StageStoreMock.elem2);
-    expect(result2).toBe(false);
-
-    const result3 = mouse.hasASelectedDraggableParent(elem3);
-    expect(result3).toBe(true);
   });
 
   it('onScroll, a callback should listen for scroll event on mouse', function(done) {

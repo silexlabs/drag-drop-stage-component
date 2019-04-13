@@ -96,27 +96,50 @@ export class ResizeHandler extends MouseHandlerBase {
         // compute the change
         computedStyleRect.top += mouseData.movementY;
         clientRect.top += mouseData.movementY;
-        // handle the case where the content is too big
+      }
+      // handle the case where the resize has not been possible
+      // either because the content is too big, or a min-whidth/height has overriden our changes
+      if(cursorData.x !== '') {
         //  store initial data
-        const heightAttr = selectable.useMinHeight ? 'minHeight' : 'height';
-        const initialHeight = selectable.el.style[heightAttr];
         const initialWidth = selectable.el.style.width;
 
         // move to the final position will take the new parent offset
-        selectable.el.style[heightAttr] = computedStyleRect.height + 'px';
         selectable.el.style.width = computedStyleRect.width + 'px';
 
         // check for the offset and update the metrics
         const bb = selectable.el.getBoundingClientRect();
-        const deltaHeight = clientRect.height - bb.height;
-        computedStyleRect.height -= deltaHeight;
-        clientRect.height -= deltaHeight;
-        computedStyleRect.top += deltaHeight;
-        clientRect.top += deltaHeight;
+        const delta = clientRect.width - bb.width;
+        computedStyleRect.width -= delta;
+        clientRect.width -= delta;
+        if(cursorData.x === 'left') {
+          computedStyleRect.left += delta;
+          clientRect.left += delta;
+        }
+        // restore the initial data
+        selectable.el.style.width = initialWidth;
+      }
+      // handle the case where the resize has not been possible
+      // either because the content is too big, or a min-whidth/height has overriden our changes
+      if(cursorData.y !== '') {
+        //  store initial data
+        const heightAttr = selectable.useMinHeight ? 'minHeight' : 'height';
+        const initialHeight = selectable.el.style[heightAttr];
+
+        // move to the final position will take the new parent offset
+        selectable.el.style[heightAttr] = computedStyleRect.height + 'px';
+
+        // check for the offset and update the metrics
+        const bb = selectable.el.getBoundingClientRect();
+        const delta = clientRect.height - bb.height;
+        computedStyleRect.height -= delta;
+        clientRect.height -= delta;
+        if(cursorData.y === 'top') {
+          computedStyleRect.top += delta;
+          clientRect.top += delta;
+        }
 
         // restore the initial data
         selectable.el.style[heightAttr] = initialHeight;
-        selectable.el.style.width = initialWidth;
       }
 
       // update the metrics
@@ -140,5 +163,11 @@ export class ResizeHandler extends MouseHandlerBase {
   release() {
     super.release();
     this.selection.forEach(selectable => selectable.el.classList.remove('resizing'));
+    // reset the state of the mouse
+    // this is useful when the resize has not been taken into account (e.g. content too big)
+    // and the mouse is not on the edge of the element anymore
+    const state = this.store.getState();
+    const selectable = domMetrics.getSelectable(this.store, state.mouse.mouseData.target);
+    this.store.dispatch(mouseState.setCursorData(domMetrics.getCursorData(state.mouse.mouseData.mouseX, state.mouse.mouseData.mouseY, state.mouse.scrollData, selectable)));
   }
 }
