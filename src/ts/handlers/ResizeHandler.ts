@@ -169,5 +169,14 @@ export class ResizeHandler extends MouseHandlerBase {
     const state = this.store.getState();
     const selectable = domMetrics.getSelectable(this.store, state.mouse.mouseData.target);
     this.store.dispatch(mouseState.setCursorData(domMetrics.getCursorData(state.mouse.mouseData.mouseX, state.mouse.mouseData.mouseY, state.mouse.scrollData, selectable)));
+
+    // update the real metrics after drop
+    const updatedState = this.store.getState().selectables.map(selectable => {
+      return {
+        ...selectable,
+        metrics: domMetrics.getMetrics(selectable.el),
+      }
+    });
+    this.store.dispatch(selectableState.updateSelectables(updatedState));
   }
 }

@@ -1,10 +1,10 @@
 
 export interface Hooks {
-  isSelectableHook?: (el: HTMLElement) => boolean;
-  isDraggableHook?: (el: HTMLElement) => boolean;
-  isDropZoneHook?: (el: HTMLElement) => boolean;
-  isResizeableHook?: (el: HTMLElement) => boolean;
-  useMinHeightHook?: (el: HTMLElement) => boolean;
+  isSelectable?: (el: HTMLElement) => boolean;
+  isDraggable?: (el: HTMLElement) => boolean;
+  isDropZone?: (el: HTMLElement) => boolean;
+  isResizeable?: (el: HTMLElement) => boolean;
+  useMinHeight?: (el: HTMLElement) => boolean;
   canDrop?: (el: HTMLElement, selection: Array<SelectableState>) => boolean;
   onDrag?: (selectables: Array<SelectableState>) => void;
   onDrop?: (selectables: Array<SelectableState>) => void;
@@ -53,6 +53,8 @@ export interface SelectableState {
   useMinHeight: boolean
   dropping: boolean // this is a drop zone which is about to receive the dragged elements
   metrics: ElementMetrics
+  preventMetrics?: boolean // while being dragged, elements are out of the flow, do not apply styles
+  translation?: {x: number, y: number}
 }
 
 /**

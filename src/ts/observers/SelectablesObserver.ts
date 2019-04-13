@@ -45,38 +45,58 @@ export class SelectablesObserver {
 
     const dropping = state.filter(selectable => filterBy('dropping', selectable));
     if(dropping.length > 0) this.onDropping(dropping);
+
+    const translation = state.filter(selectable => filterBy('translation', selectable));
+    if(translation.length > 0) this.onTranslation(translation);
   }
   // update elements position and size
-  // TODO: ?? update element container: change container or the container size
-  // TODO: ?? add or remove elements
   onMetrics(selectables: Array<SelectableState>) {
     selectables.forEach(selectable => {
-      DomMetrics.setMetrics(selectable.el, selectable.useMinHeight, selectable.metrics);
+      // while being dragged, elements are out of the flow, do not apply styles
+      if(!selectable.preventMetrics) {
+        DomMetrics.setMetrics(selectable.el, selectable.useMinHeight, selectable.metrics);
+      }
     });
   }
-  onSelection(selectables) {
+  onSelection(selectables: Array<SelectableState>) {
     selectables.forEach(selectable => selectable.selected ?
       selectable.el.classList.add('selected') :
       selectable.el.classList.remove('selected'))
   }
-  onDraggable(selectables) {
+  onDraggable(selectables: Array<SelectableState>) {
     selectables.forEach(selectable => selectable.draggable ?
       selectable.el.classList.add('draggable') :
       selectable.el.classList.remove('draggable'))
   }
-  onResizeable(selectables) {
+  onResizeable(selectables: Array<SelectableState>) {
     selectables.forEach(selectable => selectable.resizeable ?
       selectable.el.classList.add('resizeable') :
       selectable.el.classList.remove('resizeable'))
   }
-  onDropZone(selectables) {
+  onDropZone(selectables: Array<SelectableState>) {
     selectables.forEach(selectable => selectable.isDropZone ?
       selectable.el.classList.add('isDropZone') :
       selectable.el.classList.remove('isDropZone'))
   }
-  onDropping(selectables) {
+  onDropping(selectables: Array<SelectableState>) {
     selectables.forEach(selectable => selectable.dropping ?
       selectable.el.classList.add('dropping') :
       selectable.el.classList.remove('dropping'))
+  }
+  onTranslation(selectables: Array<SelectableState>) {
+    selectables.forEach(selectable => {
+      if(!!selectable.translation) {
+        selectable.el.style.transform = `translate(${selectable.translation.x}px, ${selectable.translation.y}px)`;
+        selectable.el.style.zIndex = '99999999';
+        if(selectable.metrics.position === 'static') {
+          selectable.el.style.position = 'relative';
+        }
+      }
+      else {
+        selectable.el.style.transform = '';
+        selectable.el.style.zIndex = '';
+        selectable.el.style.position = '';
+      }
+    });
   }
 }

@@ -70,13 +70,18 @@ export function getDocument(el): HTMLDocument {
 /**
  * @param {HTMLElement} el
  */
-export function setMetrics(el, useMinHeight, metrics) {
+export function setMetrics(el: HTMLElement, useMinHeight: boolean, metrics: types.ElementMetrics) {
   const doc = getDocument(el);
   const win = getWindow(doc);
   const style = win.getComputedStyle(el);
-  if(style.getPropertyValue('position') !== metrics.position) {
+  const position = style.getPropertyValue('position');
+
+  // handle position
+  if(position !== metrics.position) {
     el.style.position = metrics.position;
   }
+
+  // handle DOM metrics
   function updateStyle(objName, propName, styleName) {
     const styleValue = metrics[objName][propName];
     if((parseInt(style.getPropertyValue(objName + '-' + propName)) || 0) !== styleValue) {
@@ -84,12 +89,16 @@ export function setMetrics(el, useMinHeight, metrics) {
     }
   }
 
-  updateStyle('computedStyleRect', 'top', 'top');
-  updateStyle('computedStyleRect', 'left', 'left');
-  updateStyle('computedStyleRect', 'bottom', 'bottom');
-  updateStyle('computedStyleRect', 'right', 'right');
+  if(metrics.position !== 'static') {
+    updateStyle('computedStyleRect', 'top', 'top');
+    updateStyle('computedStyleRect', 'left', 'left');
+  }
   updateStyle('computedStyleRect', 'width', 'width');
   updateStyle('computedStyleRect', 'height', useMinHeight ? 'minHeight' : 'height');
+  // TODO: expose a hook to decide between height/bottom and width/right
+  // just like minHeight and height
+  // updateStyle('computedStyleRect', 'bottom', 'bottom');
+  // updateStyle('computedStyleRect', 'right', 'right');
 
   updateStyle('margin', 'top', 'marginTop');
   updateStyle('margin', 'left', 'marginLeft');
@@ -294,8 +303,8 @@ export function getSelectable(store: StageStore, element: HTMLElement) {
  * check if an element has a parent which is selected and draggable
  * @param {HTMLElement} selectable
  */
-export function hasASelectedDraggableParent(store: StageStore, selectable: HTMLElement) {
-  const selectableParent = getSelectable(store, selectable.parentElement);
+export function hasASelectedDraggableParent(store: StageStore, el: HTMLElement) {
+  const selectableParent = getSelectable(store, el.parentElement);
   if(selectableParent) {
     if(selectableParent.selected && selectableParent.draggable) return true;
     else return hasASelectedDraggableParent(store, selectableParent.el);

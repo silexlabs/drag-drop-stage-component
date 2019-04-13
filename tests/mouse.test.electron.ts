@@ -101,6 +101,8 @@ describe('Mouse', function() {
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('SELECTION_ADD');
+    expect(calls[calls.length - 1][0].selectable.el).toBe(StageStoreMock.elem1);
+    stageStoreMock.selectableElem1.selected = true;
 
     StageStoreMock.elem1.dispatchEvent(new MouseEvent('mouseup', {
       shiftKey: true,
@@ -115,11 +117,14 @@ describe('Mouse', function() {
     expect(stageStoreMock.dispatch).toBeCalledTimes(2);
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('SELECTION_ADD');
+    expect(calls[calls.length - 1][0].selectable.el).toBe(StageStoreMock.elem2);
+    stageStoreMock.selectableElem2.selected = true;
 
     StageStoreMock.elem2.dispatchEvent(new MouseEvent('mouseup', {
       shiftKey: true,
     }));
     expect(mouse.onUp).toBeCalledTimes(2);
+    expect(stageStoreMock.dispatch).toBeCalledTimes(2);
 
     // deselect elem2
     stageStoreMock.selectableElem2.selected = true;
@@ -134,6 +139,7 @@ describe('Mouse', function() {
     expect(mouse.onUp).toBeCalledTimes(3);
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('SELECTION_REMOVE');
+    stageStoreMock.selectableElem2.selected = false;
 
     // reset selection,
     elem4.dispatchEvent(new MouseEvent('mousedown', {

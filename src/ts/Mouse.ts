@@ -54,7 +54,6 @@ export class Mouse {
        this.onMove(e);
     }
   }
-  /////////////////////////////////
 
   /////////////////////////////////////
   /**
@@ -86,7 +85,7 @@ export class Mouse {
     const selectable = DomMetrics.getSelectable(this.store, target as HTMLElement);
     if(selectable) {
       if(shiftKey) {
-        if(this.wasMultiSelected || selectable.selected) {
+        if(this.wasMultiSelected && selectable.selected) {
           this.store.dispatch(SelectionAction.remove(selectable));
         }
       }

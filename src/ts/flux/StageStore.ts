@@ -14,15 +14,15 @@ export class StageStore implements redux.Store<types.State> {
   static selectablesFromDom(doc, hooks: types.Hooks): Array<types.SelectableState> {
     return Array
     .from(doc.querySelectorAll('*'))
-    .filter((el: HTMLElement) => hooks.isSelectableHook(el))
+    .filter((el: HTMLElement) => hooks.isSelectable(el))
     .map((el: HTMLElement): types.SelectableState => ({
       el,
       selected: false,
       dropping: false,
-      draggable: hooks.isDraggableHook(el),
-      resizeable: hooks.isResizeableHook(el),
-      isDropZone: hooks.isDropZoneHook(el),
-      useMinHeight: hooks.useMinHeightHook(el),
+      draggable: hooks.isDraggable(el),
+      resizeable: hooks.isResizeable(el),
+      isDropZone: hooks.isDropZone(el),
+      useMinHeight: hooks.useMinHeight(el),
       metrics: DomMetrics.getMetrics(el),
     }));
   }
@@ -75,11 +75,14 @@ export class StageStore implements redux.Store<types.State> {
     if(obj === res) throw 'not cloned';
     return res;
   }
-  dispatch(action: any): any {
+  dispatch(action: any, cbk: () => void = null): any {
     // avoid too much recursions
     // TODO: queue?
     // console.log('dispatch', action);
-    setTimeout(() => this.store.dispatch(action), 0);
+    setTimeout(() => {
+      this.store.dispatch(action);
+      if(cbk) cbk();
+    }, 0);
     return null;
   }
   getState(): types.State {

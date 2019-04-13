@@ -12,7 +12,10 @@ export class MoveHandler extends MouseHandlerBase {
     super(doc, store, hooks);
 
     // keep only draggable elements
-    this.selection = this.selection.filter(s => s.draggable);
+    // which are not in a selected element also being dragged
+    this.selection = this.selection
+    .filter(s => s.draggable)
+    .filter(s => !domMetrics.hasASelectedDraggableParent(store, s.el));
 
     // FIXME: the region marker should be outside the iframe
     this.positionMarker = this.doc.createElement('div');
@@ -21,8 +24,22 @@ export class MoveHandler extends MouseHandlerBase {
     // add css class and style
     this.selection.forEach(selectable => {
       selectable.el.classList.add('dragging');
-      selectable.el.style.position = 'absolute';
     });
+
+    // update state
+    this.selection = this.selection.map(selectable => {
+      return {
+        ...selectable,
+        preventMetrics: true,
+        translation: {
+          x: 0,
+          y: 0,
+        },
+      };
+    });
+
+    // update store
+    this.store.dispatch(selectableState.updateSelectables(this.selection));
   }
 
 
@@ -86,10 +103,9 @@ export class MoveHandler extends MouseHandlerBase {
    */
   release() {
     super.release();
-    this.selection.forEach((selectable) => {
+    this.selection = this.selection.map((selectable) => {
       // reset css class and style
       selectable.el.classList.remove('dragging');
-      selectable.el.style.position = selectable.metrics.position;
 
       // move to a different container
       if(selectable.dropZone && selectable.dropZone.parent) {
@@ -117,31 +133,63 @@ export class MoveHandler extends MouseHandlerBase {
           }
         }
       }
+
       // check the actual position of the target
       // and move it to match the provided absolute position
-      //  store initial data
+      // store initial data
       const initialTop = selectable.el.style.top;
       const initialLeft = selectable.el.style.left;
+      const initialTransform = selectable.el.style.transform;
+      const initialPosition = selectable.el.style.position;
 
       // move to the final position will take the new parent offset
       selectable.el.style.top = selectable.metrics.computedStyleRect.top + 'px';
       selectable.el.style.left = selectable.metrics.computedStyleRect.left + 'px';
+      selectable.el.style.transform = '';
+      selectable.el.style.position = '';
 
       // check for the offset and update the metrics
       const bb = selectable.el.getBoundingClientRect();
-      selectable.metrics.computedStyleRect.top += selectable.metrics.clientRect.top - bb.top;
-      selectable.metrics.computedStyleRect.left += selectable.metrics.clientRect.left - bb.left;
+      const computedStyleRect = {
+        top: selectable.metrics.computedStyleRect.top + (selectable.metrics.clientRect.top - bb.top),
+        left: selectable.metrics.computedStyleRect.left + (selectable.metrics.clientRect.left - bb.left),
+      };
 
       // restore the initial data
       selectable.el.style.top = initialTop;
       selectable.el.style.left = initialLeft;
+      selectable.el.style.transform = initialTransform;
+      selectable.el.style.position = initialPosition;
+
+      // update the store with the corrected styles
+      return {
+        ...selectable,
+        preventMetrics: false,
+        translation: null,
+        metrics: {
+          ...selectable.metrics,
+          computedStyleRect: {
+            ...selectable.metrics.computedStyleRect,
+            ...computedStyleRect,
+          },
+        }
+      };
     });
 
     // remove the position marker
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
 
     // update store
-    this.store.dispatch(selectableState.updateSelectables(this.selection));
+    this.store.dispatch(selectableState.updateSelectables(this.selection), () => {
+      // update to real metrics after drop
+      const state = this.store.getState().selectables.map(selectable => {
+        return {
+          ...selectable,
+          metrics: domMetrics.getMetrics(selectable.el),
+        }
+      });
+      this.store.dispatch(selectableState.updateSelectables(state));
+    });
   }
 
 
@@ -149,8 +197,13 @@ export class MoveHandler extends MouseHandlerBase {
    * move an element and update its data in selection
    */
   move(selectable: SelectableState, movementX, movementY): SelectableState {
+    // update the store
     return {
       ...selectable,
+      translation: {
+        x: selectable.translation.x + movementX,
+        y: selectable.translation.y + movementY,
+      },
       metrics: {
         ...selectable.metrics,
         clientRect: {
@@ -246,7 +299,7 @@ export class MoveHandler extends MouseHandlerBase {
     .filter((el: HTMLElement) => {
       const selectable = this.store.getState().selectables.find(s => s.el === el);
       return (!selectable || selectable.isDropZone)
-        && (!!selectable || this.hooks.isDropZoneHook(el))
+        && (!!selectable || this.hooks.isDropZone(el))
         && (!selectable || !this.selection.find(s => s.el === el))
         && this.hooks.canDrop(el, this.selection);
     }) as Array<HTMLElement>;

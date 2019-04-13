@@ -22,24 +22,28 @@ section {
 }
 section.abs {
   position: absolute;
-  width: 250px;
-  min-height: 400px;
-  border: 0 solid grey;
+  width: 150px;
+  min-height: 200px;
+  border: 0 solid rgba(128, 128, 128, 0.5);
+  top: 20px;
+}
+.initial-abs-container {
+  min-height: 500px;
+  position: relative;
+  margin-left: 115px;
 }
 #abs1 {
-  left: 10px;
-  top: 500px;
+  left: 150px;
   border-width: 5px 10px 15px 20px;
   padding: 5px 10px 15px 20px;
-  background: darkgray;
+  background: rgba(255, 100, 0, .5);
 }
 #abs2 {
-  left: 350px;
-  top: 500px;
+  left: 400px;
   margin: 5px 10px 15px 20px;
   border-width: 25px 30px 35px 40px;
   padding: 45px 50px 55px 60px;
-  background: grey;
+  background: rgba(100, 255, 0, .5);
   color: white;
 }
 footer {
@@ -62,20 +66,7 @@ footer {
     <p class="selectable resizeable draggable">Tokyo</p>
   </nav>
 
-  <section class="selectable resizeable droppable">
-    <i>the background of this section is selectable but not draggable nor resizeable</i>
-    <h1 class="selectable resizeable draggable">London</h1>
-    <h2 class="selectable resizeable draggable">About</h2>
-    <p class="selectable resizeable draggable">London is the capital city of England. It is the most populous city in the United Kingdom,
-    with a metropolitan area of over 13 million inhabitants.</p>
-    <p class="selectable resizeable draggable">Standing on the River Thames, London has been a major settlement for two millennia,
-    its history going back to its founding by the Romans, who named it Londinium.</p>
-    <div class="selectable resizeable draggable">
-      <h2>Other things</h2>
-      <p>This is a whole block of rich text.</p>
-      <p>Standing on the River Thames, London has been a major settlement for two millennia,
-      its history going back to its founding by the Romans, who named it Londinium.</p>
-    </div>
+  <div class="initial-abs-container selectable resizeable droppable">
     <section class="selectable resizeable draggable droppable abs" id="abs1">
       <h1 class="selectable resizeable draggable">Absolute block</h1>
       <p class="selectable resizeable draggable">London is the capital city of England. It is the most populous city in the United Kingdom,
@@ -86,23 +77,7 @@ footer {
       <p class="selectable resizeable draggable">London is the capital city of England. It is the most populous city in the United Kingdom,
       with a metropolitan area of over 13 million inhabitants.</p>
     </section>
-  </section>
-
-  <!-- <section class="selectable resizeable droppable">
-    <i>the background of this section is selectable but not draggable nor resizeable</i>
-    <h1 class="selectable resizeable draggable">London</h1>
-    <h2 class="selectable resizeable draggable">About</h2>
-    <p class="selectable resizeable draggable">London is the capital city of England. It is the most populous city in the United Kingdom,
-    with a metropolitan area of over 13 million inhabitants.</p>
-    <p class="selectable resizeable draggable">Standing on the River Thames, London has been a major settlement for two millennia,
-    its history going back to its founding by the Romans, who named it Londinium.</p>
-    <div class="selectable resizeable draggable">
-      <h2>Other things</h2>
-      <p>This is a whole block of rich text.</p>
-      <p>Standing on the River Thames, London has been a major settlement for two millennia,
-      its history going back to its founding by the Romans, who named it Londinium.</p>
-    </div>
-  </section>
+  </div>
 
   <section class="selectable resizeable droppable">
     <i>the background of this section is selectable but not draggable nor resizeable</i>
@@ -166,7 +141,39 @@ footer {
       <p>Standing on the River Thames, London has been a major settlement for two millennia,
       its history going back to its founding by the Romans, who named it Londinium.</p>
     </div>
-  </section> -->
+  </section>
+
+  <section class="selectable resizeable droppable">
+    <i>the background of this section is selectable but not draggable nor resizeable</i>
+    <h1 class="selectable resizeable draggable">London</h1>
+    <h2 class="selectable resizeable draggable">About</h2>
+    <p class="selectable resizeable draggable">London is the capital city of England. It is the most populous city in the United Kingdom,
+    with a metropolitan area of over 13 million inhabitants.</p>
+    <p class="selectable resizeable draggable">Standing on the River Thames, London has been a major settlement for two millennia,
+    its history going back to its founding by the Romans, who named it Londinium.</p>
+    <div class="selectable resizeable draggable">
+      <h2>Other things</h2>
+      <p>This is a whole block of rich text.</p>
+      <p>Standing on the River Thames, London has been a major settlement for two millennia,
+      its history going back to its founding by the Romans, who named it Londinium.</p>
+    </div>
+  </section>
+
+  <section class="selectable resizeable droppable">
+    <i>the background of this section is selectable but not draggable nor resizeable</i>
+    <h1 class="selectable resizeable draggable">London</h1>
+    <h2 class="selectable resizeable draggable">About</h2>
+    <p class="selectable resizeable draggable">London is the capital city of England. It is the most populous city in the United Kingdom,
+    with a metropolitan area of over 13 million inhabitants.</p>
+    <p class="selectable resizeable draggable">Standing on the River Thames, London has been a major settlement for two millennia,
+    its history going back to its founding by the Romans, who named it Londinium.</p>
+    <div class="selectable resizeable draggable">
+      <h2>Other things</h2>
+      <p>This is a whole block of rich text.</p>
+      <p>Standing on the River Thames, London has been a major settlement for two millennia,
+      its history going back to its founding by the Romans, who named it Londinium.</p>
+    </div>
+  </section>
 
   <footer class="selectable resizeable draggable droppable">
     <p class="selectable resizeable draggable">Copyright © W3Schools.com</p>

@@ -2,10 +2,10 @@ import {StageStore} from '../../src/ts/flux/StageStore';
 import * as types from '../../src/ts/Types';
 
 export const hooks = {
-  isSelectableHook: (el => el.classList.contains('i-am-selectable')),
-  isDraggableHook: (el => true),
-  isDropZoneHook: (el => true),
-  isResizeableHook: (el => true),
+  isSelectable: (el => el.classList.contains('i-am-selectable')),
+  isDraggable: (el => true),
+  isDropZone: (el => true),
+  isResizeable: (el => true),
   useMinHeight: (el => true),
   canDrop: (el => true),
 };
@@ -24,9 +24,10 @@ export class StageStoreMock extends StageStore {
     };
   }
 
-  dispatch(action: any, idx: number = 0): any {
-    // console.log('Dispatch', action, 'to', idx+1, '/', this.cbks.length);
+  dispatch(action: any, cbk: () => void = null, idx: number = 0): any {
+    console.log('Dispatch', action, 'to', idx+1, '/', this.cbks.length);
     if(!this.preventDispatch && this.cbks[idx]) this.cbks[idx](this.getState(), this.initialState);
+    if(cbk) cbk();
     return null;
   }
 
@@ -66,6 +67,7 @@ export class StageStoreMock extends StageStore {
       clientRect: {top: 10, left: 10, bottom: 20, right: 20, width: 10, height: 10 },
     },
   };
+  static additionalSelectables: Array<types.SelectableState> = [];
   uiState: types.UiState = {
     mode: types.UiMode.NONE,
   };
@@ -92,6 +94,14 @@ export class StageStoreMock extends StageStore {
     mouse: this.mouseState,
   };
   getState(): types.State {
-    return this.state;
+    return {
+      selectables: [...this.state.selectables, ...StageStoreMock.additionalSelectables],
+      ui: {
+        ...this.state.ui,
+      },
+      mouse: {
+        ...this.state.mouse,
+      },
+    };
   }
 }

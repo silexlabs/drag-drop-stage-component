@@ -10,11 +10,11 @@ describe('StageStore', function() {
     `;
     instance = new StageStore();
     StageStore.selectablesFromDom(document, {
-      isSelectableHook: (el => el.classList.contains('i-am-selectable')),
-      isDraggableHook: (el => true),
-      isDropZoneHook: (el => true),
-      isResizeableHook: (el => true),
-      useMinHeightHook: (el => true),
+      isSelectable: (el => el.classList.contains('i-am-selectable')),
+      isDraggable: (el => true),
+      isDropZone: (el => true),
+      isResizeable: (el => true),
+      useMinHeight: (el => true),
     }).forEach(selectable => {
       instance.dispatch({
         type: 'SELECTABLE_CREATE',

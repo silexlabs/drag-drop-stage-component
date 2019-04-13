@@ -32,7 +32,7 @@ By default the elements which can be dragged or moved are those with the CSS cla
 
 ```javascript
 const stage = new Stage(iframe, {
-	isSelectableHook: (el) => el.classList.contains('selectable'),
+	isSelectable: (el) => el.classList.contains('selectable'),
 	isDroppable: (el, selection) => el.classList.contains('droppable'),
 })
 ```

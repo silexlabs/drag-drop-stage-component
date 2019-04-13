@@ -34,11 +34,11 @@ export class Stage {
     this.contentWindow = this.iframe.contentWindow;
     this.contentDocument = this.iframe.contentDocument;
     const hooks = {
-      isSelectableHook: options.isSelectableHook || (el => el.classList.contains('selectable')),
-      isDraggableHook: options.isDraggableHook || (el => el.classList.contains('draggable')),
-      isDropZoneHook: options.isDropZoneHook || ((el) => el.classList.contains('droppable')),
-      isResizeableHook: options.isResizeableHook || ((el) => el.classList.contains('resizeable')),
-      useMinHeightHook: options.useMinHeightHook || ((el) => false),
+      isSelectable: options.isSelectable || (el => el.classList.contains('selectable')),
+      isDraggable: options.isDraggable || (el => el.classList.contains('draggable')),
+      isDropZone: options.isDropZone || ((el) => el.classList.contains('droppable')),
+      isResizeable: options.isResizeable || ((el) => el.classList.contains('resizeable')),
+      useMinHeight: options.useMinHeight || ((el) => true),
       canDrop: options.canDrop || ((el, selection) => true),
       onDrag: options.onDrag,
       onDrop: options.onDrop,
@@ -63,18 +63,19 @@ export class Stage {
         selectable,
       })
     })
+    setTimeout(() => {
+      // state observers
+      new SelectablesObserver(this.contentDocument, this.store, hooks);
+      new UiObserver(this.contentDocument, this.store, hooks);
+      new MouseObserver(this.contentDocument, this.store, hooks);
 
-    // state observers
-    new SelectablesObserver(this.contentDocument, this.store, hooks);
-    new UiObserver(this.contentDocument, this.store, hooks);
-    new MouseObserver(this.contentDocument, this.store, hooks);
+      // controllers
+      new Mouse(this.contentWindow, this.store);
 
-    // controllers
-    new Mouse(this.contentWindow, this.store);
-
-    // keyboard shortcuts
-    window.addEventListener("keydown", (e) => this.onKeyDown(e.keyCode));
-    this.contentWindow.addEventListener("keydown", (e) => this.onKeyDown(e.keyCode));
+      // keyboard shortcuts
+      window.addEventListener("keydown", (e) => this.onKeyDown(e.keyCode));
+      this.contentWindow.addEventListener("keydown", (e) => this.onKeyDown(e.keyCode));
+    });
   }
 
 

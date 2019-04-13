@@ -1,6 +1,7 @@
 import * as DomMetrics from '../../src/ts/utils/DomMetrics';
 import * as electron from 'electron';
 import { StageStoreMock } from '../flux/StageStoreMock';
+import { ElementMetrics } from '../../src/ts/Types';
 
 describe('DomMetrics', function() {
   var elem3;
@@ -82,7 +83,7 @@ describe('DomMetrics', function() {
   });
 
   it('getMetrics for absolute element without margin/padding/border', function() {
-    const metrics = DomMetrics.getMetrics(StageStoreMock.elem1);
+    const metrics: ElementMetrics = DomMetrics.getMetrics(StageStoreMock.elem1);
     expect(metrics.position).toBe('absolute');
     expect(metrics.computedStyleRect).toMatchObject({"width":10,"height":10,"left":100,"top":100});
     expect(metrics.border).toMatchObject({"left":0,"top":0,"right":0,"bottom":0});
@@ -93,7 +94,7 @@ describe('DomMetrics', function() {
   });
 
   it('getMetrics for absolute element with margin/padding/border', function() {
-    const metrics = DomMetrics.getMetrics(elem4);
+    const metrics: ElementMetrics = DomMetrics.getMetrics(elem4);
     expect(metrics.position).toBe('absolute');
     expect(metrics.computedStyleRect).toMatchObject({"width":10,"height":10,"left":500,"top":15000});
     expect(metrics.border).toMatchObject({"left":30,"top":30,"right":30,"bottom":30});
@@ -103,7 +104,7 @@ describe('DomMetrics', function() {
   });
 
   it('getMetrics for an element in the flow with margin/padding/border', function() {
-    const metrics = DomMetrics.getMetrics(elem3);
+    const metrics: ElementMetrics = DomMetrics.getMetrics(elem3);
     expect(metrics.position).toBe("static");
     expect(metrics.computedStyleRect).toMatchObject({"width":10,"height":10,"left": 0,"top": 0});
     expect(metrics.border).toMatchObject({"left": 30,"top": 30,"right": 30,"bottom": 30});
@@ -113,9 +114,10 @@ describe('DomMetrics', function() {
   });
 
   it('setMetrics for an element in the flow with margin/padding/border', function() {
-    const metrics = {
+    const metrics: ElementMetrics = {
       position: "absolute",
-      computedStyleRect: {"width": 30, "height": 999, "left": 0, "top": 0},
+      proportions: 30/999,
+      computedStyleRect: {"width": 30, "height": 999, "right": 30, "bottom": 999, "left": 0, "top": 0},
       border: {"left": 30,"top": 30,"right": 30,"bottom": 30},
       padding: {"left": 20,"top": 20,"right": 20,"bottom": 20},
       margin: {"left": 1000,"top": 1000,"right": 1000,"bottom": 1000},
@@ -127,6 +129,8 @@ describe('DomMetrics', function() {
     expect({"left": StageStoreMock.elem1.style.borderLeftWidth,"top": StageStoreMock.elem1.style.borderTopWidth,"right": StageStoreMock.elem1.style.borderRightWidth,"bottom": StageStoreMock.elem1.style.borderBottomWidth}).toMatchObject({"left": "30px","top": "30px","right": "30px","bottom": "30px"});
     expect({"left": StageStoreMock.elem1.style.paddingLeft,"top": StageStoreMock.elem1.style.paddingTop,"right": StageStoreMock.elem1.style.paddingRight,"bottom": StageStoreMock.elem1.style.paddingBottom}).toMatchObject({"left": "20px","top": "20px","right": "20px","bottom": "20px"});
     expect({"left": StageStoreMock.elem1.style.marginLeft,"top": StageStoreMock.elem1.style.marginTop,"right": StageStoreMock.elem1.style.marginRight,"bottom": StageStoreMock.elem1.style.marginBottom}).toMatchObject({"left": "1000px","top": "1000px","right": "1000px","bottom": "1000px"});
+    expect(StageStoreMock.elem1.style.bottom).toBe('');
+    expect(StageStoreMock.elem1.style.right).toBe('');
 
     DomMetrics.setMetrics(StageStoreMock.elem1, true, metrics);
     expect(StageStoreMock.elem1.style.position).toBe("");
@@ -134,6 +138,8 @@ describe('DomMetrics', function() {
     expect({"left": StageStoreMock.elem1.style.borderLeftWidth,"top": StageStoreMock.elem1.style.borderTopWidth,"right": StageStoreMock.elem1.style.borderRightWidth,"bottom": StageStoreMock.elem1.style.borderBottomWidth}).toMatchObject({"left": "30px","top": "30px","right": "30px","bottom": "30px"});
     expect({"left": StageStoreMock.elem1.style.paddingLeft,"top": StageStoreMock.elem1.style.paddingTop,"right": StageStoreMock.elem1.style.paddingRight,"bottom": StageStoreMock.elem1.style.paddingBottom}).toMatchObject({"left": "20px","top": "20px","right": "20px","bottom": "20px"});
     expect({"left": StageStoreMock.elem1.style.marginLeft,"top": StageStoreMock.elem1.style.marginTop,"right": StageStoreMock.elem1.style.marginRight,"bottom": StageStoreMock.elem1.style.marginBottom}).toMatchObject({"left": "1000px","top": "1000px","right": "1000px","bottom": "1000px"});
+    expect(StageStoreMock.elem1.style.bottom).toBe('');
+    expect(StageStoreMock.elem1.style.right).toBe('');
   });
 
   // it('fromClientToComputed', function() {
