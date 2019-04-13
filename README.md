@@ -7,6 +7,8 @@ This is an attempt to make a "stage" component which lets the user select elemen
 
 A component like this will be useful to the developer building any tool which includes a WYSIWYG.
 
+[Here is a very simple example](./pub).
+
 ## Features
 
 * [x] move and resize elements, with multi selection
