@@ -1,0 +1,16 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "outFile": "tests/test.js",
+    "module": "amd",
+    "target": "es3",
+    "lib": ["dom", "esnext"],
+    "watch": false,
+    "inlineSourceMap": true,
+    "removeComments": false,
+  },
+  "include": [
+    "tests/test.*.ts",
+    "node_modules/redux/dist/redux.js",
+  ],
+}

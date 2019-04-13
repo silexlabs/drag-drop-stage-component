@@ -3,44 +3,11 @@
 @dark-transparent: rgba(81, 130, 252, .2);
 @bright-transparent: rgba(244, 86, 86, .2);
 
+body, html {
+  // scroll-behavior: smooth;
+}
 .selectable {
-  cursor: pointer;
   box-sizing: content-box;
-}
-.selected {
-  cursor: default;
-}
-.selected.draggable {
-  cursor: grab;
-}
-.selected.draggable.dragging {
-  cursor: grabbing;
-}
-.selectable {
-  &[resize-y="top"] {
-    cursor: n-resize;
-  }
-  &[resize-y="bottom"] {
-    cursor: s-resize;
-  }
-  &[resize-x="right"] {
-    cursor: e-resize;
-    &[resize-y="top"] {
-      cursor: ne-resize;
-    }
-    &[resize-y="bottom"] {
-      cursor: se-resize;
-    }
-  }
-  &[resize-x="left"] {
-    cursor: w-resize;
-    &[resize-y="top"] {
-      cursor: nw-resize;
-    }
-    &[resize-y="bottom"] {
-      cursor: sw-resize;
-    }
-  }
 }
 .selectable:hover {
   box-shadow: inset 1px 1px 1px @dark, inset -1px -1px 1px @dark,

@@ -1,0 +1,15 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "outDir": "pub/js",
+    "module": "amd",
+    "target": "es6",
+    "lib": ["dom", "esnext"],
+    "watch": false,
+    "inlineSourceMap": true,
+    "removeComments": false,
+  },
+  "include": [
+    "src/ts/demo.ts",
+  ],
+}
