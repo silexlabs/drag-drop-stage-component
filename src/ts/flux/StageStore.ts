@@ -80,9 +80,9 @@ export class StageStore implements redux.Store<types.State> {
     // TODO: queue?
     // console.log('dispatch', action);
     setTimeout(() => {
+    }, 0);
       this.store.dispatch(action);
       if(cbk) cbk();
-    }, 0);
     return null;
   }
   getState(): types.State {

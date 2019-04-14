@@ -1,12 +1,13 @@
 import {MouseHandlerBase} from './MouseHandlerBase';
 import { StageStore } from '../flux/StageStore';
-import { Hooks, SelectableState, MouseData, DropZone } from '../Types';
+import { Hooks, SelectableState, MouseData, DropZone, ScrollData, State } from '../Types';
 import * as selectableState from '../flux/SelectableState'
 import * as mouseState from '../flux/MouseState';
 import * as domMetrics from '../utils/DomMetrics';
 
 export class MoveHandler extends MouseHandlerBase {
   private positionMarker: HTMLElement;
+  private unsubsribeScroll: () => void;
 
   constructor(doc: HTMLDocument, store: StageStore, hooks: Hooks) {
     super(doc, store, hooks);
@@ -40,6 +41,20 @@ export class MoveHandler extends MouseHandlerBase {
 
     // update store
     this.store.dispatch(selectableState.updateSelectables(this.selection));
+
+    // listen for scroll
+    this.unsubsribeScroll = this.store.subscribe(
+      (cur: ScrollData, prev: ScrollData) => this.onScroll(cur, prev),
+      (state: State): ScrollData => state.mouse.scrollData
+    );
+  }
+
+  onScroll(state: ScrollData, prev: ScrollData) {
+    console.log('onScroll', state.y);
+    // move the dragged elements back
+    this.store.dispatch(selectableState.updateSelectables(
+      this.selection.map(s => this.move(s, -(state.x - prev.x), -(state.y - prev.y)))
+    ))
   }
 
 
@@ -53,24 +68,12 @@ export class MoveHandler extends MouseHandlerBase {
     const initialScroll = this.store.getState().mouse.scrollData;
     const scroll = domMetrics.getScrollToShow(this.doc, bb);
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
-      this.store.dispatch(mouseState.setScroll(scroll));
+      // avoid "Maximum call stack size exceeded" error
+      // and scrolls too fast
+      setTimeout(() => {
+        this.store.dispatch(mouseState.setScroll(scroll));
+      }, 100);
     }
-
-    console.info('todo: handle scroll on the side of the iframe');
-
-    // handle scroll on the side of the iframe
-    // if(this.handler) {
-    //   const bb = this.handler.getBoundingBox();
-    //   if(bb) {
-    //     const update = DomMetrics.getScrollToShow(this.contentDocument, bb);
-    //     const updatingScroll = update.x != 0 || update.y != 0;
-    //     // this.handler.update(movementX + update.x, movementY + update.y, clientX + update.x, clientY + update.y, shiftKey);
-    //     // if(updatingScroll) setTimeout(_ => this.updateScroll(0, 0, clientX, clientY, shiftKey), 100);
-    //     if(updatingScroll) {
-    //       setTimeout(_ => updatingScroll = false, 10);
-    //     }
-    //   }
-    // }
 
     // remove the marker
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
@@ -103,6 +106,7 @@ export class MoveHandler extends MouseHandlerBase {
    */
   release() {
     super.release();
+    this.unsubsribeScroll();
     this.selection = this.selection.map((selectable) => {
       // reset css class and style
       selectable.el.classList.remove('dragging');
@@ -134,45 +138,57 @@ export class MoveHandler extends MouseHandlerBase {
         }
       }
 
-      // check the actual position of the target
-      // and move it to match the provided absolute position
-      // store initial data
-      const initialTop = selectable.el.style.top;
-      const initialLeft = selectable.el.style.left;
-      const initialTransform = selectable.el.style.transform;
-      const initialPosition = selectable.el.style.position;
+      let metrics = selectable.metrics;
+      if(selectable.metrics.position !== 'static') {
+        // check the actual position of the target
+        // and move it to match the provided absolute position
+        // store initial data
+        const initialTop = selectable.el.style.top;
+        const initialLeft = selectable.el.style.left;
+        const initialTransform = selectable.el.style.transform;
+        const initialPosition = selectable.el.style.position;
 
-      // move to the final position will take the new parent offset
-      selectable.el.style.top = selectable.metrics.computedStyleRect.top + 'px';
-      selectable.el.style.left = selectable.metrics.computedStyleRect.left + 'px';
-      selectable.el.style.transform = '';
-      selectable.el.style.position = '';
+        // move to the final position will take the new parent offset
+        selectable.el.style.top = selectable.metrics.computedStyleRect.top + 'px';
+        selectable.el.style.left = selectable.metrics.computedStyleRect.left + 'px';
+        selectable.el.style.transform = '';
+        selectable.el.style.position = '';
 
-      // check for the offset and update the metrics
-      const bb = domMetrics.getBoundingBoxDocument(selectable.el);
-      const computedStyleRect = {
-        top: selectable.metrics.computedStyleRect.top + (selectable.metrics.clientRect.top - bb.top),
-        left: selectable.metrics.computedStyleRect.left + (selectable.metrics.clientRect.left - bb.left),
-      };
+        // check for the offset and update the metrics
+        const bb = domMetrics.getBoundingBoxDocument(selectable.el);
+        const computedStyleRect = {
+          top: selectable.metrics.computedStyleRect.top + (selectable.metrics.clientRect.top - bb.top),
+          left: selectable.metrics.computedStyleRect.left + (selectable.metrics.clientRect.left - bb.left),
+          right: 0,
+          bottom: 0,
+        };
 
-      // restore the initial data
-      selectable.el.style.top = initialTop;
-      selectable.el.style.left = initialLeft;
-      selectable.el.style.transform = initialTransform;
-      selectable.el.style.position = initialPosition;
+        // restore the initial data
+        selectable.el.style.top = initialTop;
+        selectable.el.style.left = initialLeft;
+        selectable.el.style.transform = initialTransform;
+        selectable.el.style.position = initialPosition;
 
-      // update the store with the corrected styles
-      return {
-        ...selectable,
-        preventMetrics: false,
-        translation: null,
-        metrics: {
+        // update bottom and right
+        computedStyleRect.right = computedStyleRect.left + selectable.metrics.computedStyleRect.width;
+        computedStyleRect.bottom = computedStyleRect.top + selectable.metrics.computedStyleRect.height;
+
+        // update the store
+        metrics = {
           ...selectable.metrics,
           computedStyleRect: {
             ...selectable.metrics.computedStyleRect,
             ...computedStyleRect,
           },
         }
+      }
+
+      // update the store with the corrected styles
+      return {
+        ...selectable,
+        preventMetrics: false,
+        translation: null,
+        metrics,
       };
     });
 
@@ -210,11 +226,15 @@ export class MoveHandler extends MouseHandlerBase {
           ...selectable.metrics.clientRect,
           top: selectable.metrics.clientRect.top + movementY,
           left: selectable.metrics.clientRect.left + movementX,
+          bottom: selectable.metrics.clientRect.bottom + movementY,
+          right: selectable.metrics.clientRect.right + movementX,
         },
         computedStyleRect: {
           ...selectable.metrics.computedStyleRect,
           top: selectable.metrics.computedStyleRect.top + movementY,
           left: selectable.metrics.computedStyleRect.left + movementX,
+          bottom: selectable.metrics.computedStyleRect.bottom + movementY,
+          right: selectable.metrics.computedStyleRect.right + movementX,
         },
       }
     };
@@ -272,9 +292,9 @@ export class MoveHandler extends MouseHandlerBase {
     else if(position.parent) {
       position.parent.appendChild(this.positionMarker);
     }
-    let bbMarker = this.positionMarker.getBoundingClientRect();
-    let bbTargetPrev = this.positionMarker.previousElementSibling ? this.positionMarker.previousElementSibling.getBoundingClientRect() : null;
-    let bbTargetNext = this.positionMarker.nextElementSibling ? this.positionMarker.nextElementSibling.getBoundingClientRect() : null;
+    let bbMarker: ClientRect = domMetrics.getBoundingBoxDocument(this.positionMarker);
+    let bbTargetPrev: ClientRect = this.positionMarker.previousElementSibling ? domMetrics.getBoundingBoxDocument(this.positionMarker.previousElementSibling as HTMLElement) : null;
+    let bbTargetNext: ClientRect = this.positionMarker.nextElementSibling ? domMetrics.getBoundingBoxDocument(this.positionMarker.nextElementSibling as HTMLElement) : null;
     if((!bbTargetPrev || bbMarker.top >= bbTargetPrev.bottom)
       && (!bbTargetNext || bbMarker.bottom <= bbTargetNext.top)) {
       // horizontal
@@ -292,8 +312,14 @@ export class MoveHandler extends MouseHandlerBase {
   /**
    * find the dropZone elements which are under the mouse
    * the first one in the list is supposed to be the top most one
+   * x and y are relative to the viewport, not the document
    */
   findDropZonesUnderMouse(x, y): Array<HTMLElement> {
+    const win = domMetrics.getWindow(this.doc);
+    if(x > win.innerWidth || y > win.innerHeight || x < 0 || y < 0) {
+      throw new Error(`Coords out of viewport, can not get the drop zone at coordinates (${x}, ${y}) while the viewport is (${win.innerWidth}, ${win.innerHeight})`);
+    }
+
     // get a list of all dropZone zone under the point (x, y)
     return this.doc.elementsFromPoint(x, y)
     .filter((el: HTMLElement) => {
@@ -347,9 +373,17 @@ export class MoveHandler extends MouseHandlerBase {
       nearestPosition.nextElementSibling = this.positionMarker.nextElementSibling as HTMLElement;
     return nearestPosition;
   }
-  getDistance(el, x, y) {
-    let bb = el.getBoundingClientRect();
-    let distance = Math.sqrt(((bb.left - x) * (bb.left - x)) + ((bb.top - y) * (bb.top - y)));
-    return distance;
+
+  /**
+   * get the distance from el's center to (x, y)
+   * x and y are relative to the document, not the viewport
+   */
+  getDistance(el: HTMLElement, x: number, y: number) {
+    const bb = domMetrics.getBoundingBoxDocument(el);
+    const center = {
+      x: bb.left + (bb.width/2),
+      y: bb.top + (bb.height/2),
+    }
+    return Math.sqrt(((center.x - x) * (center.x - x)) + ((center.y - y) * (center.y - y)));
   }
 }

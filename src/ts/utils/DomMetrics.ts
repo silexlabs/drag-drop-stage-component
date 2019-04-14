@@ -1,16 +1,16 @@
 import * as types from '../Types';
 import { StageStore } from '../flux/StageStore';
 
-export const SCROLL_ZONE_SIZE = 50;
-
-type Box = {
+export type ClientRect = {
   top: number,
   left: number,
   bottom: number,
   right: number,
+  width: number,
+  height: number,
 }
 
-export function getBoundingBoxDocument(el: HTMLElement): Box {
+export function getBoundingBoxDocument(el: HTMLElement): ClientRect {
   const doc = getDocument(el);
   const scroll = getScroll(doc);
   const box = el.getBoundingClientRect();
@@ -19,15 +19,19 @@ export function getBoundingBoxDocument(el: HTMLElement): Box {
     left: box.left + scroll.x,
     bottom: box.bottom + scroll.y,
     right: box.right + scroll.x,
+    width: box.width,
+    height: box.height,
   }
 }
 
-export function getBoundingBox(selectables: Array<types.SelectableState>): Box {
-  const box: Box = {
+export function getBoundingBox(selectables: Array<types.SelectableState>): ClientRect {
+  const box: ClientRect = {
     top: Infinity,
     left: Infinity,
     bottom: -Infinity,
     right: -Infinity,
+    width: 0,
+    height: 0,
   }
   selectables.forEach(s => {
     box.top = Math.min(box.top, s.metrics.clientRect.top);
@@ -35,10 +39,16 @@ export function getBoundingBox(selectables: Array<types.SelectableState>): Box {
     box.bottom = Math.max(box.bottom, s.metrics.clientRect.bottom);
     box.right = Math.max(box.right, s.metrics.clientRect.right);
   });
-  return box;
+  return {
+    ...box,
+    width: box.right - box.left,
+    height: box.bottom - box.top,
+  };
 }
 
-export function getScrollToShow(doc, boundingBox: Box): {x: number, y: number} {
+export const SCROLL_ZONE_SIZE = 0;
+
+export function getScrollToShow(doc, boundingBox: ClientRect): {x: number, y: number} {
   const scroll = getScroll(doc);
   const win = getWindow(doc);
   // vertical
@@ -136,7 +146,7 @@ export function getMetrics(el): types.ElementMetrics {
   const doc = getDocument(el);
   const win = getWindow(doc);
   const style = win.getComputedStyle(el);
-  const clientRect = el.getBoundingClientRect();
+  const clientRect = getBoundingBoxDocument(el);
   return {
     position: style.getPropertyValue('position'),
     proportions: clientRect.height / (clientRect.width || .000000000001),

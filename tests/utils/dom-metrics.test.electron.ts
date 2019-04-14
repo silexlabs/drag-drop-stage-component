@@ -219,20 +219,31 @@ describe('DomMetrics', function() {
     expect(window.scrollY).toBe(0);
     expect(window.scrollX).toBe(0);
     expect(window.document.body.scrollHeight).toBe(30000);
+    const winHeight = 575;
+    const winWidth = 800;
+    expect(window.innerHeight).toBe(winHeight);
+    expect(window.innerWidth).toBe(winWidth);
 
     // element is already visible
-    var bb = StageStoreMock.elem2.getBoundingClientRect();
+    const bb = {
+      top: 100,
+      left: 100,
+      right: 200,
+      bottom: 200,
+      width: 100,
+      height: 100,
+    };
     var scroll = DomMetrics.getScrollToShow(document, bb);
     expect(scroll.y).toBe(0);
     expect(scroll.x).toBe(0);
 
-
     // element not yet visible
-    var bb = elem4.getBoundingClientRect();
+    const offset = 2000;
+    bb.top += offset; bb.left += offset; bb.right += offset; bb.bottom += offset; bb.width += offset; bb.height += offset;
     var scroll = DomMetrics.getScrollToShow(document, bb);
     // element position - size - SCROLL_ZONE_SIZE
-    expect(scroll.x).toBe(0);
-    expect(scroll.y).toBe(14595);
+    expect(scroll.x).toBe(bb.right - winWidth);
+    expect(scroll.y).toBe(bb.bottom - winHeight);
   });
 
   it('getBoundingBoxDocument', function() {

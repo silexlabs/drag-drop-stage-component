@@ -21,30 +21,18 @@ export class ResizeHandler extends MouseHandlerBase {
    */
   update(mouseData: MouseData) {
     super.update(mouseData);
-
     const bb = domMetrics.getBoundingBox(this.selection);
     const initialScroll = this.store.getState().mouse.scrollData;
     const scroll = domMetrics.getScrollToShow(this.doc, bb);
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
-      this.store.dispatch(mouseState.setScroll(scroll));
+      // avoid "Maximum call stack size exceeded" error
+      // and scrolls too fast
+      setTimeout(() => {
+        this.store.dispatch(mouseState.setScroll(scroll));
+      }, 100);
     }
 
     console.info('todo: handle scroll on the side of the iframe');
-
-    // handle scroll on the side of the iframe
-    // if(this.handler) {
-    //   const bb = this.handler.getBoundingBox();
-    //   if(bb) {
-    //     const update = DomMetrics.getScrollToShow(this.contentDocument, bb);
-    //     const updatingScroll = update.x != 0 || update.y != 0;
-    //     console.log('bb', bb, update);
-    //     // this.handler.update(mouseData.movementX + update.x, mouseData.movementY + update.y, clientX + update.x, clientY + update.y, shiftKey);
-    //     // if(updatingScroll) setTimeout(_ => this.updateScroll(0, 0, clientX, clientY, shiftKey), 100);
-    //     if(updatingScroll) {
-    //       setTimeout(_ => updatingScroll = false, 10);
-    //     }
-    //   }
-    // }
 
     // set a new size
     this.selection = this.selection.map((selectable: SelectableState) => {
@@ -107,7 +95,7 @@ export class ResizeHandler extends MouseHandlerBase {
         selectable.el.style.width = computedStyleRect.width + 'px';
 
         // check for the offset and update the metrics
-        const bb = selectable.el.getBoundingClientRect();
+        const bb = domMetrics.getBoundingBoxDocument(selectable.el);
         const delta = clientRect.width - bb.width;
         computedStyleRect.width -= delta;
         clientRect.width -= delta;
@@ -129,7 +117,7 @@ export class ResizeHandler extends MouseHandlerBase {
         selectable.el.style[heightAttr] = computedStyleRect.height + 'px';
 
         // check for the offset and update the metrics
-        const bb = selectable.el.getBoundingClientRect();
+        const bb = domMetrics.getBoundingBoxDocument(selectable.el);
         const delta = clientRect.height - bb.height;
         computedStyleRect.height -= delta;
         clientRect.height -= delta;
@@ -141,6 +129,12 @@ export class ResizeHandler extends MouseHandlerBase {
         // restore the initial data
         selectable.el.style[heightAttr] = initialHeight;
       }
+
+      // update bottom and right
+      computedStyleRect.right = computedStyleRect.left + computedStyleRect.width;
+      clientRect.right = clientRect.left + clientRect.width;
+      computedStyleRect.bottom = computedStyleRect.top + computedStyleRect.height;
+      clientRect.bottom = clientRect.top + clientRect.height;
 
       // update the metrics
       return {

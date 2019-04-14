@@ -19,6 +19,20 @@ describe('ResizeHandler', function() {
           min-height: 5px;
           min-width: 5px;
         }
+        #elem1 {
+          position: "absolute";
+          height: 100px;
+          width: 100px;
+          top: 100px;
+          left: 100px;
+        }
+        #elem2 {
+          position: "static";
+          height: 10px;
+          width: 10px;
+          top: 10px;
+          left: 10px;
+        }
       </style>
       <div class="selectable" id="elem1"></div>
       <div class="selectable" id="elem2">
@@ -44,17 +58,18 @@ describe('ResizeHandler', function() {
 
     var handler = initHandler();
     expect(handler.selection.length).toBe(1);
+    expect(handler.selection[0].metrics.clientRect.width).toBe(10);
 
     var mouseState = {
       scrollData: {x: 0, y: 0},
       cursorData: {x: 'right', y: 'bottom', cursorType: ''},
       mouseData: {
-        mouseX: 120,
-        movementX: 100,
-        mouseY: 120,
-        movementY: 100,
+        mouseX: 30,
+        movementX: 10,
+        mouseY: 30,
+        movementY: 10,
         shiftKey: false,
-        target: document.body,
+        target: StageStoreMock.elem2,
       }
     };
     stageStoreMock.mouseState.mouseData = mouseState.mouseData;
@@ -67,8 +82,8 @@ describe('ResizeHandler', function() {
     expect(lastAction.type).toBe('SELECTABLE_UPDATE');
     expect(lastAction.selectables.length).toBe(1);
     expect(lastAction.selectables[0].el).toBe(StageStoreMock.elem2);
-    expect(lastAction.selectables[0].metrics.clientRect.width).toBe(110);
-    expect(lastAction.selectables[0].metrics.clientRect.height).toBe(110);
+    expect(lastAction.selectables[0].metrics.clientRect.height).toBe(20);
+    expect(lastAction.selectables[0].metrics.clientRect.width).toBe(20);
   });
 
   it('should resize 2 elements from the bottom right corner', function() {
@@ -205,8 +220,8 @@ describe('ResizeHandler', function() {
     expect(lastAction.selectables.length).toBe(1);
     expect(lastAction.selectables[0].el).toBe(StageStoreMock.elem2);
     expect(lastAction.selectables[0].metrics.clientRect.width).toBe(0);
-    expect(lastAction.selectables[0].metrics.clientRect.height).toBe(5);
+    expect(lastAction.selectables[0].metrics.clientRect.height).toBe(10);
     expect(lastAction.selectables[0].metrics.clientRect.left).toBe(20);
-    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(15);
+    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(10);
   });
 });

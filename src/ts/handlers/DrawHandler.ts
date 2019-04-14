@@ -34,6 +34,8 @@ export class DrawHandler extends MouseHandlerBase {
       top: Math.min(this.initialY, mouseData.mouseY),
       right: Math.max(this.initialX, mouseData.mouseX),
       bottom: Math.max(this.initialY, mouseData.mouseY),
+      height: Math.abs(this.initialY - mouseData.mouseY),
+      width: Math.abs(this.initialX - mouseData.mouseX),
     };
 
     // update scroll

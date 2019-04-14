@@ -25,20 +25,28 @@ section.abs {
   width: 150px;
   min-height: 200px;
   border: 0 solid rgba(128, 128, 128, 0.5);
-  top: 20px;
 }
 .initial-abs-container {
   min-height: 500px;
   position: relative;
   margin-left: 115px;
 }
-#abs1 {
+.abs1 {
+  top: 20px;
   left: 150px;
   border-width: 5px 10px 15px 20px;
   padding: 5px 10px 15px 20px;
   background: rgba(255, 100, 0, .5);
 }
-#abs2 {
+.abs2 {
+  left: 400px;
+  margin: 5px 10px 15px 20px;
+  border-width: 25px 30px 35px 40px;
+  padding: 45px 50px 55px 60px;
+  background: rgba(100, 255, 0, .5);
+  color: white;
+}
+.abs3 {
   left: 400px;
   margin: 5px 10px 15px 20px;
   border-width: 25px 30px 35px 40px;
@@ -67,12 +75,12 @@ footer {
   </nav>
 
   <div class="initial-abs-container selectable resizeable droppable">
-    <section class="selectable resizeable draggable droppable abs" id="abs1">
+    <section class="selectable resizeable draggable droppable abs abs1">
       <h1 class="selectable resizeable draggable">Absolute block</h1>
       <p class="selectable resizeable draggable">London is the capital city of England. It is the most populous city in the United Kingdom,
       with a metropolitan area of over 13 million inhabitants.</p>
     </section>
-    <section class="selectable resizeable draggable droppable abs" id="abs2">
+    <section class="selectable resizeable draggable droppable abs abs2">
       <h1 class="selectable resizeable draggable">Absolute block</h1>
       <p class="selectable resizeable draggable">London is the capital city of England. It is the most populous city in the United Kingdom,
       with a metropolitan area of over 13 million inhabitants.</p>
@@ -160,6 +168,11 @@ footer {
   </section>
 
   <section class="selectable resizeable droppable">
+    <section class="selectable resizeable draggable droppable abs abs2">
+      <h1 class="selectable resizeable draggable">Absolute block</h1>
+      <p class="selectable resizeable draggable">London is the capital city of England. It is the most populous city in the United Kingdom,
+      with a metropolitan area of over 13 million inhabitants.</p>
+    </section>
     <i>the background of this section is selectable but not draggable nor resizeable</i>
     <h1 class="selectable resizeable draggable">London</h1>
     <h2 class="selectable resizeable draggable">About</h2>

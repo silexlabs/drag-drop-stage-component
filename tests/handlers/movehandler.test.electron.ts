@@ -1,5 +1,6 @@
 import { MoveHandler } from '../../src/ts/handlers/MoveHandler';
 import { hooks, StageStoreMock } from '../flux/StageStoreMock';
+import * as electron from 'electron';
 
 describe('MoveHandler', function() {
 
@@ -21,9 +22,10 @@ describe('MoveHandler', function() {
     return handler;
   }
 
-  beforeEach(function () {
+  beforeEach(function (done) {
     document.head.innerHTML = `<style>
     body {
+      background: grey;
       min-height: 100000px;
     }
     .selectable {
@@ -36,6 +38,7 @@ describe('MoveHandler', function() {
       left: 100px;
       width: 100px;
       height: 100px;
+      background: red;
     }
     #elem2 {
       position: absolute;
@@ -43,6 +46,19 @@ describe('MoveHandler', function() {
       left: 10px;
       width: 10px;
       height: 10px;
+      background: green;
+    }
+    #elem3 * {
+      background: blue;
+    }
+    #elem3 {
+      background: yellow;
+      height: 10000px;
+      width: 10000px;
+      margin: 200px;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
     </style>`;
 
@@ -66,6 +82,13 @@ describe('MoveHandler', function() {
     jest.spyOn(stageStoreMock, 'subscribe');
     jest.spyOn(stageStoreMock, 'dispatch');
     jest.spyOn(stageStoreMock, 'getState');
+
+
+    // jest.setTimeout(30000);
+    // electron.remote.getCurrentWindow().show();
+    // setTimeout(() => {
+      done()
+    // }, 10000)
   });
 
   it('should move an absolute element in the dom', function() {
@@ -73,9 +96,9 @@ describe('MoveHandler', function() {
     stageStoreMock.selectableElem1.selected = true;
     handler = initHandler();
     expect(handler.selection.length).toBe(1);
-    expect(handler.selection[0].el).toBe(StageStoreMock.elem1);
+    expect(handler.selection[0].el.id).toBe(StageStoreMock.elem1.id);
     expect(handler.selection[0].metrics.clientRect.top).toBe(100);
-    expect(stageStoreMock.subscribe).toBeCalledTimes(1);
+    expect(stageStoreMock.subscribe).toBeCalledTimes(2);
 
     // test
     var mouseData = {
@@ -93,7 +116,7 @@ describe('MoveHandler', function() {
     var lastAction = calls[calls.length - 1][0];
     expect(lastAction.type).toBe('SELECTABLE_UPDATE');
     expect(lastAction.selectables.length).toBe(1);
-    expect(lastAction.selectables[0].el).toBe(StageStoreMock.elem1);
+    expect(lastAction.selectables[0].el.id).toBe(StageStoreMock.elem1.id);
     expect(lastAction.selectables[0].metrics.clientRect.top).toBe(200);
   });
 
@@ -120,8 +143,8 @@ describe('MoveHandler', function() {
     var lastAction = calls[calls.length - 1][0];
     expect(lastAction.type).toBe('SELECTABLE_UPDATE');
     expect(lastAction.selectables.length).toBe(2);
-    expect(lastAction.selectables[1].el).toBe(StageStoreMock.elem2);
-    expect(lastAction.selectables[1].el.parentElement).toBe(StageStoreMock.elem1);
+    expect(lastAction.selectables[1].el.id).toBe(StageStoreMock.elem2.id);
+    expect(lastAction.selectables[1].el.parentElement.id).toBe(StageStoreMock.elem1.id);
     expect(lastAction.selectables[1].metrics.clientRect.top).toBe(110);
     expect(StageStoreMock.elem2.style.transform).toBe('');
   });
@@ -147,10 +170,10 @@ describe('MoveHandler', function() {
     stageStoreMock.selectableElem2.metrics.position = 'absolute';
     handler = initHandler();
     expect(handler.selection.length).toBe(1);
-    expect(handler.selection[0].el).toBe(StageStoreMock.elem2);
+    expect(handler.selection[0].el.id).toBe(StageStoreMock.elem2.id);
     expect(handler.selection[0].metrics.clientRect.top).toBe(10);
     expect(handler.selection[0].metrics.position).toBe('absolute');
-    expect(stageStoreMock.subscribe).toBeCalledTimes(1);
+    expect(stageStoreMock.subscribe).toBeCalledTimes(2);
 
     // test
     var mouseData = {
@@ -172,7 +195,7 @@ describe('MoveHandler', function() {
     var lastAction = calls[calls.length - 2][0];
     expect(lastAction.type).toBe('SELECTABLE_UPDATE');
     expect(lastAction.selectables.length).toBe(1);
-    expect(lastAction.selectables[0].el).toBe(StageStoreMock.elem2);
+    expect(lastAction.selectables[0].el.id).toBe(StageStoreMock.elem2.id);
     expect(lastAction.selectables[0].metrics.clientRect.top).toBe(145);
     expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(145 - 100);
   });
@@ -226,12 +249,12 @@ describe('MoveHandler', function() {
     handler = initHandler();
 
     expect(handler.selection.length).toBe(1);
-    expect(handler.selection[0].el).toBe(StageStoreMock.elem1);
+    expect(handler.selection[0].el.id).toBe(StageStoreMock.elem1.id);
 
     StageStoreMock.additionalSelectables = [];
   });
 
-  it('should move elements with a scroll', function() {
+  it('should move element with a scroll', function() {
     // init
     // scroll to elem1
     stageStoreMock.state.mouse.scrollData = {
@@ -241,31 +264,226 @@ describe('MoveHandler', function() {
     stageStoreMock.selectableElem1.selected = true;
     handler = initHandler();
     expect(handler.selection.length).toBe(1);
-    expect(handler.selection[0].el).toBe(StageStoreMock.elem1);
+    expect(handler.selection[0].el.id).toBe(StageStoreMock.elem1.id);
 
     // test
-    // drag
+    // drag elem1 10 pixels down
     var mouseData = {
       movementX: 0, // from middle of elem2
       movementY: 10, // from middle of elem2
-      mouseX: 150, // to middle of elem1
-      mouseY: 160, // to middle of elem1
+      mouseX: 50, // to middle of elem1
+      mouseY: 60, // to middle of elem1
+      shiftKey: false,
+      target: StageStoreMock.elem1,
+    };
+    stageStoreMock.mouseState.mouseData = mouseData;
+    handler.update(mouseData);
+
+    // check the result
+    expect(stageStoreMock.dispatch).toBeCalledTimes(2);
+    var calls = stageStoreMock.dispatch['mock'].calls;
+    var lastAction = calls[calls.length - 1][0];
+    expect(lastAction.type).toBe('SELECTABLE_UPDATE');
+    expect(lastAction.selectables.length).toBe(1);
+    expect(lastAction.selectables[0].el.id).toBe(StageStoreMock.elem1.id);
+    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(110);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(110);
+    expect(lastAction.selectables[0].translation).not.toBeNull();
+    expect(lastAction.selectables[0].translation.y).toBe(10);
+
+    // drop elem1 and check the result
+    handler.release();
+    var calls = stageStoreMock.dispatch['mock'].calls;
+    var lastAction = calls[calls.length - 2][0];
+    expect(lastAction.type).toBe('SELECTABLE_UPDATE');
+    expect(lastAction.selectables.length).toBe(1);
+    expect(lastAction.selectables[0].el.id).toBe(StageStoreMock.elem1.id);
+    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(110);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(110);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(110);
+    expect(lastAction.selectables[0].translation).toBeNull();
+
+    // save state
+    stageStoreMock.state.selectables[0] = lastAction.selectables[0];
+
+    // drag elem1 10px right
+    handler = initHandler();
+    expect(handler.selection.length).toBe(1);
+    expect(handler.selection[0].el.id).toBe(StageStoreMock.elem1.id);
+    expect(stageStoreMock.getState().selectables[0].el.id).toBe(StageStoreMock.elem1.id);
+    expect(stageStoreMock.getState().selectables[0].metrics.clientRect.top).toBe(110);
+    expect(stageStoreMock.getState().selectables[0].metrics.computedStyleRect.top).toBe(110);
+
+    var mouseData = {
+      movementX: 10, // from middle of elem2
+      movementY: 0, // from middle of elem2
+      mouseX: 60, // to middle of elem1
+      mouseY: 60, // to middle of elem1
+      shiftKey: false,
+      target: StageStoreMock.elem1,
+    };
+    stageStoreMock.mouseState.mouseData = mouseData;
+    handler.update(mouseData);
+
+    // check the result
+    var calls = stageStoreMock.dispatch['mock'].calls;
+    var lastAction = calls[calls.length - 1][0];
+    expect(lastAction.type).toBe('SELECTABLE_UPDATE');
+    expect(lastAction.selectables.length).toBe(1);
+    expect(lastAction.selectables[0].el.id).toBe(StageStoreMock.elem1.id);
+    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(110);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(110);
+    expect(lastAction.selectables[0].metrics.clientRect.left).toBe(110);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.left).toBe(110);
+    expect(lastAction.selectables[0].translation).not.toBeNull();
+    expect(lastAction.selectables[0].translation.x).toBe(10);
+    expect(lastAction.selectables[0].translation.y).toBe(0);
+
+    // drop elem1 and check the result
+    handler.release();
+    var calls = stageStoreMock.dispatch['mock'].calls;
+    var lastAction = calls[calls.length - 2][0];
+    expect(lastAction.type).toBe('SELECTABLE_UPDATE');
+    expect(lastAction.selectables.length).toBe(1);
+    expect(lastAction.selectables[0].el.id).toBe(StageStoreMock.elem1.id);
+    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(110);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(110);
+    expect(lastAction.selectables[0].metrics.clientRect.left).toBe(110);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.left).toBe(110);
+    expect(lastAction.selectables[0].translation).toBeNull();
+  });
+
+  it('should move element to a new container with a scroll', function() {
+    // init
+    var selectableElem3 = {
+      el: elem3,
+      selected: false,
+      dropping: false,
+      draggable: true,
+      resizeable: true,
+      isDropZone: true,
+      useMinHeight: true,
+      metrics: {
+        position: 'absolute',
+        proportions: 1,
+        margin: {top: 200, left: 200, bottom: 200, right: 200 },
+        padding: {top: 0, left: 0, bottom: 0, right: 0 },
+        border: {top: 0, left: 0, bottom: 0, right: 0 },
+        computedStyleRect: {top: 0, left: 0, bottom: 10000, right: 10000, width: 10000, height: 10000 },
+        clientRect: {top: 0, left: 0, bottom: 10000, right: 10000, width: 10000, height: 10000 },
+      },
+    };
+    StageStoreMock.additionalSelectables = [selectableElem3];
+    stageStoreMock.selectableElem2.selected = true;
+    stageStoreMock.selectableElem2.metrics.position = 'absolute';
+    handler = initHandler();
+    expect(handler.selection.length).toBe(1);
+    expect(handler.selection[0].el.id).toBe(StageStoreMock.elem2.id);
+
+    // drag elem2 into elem3
+    var mouseStart = {x:15, y:15}; // from middle of elem2
+    var mouseEnd = {x:5000, y:5000}; // from middle of elem3
+
+    // while auto scroll not implemented
+    var scroll = {
+      x: mouseEnd.x + 100 - window.innerWidth,
+      y: mouseEnd.y + 100 - window.innerHeight,
+    }
+    window.scroll(scroll.x, scroll.y)
+
+    var mouseData = {
+      movementX: mouseEnd.x - mouseStart.x,
+      movementY: mouseEnd.y - mouseStart.y,
+      mouseX: mouseEnd.x - scroll.x,
+      mouseY: mouseEnd.y - scroll.y,
       shiftKey: false,
       target: StageStoreMock.elem2,
     };
     stageStoreMock.mouseState.mouseData = mouseData;
     handler.update(mouseData);
 
-    expect(stageStoreMock.dispatch).toBeCalledTimes(3);
+    // check the result
+    expect(stageStoreMock.dispatch).toBeCalledTimes(2);
     var calls = stageStoreMock.dispatch['mock'].calls;
     var lastAction = calls[calls.length - 1][0];
     expect(lastAction.type).toBe('SELECTABLE_UPDATE');
     expect(lastAction.selectables.length).toBe(1);
-    expect(lastAction.selectables[0].el).toBe(StageStoreMock.elem1);
-    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(110);
-    expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(110);
+    expect(lastAction.selectables[0].el.id).toBe(StageStoreMock.elem2.id);
+    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(mouseEnd.y - 5);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.left).toBe(mouseEnd.x - 5);
     expect(lastAction.selectables[0].translation).not.toBeNull();
-    expect(lastAction.selectables[0].translation.y).toBe(10);
+    expect(lastAction.selectables[0].translation.y).toBe(mouseData.movementY);
+    // expect(window.scrollY).toBe(mouseEnd.y + 10+10 - window.innerHeight);
+    expect(lastAction.selectables[0].dropZone.parent.id).toBe(elem3.id);
+    expect(lastAction.selectables[0].translation).not.toBeNull();
+    expect(lastAction.selectables[0].translation.x).toBe(mouseEnd.x - mouseStart.x);
+    expect(lastAction.selectables[0].translation.y).toBe(mouseEnd.y - mouseStart.y);
+
+
+    // drop elem2 in elem3
+    handler.release();
+    var calls = stageStoreMock.dispatch['mock'].calls;
+    var lastAction = calls[calls.length - 2][0];
+    expect(lastAction.type).toBe('SELECTABLE_UPDATE');
+    expect(lastAction.selectables.length).toBe(1);
+    expect(lastAction.selectables[0].el.id).toBe(StageStoreMock.elem2.id);
+    expect(lastAction.selectables[0].el.parentElement.id).toBe(elem3.id);
+    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(mouseEnd.y - 5);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(mouseEnd.y - 5 - 200);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.left).toBe(mouseEnd.x - 5 - 200);
+    expect(lastAction.selectables[0].translation).toBeNull();
+
+    // save state
+    expect(stageStoreMock.state.selectables[1].el.id).toBe(StageStoreMock.elem2.id);
+    stageStoreMock.state.selectables[1] = lastAction.selectables[0];
+    stageStoreMock.state.selectables[1].el.style.top = stageStoreMock.state.selectables[1].metrics.computedStyleRect.top + 'px';
+    stageStoreMock.state.selectables[1].el.style.left = stageStoreMock.state.selectables[1].metrics.computedStyleRect.left + 'px';
+
+    // drag elem2 horizontally
+    stageStoreMock.selectableElem2.selected = true;
+    selectableElem3.selected = false;
+    stageStoreMock.selectableElem2.metrics.position = 'absolute';
+    handler = initHandler();
+    expect(handler.selection.length).toBe(1);
+    expect(handler.selection[0].el.id).toBe(StageStoreMock.elem2.id);
+    expect(stageStoreMock.getState().selectables[1].el.id).toBe(StageStoreMock.elem2.id);
+    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(mouseEnd.y - 5);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(mouseEnd.y - 5 - 200);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.left).toBe(mouseEnd.x - 5 - 200);
+
+    var mouseStart = {x:5000, y:5000}; // from middle of elem2
+    var mouseEnd = {x:5010, y:5000}; // from middle of elem3
+
+    // while auto scroll not implemented
+    var scroll = {
+      x: mouseEnd.x + 100 - window.innerWidth,
+      y: mouseEnd.y + 100 - window.innerHeight,
+    }
+    window.scroll(scroll.x, scroll.y)
+
+    var mouseData = {
+      movementX: mouseEnd.x - mouseStart.x,
+      movementY: mouseEnd.y - mouseStart.y,
+      mouseX: mouseEnd.x - scroll.x,
+      mouseY: mouseEnd.y - scroll.y,
+      shiftKey: false,
+      target: StageStoreMock.elem2,
+    };
+    stageStoreMock.mouseState.mouseData = mouseData;
+    handler.update(mouseData);
+
+    var calls = stageStoreMock.dispatch['mock'].calls;
+    var lastAction = calls[calls.length - 1][0];
+    expect(lastAction.type).toBe('SELECTABLE_UPDATE');
+    expect(lastAction.selectables.length).toBe(1);
+    expect(lastAction.selectables[0].el.id).toBe(StageStoreMock.elem2.id);
+    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(mouseEnd.y - 5);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(mouseEnd.y - 5 - 200);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.left).toBe(mouseEnd.x - 5 - 200);
+    expect(lastAction.selectables[0].translation).not.toBeNull();
+    expect(lastAction.selectables[0].translation.x).toBe(10);
+    expect(lastAction.selectables[0].translation.y).toBe(0);
+    expect(lastAction.selectables[0].dropZone.parent.id).toBe(elem3.id);
 
     // drop
     handler.release();
@@ -273,10 +491,11 @@ describe('MoveHandler', function() {
     var lastAction = calls[calls.length - 2][0];
     expect(lastAction.type).toBe('SELECTABLE_UPDATE');
     expect(lastAction.selectables.length).toBe(1);
-    expect(lastAction.selectables[0].el).toBe(StageStoreMock.elem1);
-    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(110);
-    expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(110);
-    expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(110);
+    expect(lastAction.selectables[0].el.id).toBe(StageStoreMock.elem2.id);
+    expect(lastAction.selectables[0].el.parentElement.id).toBe(elem3.id);
+    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(mouseEnd.y - 5);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(mouseEnd.y - 5 - 200);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.left).toBe(mouseEnd.x - 5 - 200);
     expect(lastAction.selectables[0].translation).toBeNull();
   });
 });
