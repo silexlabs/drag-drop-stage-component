@@ -149,7 +149,7 @@ export class MoveHandler extends MouseHandlerBase {
       selectable.el.style.position = '';
 
       // check for the offset and update the metrics
-      const bb = selectable.el.getBoundingClientRect();
+      const bb = domMetrics.getBoundingBoxDocument(selectable.el);
       const computedStyleRect = {
         top: selectable.metrics.computedStyleRect.top + (selectable.metrics.clientRect.top - bb.top),
         left: selectable.metrics.computedStyleRect.left + (selectable.metrics.clientRect.left - bb.left),

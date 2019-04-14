@@ -204,7 +204,7 @@ describe('DomMetrics', function() {
     expect(DomMetrics.getScroll(document).y).toBe(0);
 
     // scroll to
-    DomMetrics.setScroll(document, {x: '10', y:10});
+    DomMetrics.setScroll(document, {x: 10, y:10});
     expect(window.scrollY).toBe(10);
     expect(window.scrollX).toBe(10);
     expect(DomMetrics.getScroll(document).x).toBe(10);
@@ -233,5 +233,29 @@ describe('DomMetrics', function() {
     // element position - size - SCROLL_ZONE_SIZE
     expect(scroll.x).toBe(0);
     expect(scroll.y).toBe(14595);
+  });
+
+  it('getBoundingBoxDocument', function() {
+    var bb = elem4.getBoundingClientRect();
+    expect(bb.top).toBe(15010);
+    expect(bb.left).toBe(510);
+
+    var bb2 = DomMetrics.getBoundingBoxDocument(elem4);
+    expect(bb2.top).toBe(15010);
+    expect(bb2.left).toBe(510);
+
+    window.scroll(0, 100);
+
+    const doc = DomMetrics.getDocument(elem4);
+    const scroll = DomMetrics.getScroll(doc);
+    expect(scroll.y).toBe(100);
+
+    var bb = elem4.getBoundingClientRect();
+    expect(bb.top).toBe(14910);
+    expect(bb.left).toBe(510);
+
+    var bb2 = DomMetrics.getBoundingBoxDocument(elem4);
+    expect(bb2.top).toBe(15010);
+    expect(bb2.left).toBe(510);
   });
 })

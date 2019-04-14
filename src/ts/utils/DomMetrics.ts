@@ -10,6 +10,18 @@ type Box = {
   right: number,
 }
 
+export function getBoundingBoxDocument(el: HTMLElement): Box {
+  const doc = getDocument(el);
+  const scroll = getScroll(doc);
+  const box = el.getBoundingClientRect();
+  return {
+    top: box.top + scroll.y,
+    left: box.left + scroll.x,
+    bottom: box.bottom + scroll.y,
+    right: box.right + scroll.x,
+  }
+}
+
 export function getBoundingBox(selectables: Array<types.SelectableState>): Box {
   const box: Box = {
     top: Infinity,

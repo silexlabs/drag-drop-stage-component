@@ -23,6 +23,9 @@ describe('MoveHandler', function() {
 
   beforeEach(function () {
     document.head.innerHTML = `<style>
+    body {
+      min-height: 100000px;
+    }
     .selectable {
       margin: 0;
       padding: 0;
@@ -132,7 +135,7 @@ describe('MoveHandler', function() {
     // test
     var droppables = handler.findDropZonesUnderMouse(150, 150);
     expect(droppables instanceof Array).toBe(true);
-    expect(droppables.length).toBe(2);
+    expect(droppables.length).toBe(3);
     expect(droppables[0]).toBe(StageStoreMock.elem1);
   });
 
@@ -224,5 +227,56 @@ describe('MoveHandler', function() {
 
     expect(handler.selection.length).toBe(1);
     expect(handler.selection[0].el).toBe(StageStoreMock.elem1);
+
+    StageStoreMock.additionalSelectables = [];
+  });
+
+  it('should move elements with a scroll', function() {
+    // init
+    // scroll to elem1
+    stageStoreMock.state.mouse.scrollData = {
+      x: 0, y: 95,
+    }
+    window.scroll(stageStoreMock.state.mouse.scrollData.x, stageStoreMock.state.mouse.scrollData.y);
+    stageStoreMock.selectableElem1.selected = true;
+    handler = initHandler();
+    expect(handler.selection.length).toBe(1);
+    expect(handler.selection[0].el).toBe(StageStoreMock.elem1);
+
+    // test
+    // drag
+    var mouseData = {
+      movementX: 0, // from middle of elem2
+      movementY: 10, // from middle of elem2
+      mouseX: 150, // to middle of elem1
+      mouseY: 160, // to middle of elem1
+      shiftKey: false,
+      target: StageStoreMock.elem2,
+    };
+    stageStoreMock.mouseState.mouseData = mouseData;
+    handler.update(mouseData);
+
+    expect(stageStoreMock.dispatch).toBeCalledTimes(3);
+    var calls = stageStoreMock.dispatch['mock'].calls;
+    var lastAction = calls[calls.length - 1][0];
+    expect(lastAction.type).toBe('SELECTABLE_UPDATE');
+    expect(lastAction.selectables.length).toBe(1);
+    expect(lastAction.selectables[0].el).toBe(StageStoreMock.elem1);
+    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(110);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(110);
+    expect(lastAction.selectables[0].translation).not.toBeNull();
+    expect(lastAction.selectables[0].translation.y).toBe(10);
+
+    // drop
+    handler.release();
+    var calls = stageStoreMock.dispatch['mock'].calls;
+    var lastAction = calls[calls.length - 2][0];
+    expect(lastAction.type).toBe('SELECTABLE_UPDATE');
+    expect(lastAction.selectables.length).toBe(1);
+    expect(lastAction.selectables[0].el).toBe(StageStoreMock.elem1);
+    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(110);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(110);
+    expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(110);
+    expect(lastAction.selectables[0].translation).toBeNull();
   });
 });
