@@ -46,10 +46,10 @@ export class DrawHandler extends MouseHandlerBase {
     // select all elements which intersect with the region
     let newSelection = this.store.getState().selectables
     .filter(selectable => {
-      return selectable.metrics.clientRect.left < Math.max(this.initialX, mouseData.mouseX) &&
-      selectable.metrics.clientRect.right > Math.min(this.initialX, mouseData.mouseX) &&
-      selectable.metrics.clientRect.top < Math.max(this.initialY, mouseData.mouseY) &&
-      selectable.metrics.clientRect.bottom > Math.min(this.initialY, mouseData.mouseY);
+      return selectable.metrics.clientRect.left < bb.right &&
+      selectable.metrics.clientRect.right > bb.left &&
+      selectable.metrics.clientRect.top < bb.bottom &&
+      selectable.metrics.clientRect.bottom > bb.top;
     });
 
     // handle removed elements

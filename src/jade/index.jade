@@ -6,8 +6,9 @@ html(lang="en")
       include ../../node_modules/requirejs/require.js
     link(rel="stylesheet", href="css/demo.css")
     script(type='text/javascript')
-      |   require(['js/demo'], function() {console.log('Starting')});
+      |   require(['js/demo'], function() {});
   body
+    .bg
     section
       iframe#iframe
       // button.button-bar-element(onclick='addTemplate()') Add Random Content
