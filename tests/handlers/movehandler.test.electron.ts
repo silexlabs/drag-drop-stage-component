@@ -84,6 +84,7 @@ describe('MoveHandler', function() {
     jest.spyOn(stageStoreMock, 'getState');
 
     StageStoreMock.additionalSelectables = [];
+    window.scroll(0, 0);
 
     // electron.remote.getCurrentWindow().show();
   });
@@ -146,14 +147,27 @@ describe('MoveHandler', function() {
     expect(StageStoreMock.elem2.style.transform).toBe('');
   });
 
-  it('should find 1 droppable at (150, 150) while dragging elem1', function() {
+  it('should find 1 droppable at (150, 150)', function() {
     // init
-    stageStoreMock.selectableElem2.selected = true;
-    stageStoreMock.selectableElem2.metrics.position = 'static';
     handler = initHandler();
 
     // test
     var droppables = handler.findDropZonesUnderMouse(150, 150);
+    expect(droppables instanceof Array).toBe(true);
+    expect(droppables.length).toBe(3);
+    expect(droppables[0]).toBe(StageStoreMock.elem1);
+  });
+
+  it('should find 1 droppable at (150, 150) with scroll', function() {
+    // init
+    const scroll = {x: 100, y: 100};
+    window.scroll(scroll.x, scroll.y)
+    expect(window.scrollX).toBe(100);
+    expect(window.scrollY).toBe(100);
+    handler = initHandler();
+
+    // test
+    var droppables = handler.findDropZonesUnderMouse(150 - scroll.x, 150 - scroll.y);
     expect(droppables instanceof Array).toBe(true);
     expect(droppables.length).toBe(3);
     expect(droppables[0]).toBe(StageStoreMock.elem1);

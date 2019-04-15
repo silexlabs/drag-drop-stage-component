@@ -315,6 +315,7 @@ export class MoveHandler extends MouseHandlerBase {
   /**
    * place an empty div (phantom) at each possible place in the dom
    * find the place where it is the nearest from the mouse
+   * x and y are coordinates relative to the viewport
    */
   findNearestPosition(dropZones: Array<HTMLElement>, x, y) {
     // create an empty div to measure distance to the mouse
@@ -357,10 +358,10 @@ export class MoveHandler extends MouseHandlerBase {
 
   /**
    * get the distance from el's center to (x, y)
-   * x and y are relative to the document, not the viewport
+   * x and y are relative to the viewport
    */
   getDistance(el: HTMLElement, x: number, y: number) {
-    const bb = domMetrics.getBoundingBoxDocument(el);
+    const bb = el.getBoundingClientRect();
     const center = {
       x: bb.left + (bb.width/2),
       y: bb.top + (bb.height/2),
