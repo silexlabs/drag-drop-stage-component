@@ -42,7 +42,7 @@ export class Mouse {
       this.onUp(mouseData);
     }
     else if (this.mouseMode === MouseMode.DRAGGING) {
-      this.onStopDrag(mouseData);
+      this.onDrop(mouseData);
     }
     this.mouseMode = MouseMode.UP;
   }
@@ -161,7 +161,7 @@ export class Mouse {
     }
   }
 
-  onStopDrag(mouseData: types.MouseData) {
+  onDrop(mouseData: types.MouseData) {
     this.store.dispatch(UiState.setMode(types.UiMode.NONE));
   }
 }
