@@ -52,18 +52,22 @@ export function getScrollToShow(doc, boundingBox: ClientRect): {x: number, y: nu
   const scroll = getScroll(doc);
   const win = getWindow(doc);
   // vertical
-  if(scroll.y > boundingBox.top - SCROLL_ZONE_SIZE) {
+  // if(scroll.y > boundingBox.top - SCROLL_ZONE_SIZE) {
+  if(scroll.y > boundingBox.top) {
     scroll.y = boundingBox.top - SCROLL_ZONE_SIZE;
   }
-  else if(scroll.y < boundingBox.bottom + SCROLL_ZONE_SIZE - win.innerHeight) {
-    scroll.y = boundingBox.bottom + SCROLL_ZONE_SIZE - win.innerHeight;
+  // else if(scroll.y < boundingBox.bottom + SCROLL_ZONE_SIZE - win.innerHeight) {
+  else if(scroll.y < boundingBox.bottom - win.innerHeight) {
+      scroll.y = boundingBox.bottom + SCROLL_ZONE_SIZE - win.innerHeight;
   }
 
   // horizontal
-  if(scroll.x > boundingBox.left - SCROLL_ZONE_SIZE) {
+  // if(scroll.x > boundingBox.left - SCROLL_ZONE_SIZE) {
+  if(scroll.x > boundingBox.left) {
     scroll.x = boundingBox.left - SCROLL_ZONE_SIZE;
   }
-  else if(scroll.x < boundingBox.right + SCROLL_ZONE_SIZE - win.innerWidth) {
+  // else if(scroll.x < boundingBox.right + SCROLL_ZONE_SIZE - win.innerWidth) {
+  else if(scroll.x < boundingBox.right - win.innerWidth) {
     scroll.x = boundingBox.right + SCROLL_ZONE_SIZE - win.innerWidth;
   }
   return {

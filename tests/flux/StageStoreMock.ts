@@ -25,7 +25,7 @@ export class StageStoreMock extends StageStore {
   }
 
   dispatch(action: any, cbk: () => void = null, idx: number = 0): any {
-    // console.log('Dispatch', action, 'to', idx+1, '/', this.cbks.length);
+    // console.log('Dispatch', action, 'to', idx+1, '/', this.cbks.length, '(', this.preventDispatch, ')');
     if(!this.preventDispatch && this.cbks[idx]) this.cbks[idx](this.getState(), this.initialState);
     if(cbk) cbk();
     return null;

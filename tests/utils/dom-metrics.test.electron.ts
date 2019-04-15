@@ -1,5 +1,4 @@
 import * as DomMetrics from '../../src/ts/utils/DomMetrics';
-import * as electron from 'electron';
 import { StageStoreMock } from '../flux/StageStoreMock';
 import { ElementMetrics } from '../../src/ts/Types';
 
@@ -242,8 +241,8 @@ describe('DomMetrics', function() {
     bb.top += offset; bb.left += offset; bb.right += offset; bb.bottom += offset; bb.width += offset; bb.height += offset;
     var scroll = DomMetrics.getScrollToShow(document, bb);
     // element position - size - SCROLL_ZONE_SIZE
-    expect(scroll.x).toBe(bb.right - winWidth);
-    expect(scroll.y).toBe(bb.bottom - winHeight);
+    expect(scroll.x).toBe(bb.right - winWidth - 0);
+    expect(scroll.y).toBe(bb.bottom - winHeight - 0);
   });
 
   it('getBoundingBoxDocument', function() {

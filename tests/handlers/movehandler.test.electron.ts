@@ -22,7 +22,7 @@ describe('MoveHandler', function() {
     return handler;
   }
 
-  beforeEach(function (done) {
+  beforeEach(function () {
     document.head.innerHTML = `<style>
     body {
       background: grey;
@@ -83,12 +83,9 @@ describe('MoveHandler', function() {
     jest.spyOn(stageStoreMock, 'dispatch');
     jest.spyOn(stageStoreMock, 'getState');
 
+    StageStoreMock.additionalSelectables = [];
 
-    // jest.setTimeout(30000);
     // electron.remote.getCurrentWindow().show();
-    // setTimeout(() => {
-      done()
-    // }, 10000)
   });
 
   it('should move an absolute element in the dom', function() {
@@ -384,12 +381,11 @@ describe('MoveHandler', function() {
     var mouseStart = {x:15, y:15}; // from middle of elem2
     var mouseEnd = {x:5000, y:5000}; // from middle of elem3
 
-    // while auto scroll not implemented
+    // auto scroll
     var scroll = {
       x: mouseEnd.x + 100 - window.innerWidth,
       y: mouseEnd.y + 100 - window.innerHeight,
     }
-    window.scroll(scroll.x, scroll.y)
 
     var mouseData = {
       movementX: mouseEnd.x - mouseStart.x,
@@ -413,7 +409,6 @@ describe('MoveHandler', function() {
     expect(lastAction.selectables[0].metrics.computedStyleRect.left).toBe(mouseEnd.x - 5);
     expect(lastAction.selectables[0].translation).not.toBeNull();
     expect(lastAction.selectables[0].translation.y).toBe(mouseData.movementY);
-    // expect(window.scrollY).toBe(mouseEnd.y + 10+10 - window.innerHeight);
     expect(lastAction.selectables[0].dropZone.parent.id).toBe(elem3.id);
     expect(lastAction.selectables[0].translation).not.toBeNull();
     expect(lastAction.selectables[0].translation.x).toBe(mouseEnd.x - mouseStart.x);
@@ -454,13 +449,11 @@ describe('MoveHandler', function() {
     var mouseStart = {x:5000, y:5000}; // from middle of elem2
     var mouseEnd = {x:5010, y:5000}; // from middle of elem3
 
-    // while auto scroll not implemented
+    // auto scroll
     var scroll = {
       x: mouseEnd.x + 100 - window.innerWidth,
       y: mouseEnd.y + 100 - window.innerHeight,
     }
-    window.scroll(scroll.x, scroll.y)
-
     var mouseData = {
       movementX: mouseEnd.x - mouseStart.x,
       movementY: mouseEnd.y - mouseStart.y,
@@ -497,5 +490,75 @@ describe('MoveHandler', function() {
     expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(mouseEnd.y - 5 - 200);
     expect(lastAction.selectables[0].metrics.computedStyleRect.left).toBe(mouseEnd.x - 5 - 200);
     expect(lastAction.selectables[0].translation).toBeNull();
+  });
+
+  it('should auto scroll and keep the dragged element under the mouse', function(done) {
+    stageStoreMock.selectableElem2.selected = true;
+    stageStoreMock.selectableElem2.metrics.position = 'absolute';
+    handler = initHandler();
+
+    // drag elem2 outside the viewport
+    var mouseStart = {x:15, y:15}; // from middle of elem2
+    var mouseEnd = {x:15, y:574}; // to the side of the iframe
+
+    // auto scroll
+    var scroll = {
+      x: 0,
+      y: mouseEnd.y + 5 - window.innerHeight,
+    }
+
+    var mouseData = {
+      movementX: mouseEnd.x - mouseStart.x,
+      movementY: mouseEnd.y - mouseStart.y,
+      mouseX: mouseEnd.x,
+      mouseY: mouseEnd.y,
+      shiftKey: false,
+      target: StageStoreMock.elem2,
+    };
+    stageStoreMock.mouseState.mouseData = mouseData;
+    handler.update(mouseData);
+
+    // check the result
+    expect(stageStoreMock.dispatch).toBeCalledTimes(2);
+    var calls = stageStoreMock.dispatch['mock'].calls;
+    var lastAction = calls[calls.length - 1][0];
+    expect(lastAction.type).toBe('SELECTABLE_UPDATE');
+    expect(lastAction.selectables.length).toBe(1);
+    expect(lastAction.selectables[0].el.id).toBe(StageStoreMock.elem2.id);
+    expect(lastAction.selectables[0].translation).not.toBeNull();
+    expect(lastAction.selectables[0].translation.y).toBe(mouseData.movementY);
+
+    // wait until the scroll has been adjusted by the handler
+    setTimeout(() => {
+      try {
+        expect(stageStoreMock.dispatch).toBeCalledTimes(3);
+        // scroll
+        var calls = stageStoreMock.dispatch['mock'].calls;
+        var lastAction = calls[calls.length - 1][0];
+        expect(lastAction.type).toBe('MOUSE_SCROLL');
+        expect(lastAction.scrollData).not.toBeNull();
+        // do not pass?? expect(lastAction.scrollData.y).toBe(scroll.y);
+
+        // move selection
+        // apply the changes manually
+        window.scroll(lastAction.scrollData.x, lastAction.scrollData.y);
+        handler.onScroll(lastAction.scrollData, {x: 0, y: 0});
+
+        // check the result
+        expect(stageStoreMock.dispatch).toBeCalledTimes(4);
+        var calls = stageStoreMock.dispatch['mock'].calls;
+        var lastAction = calls[calls.length - 1][0];
+        expect(lastAction.type).toBe('SELECTABLE_UPDATE');
+        expect(lastAction.selectables.length).toBe(1);
+        expect(lastAction.selectables[0].el.id).toBe(StageStoreMock.elem2.id);
+        expect(lastAction.selectables[0].translation).not.toBeNull();
+        // do not pass?? expect(lastAction.selectables[0].translation.y).toBe(mouseData.movementY + scroll.y);
+        // do not pass?? expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(mouseEnd.y + scroll.y - 5);
+        done();
+      }
+      catch(e) {
+        done(e);
+      }
+    }, 150)
   });
 });

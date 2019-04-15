@@ -15,10 +15,14 @@ export class Mouse {
   mouseMode = MouseMode.UP; // public for unit tests
   private wasMultiSelected: boolean = false;
   constructor(private win, private store: StageStore) {
+    // events from inside the iframe
     this.win.addEventListener('scroll', (e) => this.scroll(e), true);
     this.win.document.body.addEventListener('mousedown', (e) => this.down(e), true);
     this.win.document.body.addEventListener('mouseup', (e) => this.up(e), true);
     this.win.document.body.addEventListener('mousemove', (e) => this.move(e), true);
+    // events from outside of the iframe
+    document.body.addEventListener('mouseup', (e) => this.upOut(e), true);
+    document.body.addEventListener('mousemove', (e) => this.moveOut(e), true);
   }
   //////////////////////////////
   scroll(e: MouseEvent) {
@@ -27,40 +31,65 @@ export class Mouse {
   }
   down(e: MouseEvent) {
     e.preventDefault(); // prevent default text selection
+    const mouseData = this.eventToMouseData(e);
     this.mouseMode = MouseMode.DOWN;
-    this.onDown(e);
+    this.onDown(mouseData);
   }
-  up(e: MouseEvent) {
+  up(e: MouseEvent, offset: ClientRect = null) {
     e.preventDefault();
+    const mouseData = this.eventToMouseData(e, offset);
     if(this.mouseMode === MouseMode.DOWN) {
-      this.onUp(e);
+      this.onUp(mouseData);
     }
     else if (this.mouseMode === MouseMode.DRAGGING) {
-      this.onStopDrag(e);
+      this.onStopDrag(mouseData);
     }
     this.mouseMode = MouseMode.UP;
   }
-  move(e: MouseEvent) {
+  move(e: MouseEvent, offset: ClientRect = null) {
     e.preventDefault();
+    const mouseData = this.eventToMouseData(e, offset);
     switch(this.mouseMode) {
       case MouseMode.DOWN:
         this.mouseMode = MouseMode.DRAGGING;
-        this.onStartDrag(e);
+        this.onStartDrag(mouseData);
         break;
       case MouseMode.DRAGGING:
-        this.onDrag(e);
+        this.onDrag(mouseData);
         break;
       default:
-       this.onMove(e);
+       this.onMove(mouseData);
     }
   }
 
+  upOut(e: MouseEvent) {
+    if(this.mouseMode !== MouseMode.UP) {
+      const iframe = this.win.frameElement.getBoundingClientRect();
+      this.up(e, iframe);
+    }
+  }
+  moveOut(e: MouseEvent) {
+    if(this.mouseMode !== MouseMode.UP) {
+      const iframe = this.win.frameElement.getBoundingClientRect();
+      this.move(e, iframe);
+    }
+  }
+
+  eventToMouseData(e: MouseEvent, offset: ClientRect = null): types.MouseData {
+    return {
+      movementX: e.movementX,
+      movementY: e.movementY,
+      mouseX: e.clientX - (offset ? offset.left : 0),
+      mouseY: e.clientY - (offset ? offset.top : 0),
+      shiftKey: e.shiftKey,
+      target: e.target as HTMLElement,
+    };
+  }
+
   /////////////////////////////////////
-  /**
-   * @param  {Event} e
-   */
-  onDown(e: MouseEvent) {
-    const {target, shiftKey} = e;
+
+  onDown(mouseData: types.MouseData) {
+    const {target, shiftKey} = mouseData;
     const selectable = DomMetrics.getSelectable(this.store, target as HTMLElement);
     if(selectable) {
       this.wasMultiSelected = DomMetrics.getSelection(this.store).length > 1 && selectable.selected;
@@ -77,11 +106,8 @@ export class Mouse {
   }
 
 
-  /**
-   * @param  {Event} e
-   */
-  onUp(e: MouseEvent) {
-    const {target, shiftKey} = e;
+  onUp(mouseData: types.MouseData) {
+    const {target, shiftKey} = mouseData;
     const selectable = DomMetrics.getSelectable(this.store, target as HTMLElement);
     if(selectable) {
       if(shiftKey) {
@@ -100,42 +126,22 @@ export class Mouse {
   }
 
 
-  /**
-   * @param  {Event} e
-   */
-  onMove(e: MouseEvent) {
-    const {clientX, clientY, target} = e;
+  onMove(mouseData: types.MouseData) {
+    const {mouseX, mouseY, target} = mouseData;
     const selectable = DomMetrics.getSelectable(this.store, target as HTMLElement);
-    this.store.dispatch(MouseState.setCursorData(DomMetrics.getCursorData(clientX, clientY, this.store.getState().mouse.scrollData, selectable)));
+    this.store.dispatch(MouseState.setCursorData(DomMetrics.getCursorData(mouseX, mouseY, this.store.getState().mouse.scrollData, selectable)));
   }
 
 
-  /**
-   * @param  {Event} e
-   */
-  onDrag(e: MouseEvent) {
-    this.store.dispatch(MouseState.setMouseData(this.eventToMouseData(e)));
+  onDrag(mouseData: types.MouseData) {
+    this.store.dispatch(MouseState.setMouseData(mouseData));
   }
 
-  eventToMouseData(e: MouseEvent): types.MouseData {
-    return {
-      movementX: e.movementX,
-      movementY: e.movementY,
-      mouseX: e.clientX,
-      mouseY: e.clientY,
-      shiftKey: e.shiftKey,
-      target: e.target as HTMLElement,
-    };
-  }
-
-  /**
-   * @param  {Event} e
-   */
-  onStartDrag(e: MouseEvent) {
+  onStartDrag(mouseData: types.MouseData) {
     // update mouse data
-    this.store.dispatch(MouseState.setMouseData(this.eventToMouseData(e)));
+    this.store.dispatch(MouseState.setMouseData(mouseData));
     // draw or resize or move
-    const selectable = DomMetrics.getSelectable(this.store, e.target as HTMLElement);
+    const selectable = DomMetrics.getSelectable(this.store, mouseData.target as HTMLElement);
     if(selectable) {
       const direction = this.store.getState().mouse.cursorData;
       // start resize
@@ -155,12 +161,7 @@ export class Mouse {
     }
   }
 
-
-  /**
-   * Stop drag
-   * @private
-   */
-  onStopDrag(e: MouseEvent) {
+  onStopDrag(mouseData: types.MouseData) {
     this.store.dispatch(UiState.setMode(types.UiMode.NONE));
   }
 }

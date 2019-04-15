@@ -21,18 +21,8 @@ export class ResizeHandler extends MouseHandlerBase {
    */
   update(mouseData: MouseData) {
     super.update(mouseData);
-    const bb = domMetrics.getBoundingBox(this.selection);
-    const initialScroll = this.store.getState().mouse.scrollData;
-    const scroll = domMetrics.getScrollToShow(this.doc, bb);
-    if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
-      // avoid "Maximum call stack size exceeded" error
-      // and scrolls too fast
-      setTimeout(() => {
-        this.store.dispatch(mouseState.setScroll(scroll));
-      }, 100);
-    }
 
-    console.info('todo: handle scroll on the side of the iframe');
+    // console.info('todo: handle scroll on the side of the iframe');
 
     // set a new size
     this.selection = this.selection.map((selectable: SelectableState) => {
@@ -148,6 +138,14 @@ export class ResizeHandler extends MouseHandlerBase {
     });
     // dispatch all the changes at once
     this.store.dispatch(selectableState.updateSelectables(this.selection));
+
+    // update scroll
+    const bb = domMetrics.getBoundingBox(this.selection);
+    const initialScroll = this.store.getState().mouse.scrollData;
+    const scroll = domMetrics.getScrollToShow(this.doc, bb);
+    if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
+      this.debounceScroll(scroll);
+    }
   }
 
 

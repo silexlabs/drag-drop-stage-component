@@ -2,12 +2,10 @@ import {MouseHandlerBase} from './MouseHandlerBase';
 import { StageStore } from '../flux/StageStore';
 import { Hooks, SelectableState, MouseData, DropZone, ScrollData, State } from '../Types';
 import * as selectableState from '../flux/SelectableState'
-import * as mouseState from '../flux/MouseState';
 import * as domMetrics from '../utils/DomMetrics';
 
 export class MoveHandler extends MouseHandlerBase {
   private positionMarker: HTMLElement;
-  private unsubsribeScroll: () => void;
 
   constructor(doc: HTMLDocument, store: StageStore, hooks: Hooks) {
     super(doc, store, hooks);
@@ -41,20 +39,6 @@ export class MoveHandler extends MouseHandlerBase {
 
     // update store
     this.store.dispatch(selectableState.updateSelectables(this.selection));
-
-    // listen for scroll
-    this.unsubsribeScroll = this.store.subscribe(
-      (cur: ScrollData, prev: ScrollData) => this.onScroll(cur, prev),
-      (state: State): ScrollData => state.mouse.scrollData
-    );
-  }
-
-  onScroll(state: ScrollData, prev: ScrollData) {
-    console.log('onScroll', state.y);
-    // move the dragged elements back
-    this.store.dispatch(selectableState.updateSelectables(
-      this.selection.map(s => this.move(s, -(state.x - prev.x), -(state.y - prev.y)))
-    ))
   }
 
 
@@ -63,17 +47,6 @@ export class MoveHandler extends MouseHandlerBase {
    */
   update(mouseData: MouseData) {
     super.update(mouseData);
-
-    const bb = domMetrics.getBoundingBox(this.selection);
-    const initialScroll = this.store.getState().mouse.scrollData;
-    const scroll = domMetrics.getScrollToShow(this.doc, bb);
-    if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
-      // avoid "Maximum call stack size exceeded" error
-      // and scrolls too fast
-      setTimeout(() => {
-        this.store.dispatch(mouseState.setScroll(scroll));
-      }, 100);
-    }
 
     // remove the marker
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
@@ -98,6 +71,14 @@ export class MoveHandler extends MouseHandlerBase {
 
     // update store
     this.store.dispatch(selectableState.updateSelectables(this.selection));
+
+    // update scroll
+    const bb = domMetrics.getBoundingBox(this.selection);
+    const initialScroll = this.store.getState().mouse.scrollData;
+    const scroll = domMetrics.getScrollToShow(this.doc, bb);
+    if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
+      this.debounceScroll(scroll);
+    }
   }
 
 
@@ -106,7 +87,7 @@ export class MoveHandler extends MouseHandlerBase {
    */
   release() {
     super.release();
-    this.unsubsribeScroll();
+
     this.selection = this.selection.map((selectable) => {
       // reset css class and style
       selectable.el.classList.remove('dragging');
