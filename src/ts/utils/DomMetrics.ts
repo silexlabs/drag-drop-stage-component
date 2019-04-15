@@ -1,15 +1,6 @@
 import * as types from '../Types';
 import { StageStore } from '../flux/StageStore';
 
-export type ClientRect = {
-  top: number,
-  left: number,
-  bottom: number,
-  right: number,
-  width: number,
-  height: number,
-}
-
 export function getBoundingBoxDocument(el: HTMLElement): ClientRect {
   const doc = getDocument(el);
   const scroll = getScroll(doc);

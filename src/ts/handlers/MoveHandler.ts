@@ -79,6 +79,9 @@ export class MoveHandler extends MouseHandlerBase {
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
       this.debounceScroll(scroll);
     }
+
+    // notify the app
+    if(this.hooks.onDrag) this.hooks.onDrag(this.selection, bb);
   }
 
 
@@ -186,6 +189,9 @@ export class MoveHandler extends MouseHandlerBase {
         }
       });
       this.store.dispatch(selectableState.updateSelectables(state));
+
+      // notify the app
+      if(this.hooks.onDrop) this.hooks.onDrop(this.selection);
     });
   }
 

@@ -32,13 +32,6 @@ export class UiObserver {
       }
       switch(state.mode){
         case types.UiMode.NONE:
-          const selection = this.store.getState().selectables.filter(s => s.selected);
-          if(prevState.mode === types.UiMode.DRAG) {
-            this.hooks.onDrop(selection);
-          }
-          if(prevState.mode === types.UiMode.RESIZE) {
-            this.hooks.onResize(selection);
-          }
           break;
         case types.UiMode.DRAG:
           this.handler = new MoveHandler(this.doc, this.store, this.hooks);

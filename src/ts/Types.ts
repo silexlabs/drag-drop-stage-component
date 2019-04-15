@@ -6,10 +6,13 @@ export interface Hooks {
   isResizeable?: (el: HTMLElement) => boolean;
   useMinHeight?: (el: HTMLElement) => boolean;
   canDrop?: (el: HTMLElement, selection: Array<SelectableState>) => boolean;
-  onDrag?: (selectables: Array<SelectableState>) => void;
-  onDrop?: (selectables: Array<SelectableState>) => void;
-  onResize?: (selectables: Array<SelectableState>) => void;
   onSelect?: (selectables: Array<SelectableState>) => void;
+  onDrag?: (selectables: Array<SelectableState>, boundingBox: ClientRect) => void;
+  onDrop?: (selectables: Array<SelectableState>) => void;
+  onResize?: (selectables: Array<SelectableState>, boundingBox: ClientRect) => void;
+  onResizeEnd?: (selectables: Array<SelectableState>) => void;
+  onDraw?: (selectables: Array<SelectableState>, boundingBox: ClientRect) => void;
+  onDrawEnd?: (selectables: Array<SelectableState>) => void;
 }
 
 /**

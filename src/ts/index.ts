@@ -34,15 +34,13 @@ export class Stage {
     this.contentWindow = this.iframe.contentWindow;
     this.contentDocument = this.iframe.contentDocument;
     const hooks = {
+      ...options, // other hooks without default values
       isSelectable: options.isSelectable || (el => el.classList.contains('selectable')),
       isDraggable: options.isDraggable || (el => el.classList.contains('draggable')),
       isDropZone: options.isDropZone || ((el) => el.classList.contains('droppable')),
       isResizeable: options.isResizeable || ((el) => el.classList.contains('resizeable')),
       useMinHeight: options.useMinHeight || ((el) => true),
       canDrop: options.canDrop || ((el, selection) => true),
-      onDrag: options.onDrag,
-      onDrop: options.onDrop,
-      onResize: options.onResize,
     }
 
     // polyfill the iframe

@@ -75,12 +75,19 @@ export class DrawHandler extends MouseHandlerBase {
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
       this.debounceScroll(scroll);
     }
+
+    // notify the app
+    if(this.hooks.onDraw) this.hooks.onDraw(this.selection, bb);
   }
 
 
   release() {
     super.release();
     this.regionMarker.parentNode.removeChild(this.regionMarker);
+
+    // notify the app
+    if(this.hooks.onDrawEnd) this.hooks.onDrawEnd(this.selection);
+
     this.selection = [];
   }
 

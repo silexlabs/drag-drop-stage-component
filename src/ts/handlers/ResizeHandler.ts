@@ -146,6 +146,9 @@ export class ResizeHandler extends MouseHandlerBase {
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
       this.debounceScroll(scroll);
     }
+
+    // notify the app
+    if(this.hooks.onResize) this.hooks.onResize(this.selection, bb);
   }
 
 
@@ -170,5 +173,8 @@ export class ResizeHandler extends MouseHandlerBase {
       }
     });
     this.store.dispatch(selectableState.updateSelectables(updatedState));
+
+    // notify the app
+    if(this.hooks.onResizeEnd) this.hooks.onResizeEnd(this.selection);
   }
 }

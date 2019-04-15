@@ -36,7 +36,6 @@ describe('SelectablesObserver', function() {
     jest.spyOn(observer, 'onDraggable');
     jest.spyOn(observer, 'onResizeable');
     jest.spyOn(observer, 'onDropZone');
-    jest.spyOn(observer, 'onDropping');
   });
 
   it('init', function() {
@@ -67,7 +66,6 @@ describe('SelectablesObserver', function() {
     expect(observer.onDraggable).toBeCalledTimes(0);
     expect(observer.onResizeable).toBeCalledTimes(0);
     expect(observer.onDropZone).toBeCalledTimes(0);
-    expect(observer.onDropping).toBeCalledTimes(0);
   });
   it('onMetrics', function() {
     stageStoreMock.state = {
@@ -94,7 +92,6 @@ describe('SelectablesObserver', function() {
     expect(observer.onDraggable).toBeCalledTimes(0);
     expect(observer.onResizeable).toBeCalledTimes(0);
     expect(observer.onDropZone).toBeCalledTimes(0);
-    expect(observer.onDropping).toBeCalledTimes(0);
   });
   it('onSelection', function() {
     const state = stageStoreMock.getState();
@@ -114,7 +111,6 @@ describe('SelectablesObserver', function() {
     expect(observer.onDraggable).toBeCalledTimes(0);
     expect(observer.onResizeable).toBeCalledTimes(0);
     expect(observer.onDropZone).toBeCalledTimes(0);
-    expect(observer.onDropping).toBeCalledTimes(0);
   });
   it('onDraggable', function() {
     const state = stageStoreMock.getState();
@@ -134,7 +130,6 @@ describe('SelectablesObserver', function() {
     expect(observer.onDraggable).toBeCalledTimes(1);
     expect(observer.onResizeable).toBeCalledTimes(0);
     expect(observer.onDropZone).toBeCalledTimes(0);
-    expect(observer.onDropping).toBeCalledTimes(0);
   });
   it('onResizeable', function() {
     const state = stageStoreMock.getState();
@@ -154,7 +149,6 @@ describe('SelectablesObserver', function() {
     expect(observer.onDraggable).toBeCalledTimes(0);
     expect(observer.onResizeable).toBeCalledTimes(1);
     expect(observer.onDropZone).toBeCalledTimes(0);
-    expect(observer.onDropping).toBeCalledTimes(0);
   });
   it('onDropZone', function() {
     const state = stageStoreMock.getState();
@@ -174,25 +168,5 @@ describe('SelectablesObserver', function() {
     expect(observer.onDraggable).toBeCalledTimes(0);
     expect(observer.onResizeable).toBeCalledTimes(0);
     expect(observer.onDropZone).toBeCalledTimes(1);
-    expect(observer.onDropping).toBeCalledTimes(0);
-  });
-  it('onDropping', function() {
-    stageStoreMock.state = {
-      ...stageStoreMock.state,
-      selectables: [{
-      ...stageStoreMock.selectableElem1,
-      dropping: true,
-      },
-      stageStoreMock.selectableElem2,
-      ],
-    };
-    stageStoreMock.dispatch(null);
-    expect(observer.onStateChanged).toBeCalledTimes(1);
-    expect(observer.onMetrics).toBeCalledTimes(0);
-    expect(observer.onSelection).toBeCalledTimes(0);
-    expect(observer.onDraggable).toBeCalledTimes(0);
-    expect(observer.onResizeable).toBeCalledTimes(0);
-    expect(observer.onDropZone).toBeCalledTimes(0);
-    expect(observer.onDropping).toBeCalledTimes(1);
   });
 });

@@ -1,23 +1,36 @@
 import {Stage} from './index';
-import * as domMetrics from './utils/DomMetrics';
 
 // find the empty iframe in the page
 const iframe = document.querySelector('#iframe') as HTMLIFrameElement;
+const output = document.querySelector('#output') as HTMLInputElement;
 // write some content in the iframe
 iframe.contentDocument.write(document.querySelector('#random-content').innerHTML);
 // create the Stage class
 const stage = new Stage(iframe, {
   onDrop: (selectables) => {
     const dropElement = selectables[0].dropZone.parent;
-    console.log(`${ selectables.length } elements have been droped to ${ dropElement.tagName.toLocaleLowerCase() }${ dropElement.id ? '#' + dropElement.id : '' }${ Array.from(dropElement.classList).map(c => '.' + c).join('') }`);
+    const str = `${ selectables.length } elements have been droped to ${ dropElement.tagName.toLocaleLowerCase() }${ dropElement.id ? '#' + dropElement.id : '' }${ Array.from(dropElement.classList).map(c => '.' + c).join('') }`;
+    console.log(str);
+    output.value = str;
   },
-  onDrag: (selectables) => {
-    console.log(`${ selectables.length } elements are being draged`);
+  onDrag: (selectables, boundingBox) => {
+    const str = `${ selectables.length } elements are being draged`;
+    console.log(str);
+    output.value = str;
   },
-  onResize: (selectables) => {
-    console.log(`${ selectables.length } elements have been resizeed to ${JSON.stringify(domMetrics.getBoundingBox(selectables))}`);
+  onResize: (selectables, boundingBox) => {
+    const str = `${ selectables.length } elements have been resizeed to ${JSON.stringify(boundingBox)}`;
+    console.log(str);
+    output.value = str;
+  },
+  onDraw: (selectables, boundingBox) => {
+    const str = `Drawing region: ${JSON.stringify(boundingBox)}`;
+    console.log(str);
+    output.value = str;
   },
   onSelect: (selectables) => {
-    console.log(`${ selectables.length } elements have been selected`);
+    const str = `${ selectables.length } elements have been (un)selected`;
+    console.log(str);
+    output.value = str;
   },
 });
