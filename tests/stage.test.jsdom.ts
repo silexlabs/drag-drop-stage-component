@@ -6,7 +6,7 @@ describe('Stage', () => {
   })
 
   it('should expose iframe doc and win', () => {
-    var stage = new Stage(document.querySelector('#iframe'));
+    var stage = new Stage(document.querySelector('#iframe'), document.querySelectorAll('*'));
     expect(stage.iframe.tagName.toUpperCase()).toBe('IFRAME');
     expect(document.querySelector('#iframe')).toBe(stage.iframe);
     expect(stage.contentDocument.createElement).not.toBeNull();

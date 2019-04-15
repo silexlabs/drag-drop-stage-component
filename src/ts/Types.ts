@@ -50,11 +50,11 @@ export interface SelectableState {
   el: HTMLElement
   dropZone?: DropZone // for use by the move handler only
   selected: boolean
+  selectable: boolean
   draggable: boolean
   resizeable: boolean
   isDropZone: boolean
   useMinHeight: boolean
-  dropping: boolean // this is a drop zone which is about to receive the dragged elements
   metrics: ElementMetrics
   preventMetrics?: boolean // while being dragged, elements are out of the flow, do not apply styles
   translation?: {x: number, y: number}

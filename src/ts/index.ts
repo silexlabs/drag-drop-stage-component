@@ -1,5 +1,6 @@
 import * as types from './Types';
 import * as Polyfill from './utils/Polyfill';
+import * as DomMetrics from './utils/DomMetrics';
 import {Mouse} from './Mouse';
 import * as selectionState from './flux/SelectionState';
 import * as UiAction from './flux/UiState';
@@ -7,6 +8,7 @@ import {SelectablesObserver} from './observers/SelectablesObserver';
 import {MouseObserver} from './observers/MouseObserver';
 import {UiObserver} from './observers/UiObserver';
 import {StageStore} from './flux/StageStore';
+import { resetSelectables, createSelectable, updateSelectables, deleteSelectable } from './flux/SelectableState';
 
 /**
  * This class is the entry point of the library
@@ -18,6 +20,7 @@ export class Stage {
   contentDocument: HTMLDocument;
   iframe: HTMLIFrameElement;
   store: StageStore;
+  hooks: types.Hooks;
 
   /**
    * Init the useful classes,
@@ -25,7 +28,7 @@ export class Stage {
    * listen to mouse events in the iframe and outside
    * @constructor
    */
-  constructor(iframe, options: types.Hooks={}) {
+  constructor(iframe: HTMLIFrameElement, elements: ArrayLike<HTMLElement>, options: types.Hooks={}) {
     // expose for client app
     window['Stage'] = Stage;
 
@@ -33,7 +36,7 @@ export class Stage {
     this.iframe = iframe;
     this.contentWindow = this.iframe.contentWindow;
     this.contentDocument = this.iframe.contentDocument;
-    const hooks = {
+    this.hooks = {
       ...options, // other hooks without default values
       isSelectable: options.isSelectable || (el => el.classList.contains('selectable')),
       isDraggable: options.isDraggable || (el => el.classList.contains('draggable')),
@@ -54,33 +57,30 @@ export class Stage {
 
     // create the store and populate it
     this.store = new StageStore();
-    StageStore.selectablesFromDom(this.contentDocument, hooks)
-    .forEach(selectable => {
-      this.store.dispatch({
-        type: 'SELECTABLE_CREATE',
-        selectable,
-      })
-    })
-    setTimeout(() => {
-      // state observers
-      new SelectablesObserver(this.contentDocument, this.store, hooks);
-      new UiObserver(this.contentDocument, this.store, hooks);
-      new MouseObserver(this.contentDocument, this.store, hooks);
+    Array.from(elements).forEach(el => this.addElement(el))
 
-      // controllers
-      new Mouse(this.contentWindow, this.store);
 
-      // keyboard shortcuts
-      window.addEventListener("keydown", (e) => this.onKeyDown(e.keyCode));
-      this.contentWindow.addEventListener("keydown", (e) => this.onKeyDown(e.keyCode));
-    });
+    // state observers
+    new SelectablesObserver(this.contentDocument, this.store, this.hooks);
+    new UiObserver(this.contentDocument, this.store, this.hooks);
+    new MouseObserver(this.contentDocument, this.store, this.hooks);
+
+    // controllers
+    new Mouse(this.contentWindow, this.store);
+
+    // keyboard shortcuts
+    window.addEventListener("keydown", (e) => this.onKeyDown(e.keyCode));
+    this.contentWindow.addEventListener("keydown", (e) => this.onKeyDown(e.keyCode));
+
+    // window resize
+    window.addEventListener("resize", (e) => this.redraw());
   }
 
 
   /**
    * handle shortcuts
    */
-  onKeyDown(key) {
+  private onKeyDown(key) {
     switch(key) {
       case 27:
         this.store.dispatch(UiAction.setMode(types.UiMode.NONE));
@@ -88,5 +88,35 @@ export class Stage {
         break;
       default:
     }
+  }
+
+  /**
+   * recalculate all the metrics
+   */
+  redraw() {
+    this.store.dispatch(updateSelectables(this.store.getState().selectables));
+  }
+
+  /**
+   * Add an element to the store
+   */
+  addElement(el: HTMLElement) {
+    this.store.dispatch(createSelectable({
+      el,
+      selected: false,
+      selectable: this.hooks.isSelectable(el),
+      draggable: this.hooks.isDraggable(el),
+      resizeable: this.hooks.isResizeable(el),
+      isDropZone: this.hooks.isDropZone(el),
+      useMinHeight: this.hooks.useMinHeight(el),
+      metrics: DomMetrics.getMetrics(el),
+    }));
+  }
+
+  /**
+   * Remove an element from the store
+   */
+  removeElement(el: HTMLElement) {
+    this.store.dispatch(deleteSelectable(this.store.getState().selectables.find(s => s.el === el)));
   }
 }

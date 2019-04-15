@@ -1,30 +1,40 @@
 import {StageStore} from '../../src/ts/flux/StageStore';
+import { createSelectable } from '../../src/ts/flux/SelectableState';
 
 describe('StageStore', function() {
   let instance: StageStore;
-  beforeAll((done) => {
+  beforeAll(() => {
     document.body.innerHTML = `
       <div class="i-am-selectable"></div>
       <div class="i-am-NOT-selectable"></div>
       <div class="i-am-selectable"></div>
     `;
     instance = new StageStore();
-    StageStore.selectablesFromDom(document, {
-      isSelectable: (el => el.classList.contains('i-am-selectable')),
-      isDraggable: (el => true),
-      isDropZone: (el => true),
-      isResizeable: (el => true),
-      useMinHeight: (el => true),
-    }).forEach(selectable => {
-      instance.dispatch({
-        type: 'SELECTABLE_CREATE',
-        selectable,
-      })
-    })
-    setTimeout(() => {
-      done();
-    }, 0);
-  })
+    Array.from(document.querySelectorAll('.i-am-selectable'))
+    .forEach((el: HTMLElement) => {
+      instance.dispatch(
+        createSelectable({
+          el,
+          selectable: true,
+          selected: false,
+          draggable: true,
+          resizeable: true,
+          isDropZone: true,
+          useMinHeight: true,
+          metrics: {
+            position: 'absolute',
+            proportions: 1,
+            margin: {top: 0, left: 0, bottom: 0, right: 0 },
+            padding: {top: 0, left: 0, bottom: 0, right: 0 },
+            border: {top: 0, left: 0, bottom: 0, right: 0 },
+            computedStyleRect: {top: 100, left: 100, bottom: 200, right: 200, width: 100, height: 100 },
+            clientRect: {top: 100, left: 100, bottom: 200, right: 200, width: 100, height: 100 },
+          }
+        })
+      );
+    });
+  });
+
   it('createStore to create a store with the DOM as selectables', () => {
     expect(instance).not.toBeNull();
     expect(instance.getState()).not.toBeNull();

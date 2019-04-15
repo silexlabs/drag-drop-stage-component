@@ -1,6 +1,6 @@
 [ ![Codeship Status for lexoyo/stage](https://codeship.com/projects/3bbb51a0-ea08-0133-a1fa-5a99213623df/status?branch=master)](https://codeship.com/projects/147777)
 [![Code Climate](https://codeclimate.com/github/lexoyo/stage/badges/gpa.svg)](https://codeclimate.com/github/lexoyo/stage)
-[![Démo stage wysiwyg drag and drop](http://monitoshi.lexoyo.me/badge/1555195980574-1501)](https://lexoyo.me/stage/pub/)
+[![Démo stage wysiwyg drag and drop](https://monitoshi.lexoyo.me/badge/1555368788372-6479)](https://lexoyo.me/stage/pub/)
 
 ## About this project
 
@@ -19,7 +19,6 @@ A component like this will be useful to the developer building any tool which in
 * [x] scroll when the user moves near the border of the stage, or to show a specific element
 * [x] handle the events outside the iframe (the user can drag an element and release the mouse outside the iframe)
 
-
 Here is a [list of features](https://github.com/lexoyo/stage/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement) which is the current road map (please vote with :+1:s).
 
 ## Use
@@ -29,8 +28,9 @@ See [the online demo](https://lexoyo.me/stage/pub/) and its sources: [html here]
 The component can be initialized like this, which will make it possible to select, move and resize all the elements marked with the `.selectable` css class.
 
 ```javascript
+// All the div in the iframe
 const iframe = document.querySelector('#iframe')
-const stage = new Stage(iframe)
+const stage = new Stage(iframe, iframe.contentDocument.querySelectorAll('div'))
 ```
 
 The iframe is where you add elements with the `.selectable`, `.draggable`, `.resizeable`, `.droppable` css classes, which can then be moved and resized.

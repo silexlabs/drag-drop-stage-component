@@ -8,25 +8,6 @@ import * as DomMetrics from '../utils/DomMetrics';
 
 export class StageStore implements redux.Store<types.State> {
   /**
-   * @param {Hooks}
-   * @return {DomModel}
-   */
-  static selectablesFromDom(doc, hooks: types.Hooks): Array<types.SelectableState> {
-    return Array
-    .from(doc.querySelectorAll('*'))
-    .filter((el: HTMLElement) => hooks.isSelectable(el))
-    .map((el: HTMLElement): types.SelectableState => ({
-      el,
-      selected: false,
-      dropping: false,
-      draggable: hooks.isDraggable(el),
-      resizeable: hooks.isResizeable(el),
-      isDropZone: hooks.isDropZone(el),
-      useMinHeight: hooks.useMinHeight(el),
-      metrics: DomMetrics.getMetrics(el),
-    }));
-  }
-  /**
    * Create a redux store with composed reducers
    * @return redux.Store
    */

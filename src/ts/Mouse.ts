@@ -91,7 +91,7 @@ export class Mouse {
   onDown(mouseData: types.MouseData) {
     const {target, shiftKey} = mouseData;
     const selectable = DomMetrics.getSelectable(this.store, target as HTMLElement);
-    if(selectable) {
+    if(selectable && selectable.selectable) {
       this.wasMultiSelected = DomMetrics.getSelection(this.store).length > 1 && selectable.selected;
       if(this.wasMultiSelected || shiftKey) {
         this.store.dispatch(SelectionAction.add(selectable));
@@ -109,7 +109,7 @@ export class Mouse {
   onUp(mouseData: types.MouseData) {
     const {target, shiftKey} = mouseData;
     const selectable = DomMetrics.getSelectable(this.store, target as HTMLElement);
-    if(selectable) {
+    if(selectable && selectable.selectable) {
       if(shiftKey) {
         if(this.wasMultiSelected && selectable.selected) {
           this.store.dispatch(SelectionAction.remove(selectable));

@@ -154,7 +154,7 @@ describe('MoveHandler', function() {
     // test
     var droppables = handler.findDropZonesUnderMouse(150, 150);
     expect(droppables instanceof Array).toBe(true);
-    expect(droppables.length).toBe(3);
+    expect(droppables.length).toBe(1);
     expect(droppables[0]).toBe(StageStoreMock.elem1);
   });
 
@@ -169,7 +169,7 @@ describe('MoveHandler', function() {
     // test
     var droppables = handler.findDropZonesUnderMouse(150 - scroll.x, 150 - scroll.y);
     expect(droppables instanceof Array).toBe(true);
-    expect(droppables.length).toBe(3);
+    expect(droppables.length).toBe(1);
     expect(droppables[0]).toBe(StageStoreMock.elem1);
   });
 
@@ -241,7 +241,7 @@ describe('MoveHandler', function() {
     StageStoreMock.additionalSelectables.push({
       el: elem4,
       selected: true,
-      dropping: false,
+      selectable: false,
       draggable: true,
       resizeable: true,
       isDropZone: true,
@@ -369,7 +369,7 @@ describe('MoveHandler', function() {
     var selectableElem3 = {
       el: elem3,
       selected: false,
-      dropping: false,
+      selectable: false,
       draggable: true,
       resizeable: true,
       isDropZone: true,

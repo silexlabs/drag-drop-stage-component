@@ -59,14 +59,17 @@ export class MoveHandler extends MouseHandlerBase {
     this.selection = this.selection
     .map(selectable => {
       let dropZones = this.findDropZonesUnderMouse(mouseData.mouseX, mouseData.mouseY);
-      switch(selectable.metrics.position) {
-        case 'static':
-          let nearestPosition = this.findNearestPosition(dropZones, mouseData.mouseX, mouseData.mouseY);
-          return this.updateDestinationNonAbsolute(selectable, nearestPosition);
-        default:
-          let dropZoneUnderMouse = dropZones[0]; // the first one is supposed to be the top most one
-          return this.updateDestinationAbsolute(selectable, dropZoneUnderMouse);
+      if(dropZones.length > 0) {
+        switch(selectable.metrics.position) {
+          case 'static':
+            let nearestPosition = this.findNearestPosition(dropZones, mouseData.mouseX, mouseData.mouseY);
+            return this.updateDestinationNonAbsolute(selectable, nearestPosition);
+          default:
+            let dropZoneUnderMouse = dropZones[0]; // the first one is supposed to be the top most one
+            return this.updateDestinationAbsolute(selectable, dropZoneUnderMouse);
+        }
       }
+      else return selectable;
     });
 
     // update store
@@ -304,17 +307,18 @@ export class MoveHandler extends MouseHandlerBase {
   findDropZonesUnderMouse(x, y): Array<HTMLElement> {
     const win = domMetrics.getWindow(this.doc);
     if(x > win.innerWidth || y > win.innerHeight || x < 0 || y < 0) {
-      throw new Error(`Coords out of viewport, can not get the drop zone at coordinates (${x}, ${y}) while the viewport is (${win.innerWidth}, ${win.innerHeight})`);
+      // FIXME: the drop zone will be the previous one, how to get the drop zone outside the viewport?
+      console.info(`Coords out of viewport => the drop zone will not be updated. I can not get the drop zone at coordinates (${x}, ${y}) while the viewport is (${win.innerWidth}, ${win.innerHeight})`);
     }
 
     // get a list of all dropZone zone under the point (x, y)
     return this.doc.elementsFromPoint(x, y)
     .filter((el: HTMLElement) => {
       const selectable = this.store.getState().selectables.find(s => s.el === el);
-      return (!selectable || selectable.isDropZone)
-        && (!!selectable || this.hooks.isDropZone(el))
-        && (!selectable || !this.selection.find(s => s.el === el))
-        && this.hooks.canDrop(el, this.selection);
+      return selectable
+        && selectable.isDropZone
+        && this.hooks.canDrop(el, this.selection)
+        && !this.selection.find(s => s.el === el);
     }) as Array<HTMLElement>;
   }
 

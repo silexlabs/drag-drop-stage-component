@@ -33,8 +33,8 @@ export class StageStoreMock extends StageStore {
 
   selectableElem1: types.SelectableState = {
     el: StageStoreMock.elem1,
+    selectable: true,
     selected: false,
-    dropping: false,
     draggable: true,
     resizeable: true,
     isDropZone: true,
@@ -51,8 +51,8 @@ export class StageStoreMock extends StageStore {
   };
   selectableElem2: types.SelectableState = {
     el: StageStoreMock.elem2,
+    selectable: true,
     selected: false,
-    dropping: false,
     draggable: true,
     resizeable: true,
     isDropZone: true,

@@ -2,12 +2,16 @@ import * as DomMetrics from '../utils/DomMetrics';
 import { SelectableState } from '../Types';
 
 const UPDATE = 'SELECTABLE_UPDATE';
+const RESET = 'SELECTABLE_RESET';
 const CREATE = 'SELECTABLE_CREATE';
 const DELETE = 'SELECTABLE_DELETE';
 
 export const updateSelectables = (selectables: Array<SelectableState>) => ({
   type: UPDATE,
   selectables,
+});
+export const resetSelectables = () => ({
+  type: RESET,
 });
 export const createSelectable = (selectable: SelectableState) => ({
   type: CREATE,
@@ -23,7 +27,12 @@ export const selectables = (state=[], action) => {
     case CREATE:
       return [
         ...state,
-        action.selectable
+        action.selectable,
+      ];
+    case RESET:
+      return [
+        ...state,
+        [],
       ];
     case DELETE:
       return state.filter((selectable: SelectableState) => selectable.el !== action.selectable.el);
