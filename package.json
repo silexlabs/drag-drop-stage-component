@@ -7,19 +7,21 @@
     "test": "jest",
     "watch:test": "watch 'npm run test' src tests",
     "postinstall": "npm run build",
+    "postbuild": "npm run install:redux && npm run install:requirejs",
     "serve": "http-server . -o",
     "build": "mkdir -p pub/js && npm run build:js && npm run build:less && npm run build:demo",
     "build:less": "lessc src/less/stage.less pub/css/stage.css",
     "watch": "npm run build:js -- --watch",
-    "build:js": "mkdir -p pub/js && npm run workaround-babel && npm run install:redux && tsc -p tsconfig.json",
-    "build:demo": "mkdir -p pub/js && npm run workaround-babel && npm run install:redux && tsc -p tsconfig.json && pug src/jade/index.jade -o pub && lessc src/less/demo.less pub/css/demo.css",
-    "workaround-babel": "rm -rf node_modules/@types/babel__*",
-    "workaround issue:": "https://github.com/facebook/jest/issues/8218",
-    "install:redux": "cp node_modules/redux/dist/redux.min.js pub/redux.js"
+    "build:js": "mkdir -p pub/js && npm run workaround-babel && tsc -p tsconfig.json",
+    "build:demo": "mkdir -p pub/js && npm run workaround-babel && tsc -p tsconfig.json && pug src/jade/index.jade -o pub && lessc src/less/demo.less pub/css/demo.css",
+    "workaround-babel": "rm -rf `node_modules`/@types/babel__*",
+    "note: workaround issue:": "https://github.com/facebook/jest/issues/8218",
+    "install:redux": "cp `node_modules`/redux/dist/redux.min.js pub/redux.js",
+    "install:requirejs": "cp `node_modules`/requirejs/require.js pub/js/"
   },
   "author": "lexoyo",
   "license": "MIT",
-  "devDependencies": {
+  "dependencies": {
     "@jest-runner/electron": "^1.1.1",
     "@types/jest": "^24.0.11",
     "@types/redux": "^3.6.31",
@@ -30,6 +32,7 @@
     "redux": "^4.0.1",
     "requirejs": "^2.3.6",
     "ts-jest": "^24.0.2",
-    "typescript": "^3.4.2"
+    "typescript": "^3.4.2",
+    "node_modules-path": "^2.0.2"
   }
 }
