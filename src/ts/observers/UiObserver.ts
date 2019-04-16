@@ -13,10 +13,15 @@ export class UiObserver {
   private handler: MouseHandlerBase;
   constructor(private doc: HTMLDocument, private store: StageStore, private hooks: types.Hooks) {
     this.handler = null;
-    store.subscribe(
+    this.unsubscribeAll.push(store.subscribe(
       (state: types.UiState, prevState: types.UiState) => this.onUiStateChanged(state, prevState),
       (state:types.State) => state.ui
-    )
+    ));
+  }
+
+  private unsubscribeAll: Array<() => void> = [];
+  cleanup() {
+    this.unsubscribeAll.forEach(u => u());
   }
 
   /**

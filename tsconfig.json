@@ -8,6 +8,7 @@
     "watch": false,
     "inlineSourceMap": true,
     "removeComments": false,
+    "moduleResolution": "node",
   },
   "include": [
     "src/ts/demo.ts",

@@ -4,6 +4,7 @@ import * as MouseState from './flux/MouseState';
 import { StageStore } from './flux/StageStore';
 import * as SelectionAction from './flux/SelectionState';
 import * as UiState from './flux/UiState';
+import { addEvent } from './utils/Events';
 
 export enum MouseMode {
   UP,
@@ -16,13 +17,20 @@ export class Mouse {
   private wasMultiSelected: boolean = false;
   constructor(private win, private store: StageStore) {
     // events from inside the iframe
-    this.win.addEventListener('scroll', (e) => this.scroll(e), true);
-    this.win.document.body.addEventListener('mousedown', (e) => this.down(e), true);
-    this.win.document.body.addEventListener('mouseup', (e) => this.up(e), true);
-    this.win.document.body.addEventListener('mousemove', (e) => this.move(e), true);
-    // events from outside of the iframe
-    document.body.addEventListener('mouseup', (e) => this.upOut(e), true);
-    document.body.addEventListener('mousemove', (e) => this.moveOut(e), true);
+    this.unsubscribeAll.push(
+      addEvent(this.win, 'scroll', (e:MouseEvent) => this.scroll(e), true),
+      addEvent(this.win.document.body, 'mousedown', (e:MouseEvent) => this.down(e), true),
+      addEvent(this.win.document.body, 'mouseup', (e:MouseEvent) => this.up(e), true),
+      addEvent(this.win.document.body, 'mousemove', (e:MouseEvent) => this.move(e), true),
+
+      // events from outside of the iframe
+      addEvent(document.body, 'mouseup', (e:MouseEvent) => this.upOut(e), true),
+      addEvent(document.body, 'mousemove', (e:MouseEvent) => this.moveOut(e), true),
+    );
+  }
+  private unsubscribeAll: Array<() => void> = [];
+  cleanup() {
+    this.unsubscribeAll.forEach(u => u());
   }
   //////////////////////////////
   scroll(e: MouseEvent) {

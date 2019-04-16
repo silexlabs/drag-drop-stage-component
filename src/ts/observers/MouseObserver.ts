@@ -9,11 +9,17 @@ import { MouseHandlerBase } from '../handlers/MouseHandlerBase';
  */
 export class MouseObserver {
   constructor(private doc, store: StageStore, private hooks: types.Hooks) {
-    store.subscribe(
+    this.unsubscribeAll.push(store.subscribe(
       (state: types.MouseState, prevState: types.MouseState) => this.onStateChanged(state, prevState),
       (state:types.State) => state.mouse
-    )
+    ));
   }
+
+  private unsubscribeAll: Array<() => void> = [];
+  cleanup() {
+    this.unsubscribeAll.forEach(u => u());
+  }
+
   /**
    * handle state changes, detect changes of scroll or metrics or selection
    * @param {State} state

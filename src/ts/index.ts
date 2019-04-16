@@ -1,6 +1,7 @@
 import * as types from './Types';
 import * as Polyfill from './utils/Polyfill';
 import * as DomMetrics from './utils/DomMetrics';
+import {Keyboard} from './Keyboard';
 import {Mouse} from './Mouse';
 import * as selectionState from './flux/SelectionState';
 import * as UiAction from './flux/UiState';
@@ -9,6 +10,7 @@ import {MouseObserver} from './observers/MouseObserver';
 import {UiObserver} from './observers/UiObserver';
 import {StageStore} from './flux/StageStore';
 import { resetSelectables, createSelectable, updateSelectables, deleteSelectable } from './flux/SelectableState';
+import { addEvent } from './utils/Events';
 
 /**
  * This class is the entry point of the library
@@ -16,11 +18,12 @@ import { resetSelectables, createSelectable, updateSelectables, deleteSelectable
  * @class Stage
  */
 export class Stage {
-  contentWindow: Window;
-  contentDocument: HTMLDocument;
-  iframe: HTMLIFrameElement;
+  protected contentWindow: Window;
+  protected contentDocument: HTMLDocument;
+  protected iframe: HTMLIFrameElement;
+  protected hooks: types.Hooks;
+  protected unsubscribeAll: Array<() => void> = [];
   store: StageStore;
-  hooks: types.Hooks;
 
   /**
    * Init the useful classes,
@@ -61,33 +64,29 @@ export class Stage {
 
 
     // state observers
-    new SelectablesObserver(this.contentDocument, this.store, this.hooks);
-    new UiObserver(this.contentDocument, this.store, this.hooks);
-    new MouseObserver(this.contentDocument, this.store, this.hooks);
+    const selectablesObserver = new SelectablesObserver(this.contentDocument, this.store, this.hooks);
+    const uiObserver = new UiObserver(this.contentDocument, this.store, this.hooks);
+    const mouseObserver = new MouseObserver(this.contentDocument, this.store, this.hooks);
 
     // controllers
-    new Mouse(this.contentWindow, this.store);
+    const mouse = new Mouse(this.contentWindow, this.store);
+    const keyboard = new Keyboard(this.contentWindow, this.store);
 
-    // keyboard shortcuts
-    window.addEventListener("keydown", (e) => this.onKeyDown(e.keyCode));
-    this.contentWindow.addEventListener("keydown", (e) => this.onKeyDown(e.keyCode));
+    this.unsubscribeAll.push(
 
-    // window resize
-    window.addEventListener("resize", (e) => this.redraw());
+      () => selectablesObserver.cleanup(),
+      () => uiObserver.cleanup(),
+      () => mouseObserver.cleanup(),
+      () => mouse.cleanup(),
+      () => keyboard.cleanup(),
+
+      // window resize
+      addEvent(window, "resize", (e: MouseEvent) => this.redraw()),
+    );
   }
 
-
-  /**
-   * handle shortcuts
-   */
-  private onKeyDown(key) {
-    switch(key) {
-      case 27:
-        this.store.dispatch(UiAction.setMode(types.UiMode.NONE));
-        this.store.dispatch(selectionState.reset());
-        break;
-      default:
-    }
+  cleanup() {
+    this.unsubscribeAll.forEach(u => u());
   }
 
   /**
@@ -111,6 +110,7 @@ export class Stage {
       useMinHeight: this.hooks.useMinHeight(el),
       metrics: DomMetrics.getMetrics(el),
     }));
+    console.info('todo: scroll to show the element if it is not visible');
   }
 
   /**

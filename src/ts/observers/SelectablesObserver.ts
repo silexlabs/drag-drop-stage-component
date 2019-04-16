@@ -9,11 +9,17 @@ import * as types from '../Types';
  */
 export class SelectablesObserver {
   constructor(private doc: HTMLDocument, store: StageStore, private hooks: types.Hooks) {
-    store.subscribe(
+    this.unsubscribeAll.push(store.subscribe(
       (state: Array<SelectableState>, prevState: Array<SelectableState>) => this.onStateChanged(state, prevState),
       (state:types.State) => state.selectables
-    )
+    ));
   }
+
+  private unsubscribeAll: Array<() => void> = [];
+  cleanup() {
+    this.unsubscribeAll.forEach(u => u());
+  }
+
   /**
    * handle state changes, detect changes of scroll or metrics or selection
    * @param {State} state
