@@ -21,7 +21,8 @@
   },
   "author": "lexoyo",
   "license": "MIT",
-  "dependencies": {
+  "devDependencies": {
+    "redux": "^4.0.1",
     "@jest-runner/electron": "^1.1.1",
     "@types/jest": "^24.0.11",
     "@types/redux": "^3.6.31",
@@ -29,7 +30,6 @@
     "jest": "^24.7.1",
     "less": "^2.6.1",
     "pug-cli": "^1.0.0-alpha6",
-    "redux": "^4.0.1",
     "requirejs": "^2.3.6",
     "ts-jest": "^24.0.2",
     "typescript": "^3.4.2",
