@@ -1,5 +1,5 @@
 import * as DomMetrics from '../../src/ts/utils/DomMetrics';
-import { StageStoreMock } from '../flux/StageStoreMock';
+import { StageStoreMock, hooks } from '../flux/StageStoreMock';
 import { ElementMetrics } from '../../src/ts/Types';
 
 describe('DomMetrics', function() {
@@ -268,4 +268,26 @@ describe('DomMetrics', function() {
     expect(bb2.top).toBe(15010);
     expect(bb2.left).toBe(510);
   });
+
+  it('should find 1 droppable at (105, 105)', function() {
+    var droppables = DomMetrics.findDropZonesUnderMouse(document, stageStoreMock, hooks, 105, 105);
+    expect(droppables instanceof Array).toBe(true);
+    expect(droppables.length).toBe(1);
+    expect(droppables[0]).toBe(StageStoreMock.elem1);
+  });
+
+  it('should find 1 droppable at (105, 105) with scroll', function() {
+    // init
+    const scroll = {x: 100, y: 100};
+    window.scroll(scroll.x, scroll.y)
+    expect(window.scrollX).toBe(100);
+    expect(window.scrollY).toBe(100);
+
+    // test
+    var droppables = DomMetrics.findDropZonesUnderMouse(document, stageStoreMock, hooks, 105 - scroll.x, 105 - scroll.y);
+    expect(droppables instanceof Array).toBe(true);
+    expect(droppables.length).toBe(1);
+    expect(droppables[0]).toBe(StageStoreMock.elem1);
+  });
+
 })

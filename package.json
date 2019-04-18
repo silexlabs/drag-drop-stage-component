@@ -2,11 +2,11 @@
   "name": "stage",
   "version": "1.0.0",
   "description": "",
-  "main": "src/ts/index.js",
+  "main": "src/ts/index.ts",
   "scripts": {
     "test": "jest",
     "watch:test": "watch 'npm run test' src tests",
-    "xxxxxxxxxxxxxxpostinstall": "npm run build",
+    "postinstall": "npm run build",
     "prebuild": "mkdir -p pub/js && npm run install:requirejs",
     "serve": "http-server . -o",
     "build": "npm run build:js && npm run build:less && npm run build:demo",

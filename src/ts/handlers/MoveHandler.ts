@@ -58,7 +58,8 @@ export class MoveHandler extends MouseHandlerBase {
     // update the destination of each element
     this.selection = this.selection
     .map(selectable => {
-      let dropZones = this.findDropZonesUnderMouse(mouseData.mouseX, mouseData.mouseY);
+      let dropZones = domMetrics.findDropZonesUnderMouse(this.doc, this.store, this.hooks, mouseData.mouseX, mouseData.mouseY)
+      .filter(dropZone => this.hooks.canDrop(selectable.el, dropZone));
       if(dropZones.length > 0) {
         switch(selectable.metrics.position) {
           case 'static':
@@ -298,29 +299,6 @@ export class MoveHandler extends MouseHandlerBase {
     }
   }
 
-
-  /**
-   * find the dropZone elements which are under the mouse
-   * the first one in the list is supposed to be the top most one
-   * x and y are relative to the viewport, not the document
-   */
-  findDropZonesUnderMouse(x, y): Array<HTMLElement> {
-    const win = domMetrics.getWindow(this.doc);
-    if(x > win.innerWidth || y > win.innerHeight || x < 0 || y < 0) {
-      // FIXME: the drop zone will be the previous one, how to get the drop zone outside the viewport?
-      console.info(`Coords out of viewport => the drop zone will not be updated. I can not get the drop zone at coordinates (${x}, ${y}) while the viewport is (${win.innerWidth}, ${win.innerHeight})`);
-    }
-
-    // get a list of all dropZone zone under the point (x, y)
-    return this.doc.elementsFromPoint(x, y)
-    .filter((el: HTMLElement) => {
-      const selectable = this.store.getState().selectables.find(s => s.el === el);
-      return selectable
-        && selectable.isDropZone
-        && this.hooks.canDrop(el, this.selection)
-        && !this.selection.find(s => s.el === el);
-    }) as Array<HTMLElement>;
-  }
 
   /**
    * place an empty div (phantom) at each possible place in the dom

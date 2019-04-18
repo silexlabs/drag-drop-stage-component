@@ -11,6 +11,7 @@ import {UiObserver} from './observers/UiObserver';
 import {StageStore} from './flux/StageStore';
 import { resetSelectables, createSelectable, updateSelectables, deleteSelectable } from './flux/SelectableState';
 import { addEvent } from './utils/Events';
+import { setScroll } from './flux/MouseState';
 
 /**
  * This class is the entry point of the library
@@ -46,7 +47,7 @@ export class Stage {
       isDropZone: options.isDropZone || ((el) => el.classList.contains('droppable')),
       isResizeable: options.isResizeable || ((el) => el.classList.contains('resizeable')),
       useMinHeight: options.useMinHeight || ((el) => true),
-      canDrop: options.canDrop || ((el, selection) => true),
+      canDrop: options.canDrop || ((el, dropZone) => true),
     }
 
     // polyfill the iframe
@@ -85,15 +86,63 @@ export class Stage {
     );
   }
 
+
+  /**
+   * to be called before deleting the stage
+   */
   cleanup() {
     this.unsubscribeAll.forEach(u => u());
   }
+
+  ///////////////////////////////////////////////////
+  // Elements and metrics
+  ///////////////////////////////////////////////////
 
   /**
    * recalculate all the metrics
    */
   redraw() {
     this.store.dispatch(updateSelectables(this.store.getState().selectables));
+  }
+
+  /**
+   * get/set the states of the selected elements
+   */
+  getSelection(): Array<types.SelectableState> {
+    return DomMetrics.getSelection(this.store);
+  }
+
+  /**
+   * get/set the states of the selected elements
+   */
+  setSelection(elements: Array<HTMLElement>) {
+    this.store.dispatch(selectionState.set(elements.map(el => this.getState(el))));
+  }
+
+  /**
+   * get/set the state for an element
+   */
+  getState(el: HTMLElement): types.SelectableState {
+    return DomMetrics.getSelectable(this.store, el);
+  }
+
+  /**
+   * get/set the state for an element
+   */
+  setState(el: HTMLElement, subState: {
+    selected?: boolean,
+    selectable?: boolean,
+    draggable?: boolean,
+    resizeable?: boolean,
+    isDropZone?: boolean,
+    useMinHeight?: boolean,
+    metrics?: types.ElementMetrics,
+  }) {
+    const state = this.getState(el);
+    this.store.dispatch(updateSelectables([{
+      ...state,
+      ...subState,
+    }]));
   }
 
   /**
@@ -110,7 +159,8 @@ export class Stage {
       useMinHeight: this.hooks.useMinHeight(el),
       metrics: DomMetrics.getMetrics(el),
     }));
-    console.info('todo: scroll to show the element if it is not visible');
+    // compute all metrics again because this element might affect others
+    this.redraw();
   }
 
   /**
@@ -118,5 +168,75 @@ export class Stage {
    */
   removeElement(el: HTMLElement) {
     this.store.dispatch(deleteSelectable(this.store.getState().selectables.find(s => s.el === el)));
+    // compute all metrics again because this element might affect others
+    this.redraw();
+  }
+
+
+  /**
+   * get the best drop zone at a given position
+   * if the `el` param is provided, filter possible drop zones with the `canDrop` hook
+   */
+  getDropZone(x: number, y: number, el:HTMLElement = null): HTMLElement {
+    const dropZones = DomMetrics.findDropZonesUnderMouse(this.contentDocument, this.store, this.hooks, x, y);
+    if(!!el) return dropZones.filter(dropZone => this.hooks.canDrop(el, dropZone))[0];
+    else return dropZones[0];
+  }
+
+  ///////////////////////////////////////////////////
+  // Scroll
+  ///////////////////////////////////////////////////
+
+  /**
+   * scroll so that the elements are visible
+   */
+  show(elements: Array<HTMLElement>) {
+    const state = this.store.getState();
+    const bb = DomMetrics.getBoundingBox(elements.map(el => state.selectables.find(s => s.el === el)));
+    const initialScroll: types.ScrollData = state.mouse.scrollData;
+    const scroll: types.ScrollData = DomMetrics.getScrollToShow(this.contentDocument, bb);
+    if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
+      this.store.dispatch(setScroll(scroll));
+    }
+  }
+
+
+  /**
+   * scroll so that the elements are centered
+   */
+  center(elements: Array<HTMLElement>) {
+    const state = this.store.getState();
+    const bb = DomMetrics.getBoundingBox(
+      elements
+      .map(el => state.selectables.find(s => s.el === el))
+      .filter(s => !!s)
+    );
+    const initialScroll: types.ScrollData = state.mouse.scrollData;
+    const scroll: types.ScrollData = {
+      x: Math.max(0, Math.round(bb.left + (bb.width/2))),
+      y: Math.max(0, Math.round(bb.top + (bb.height/2))),
+    };
+    if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
+      this.store.dispatch(setScroll(scroll));
+    }
+  }
+
+
+  /**
+   * get/set the stage scroll data
+   */
+  setScroll(scroll: types.ScrollData) {
+    const initialScroll: types.ScrollData = this.store.getState().mouse.scrollData;
+    if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
+      this.store.dispatch(setScroll(scroll));
+    }
+  }
+
+
+  /**
+   * get/set the stage scroll data
+   */
+  getScroll(): types.ScrollData {
+    return this.store.getState().mouse.scrollData;
   }
 }

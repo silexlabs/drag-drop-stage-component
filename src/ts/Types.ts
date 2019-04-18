@@ -5,7 +5,7 @@ export interface Hooks {
   isDropZone?: (el: HTMLElement) => boolean;
   isResizeable?: (el: HTMLElement) => boolean;
   useMinHeight?: (el: HTMLElement) => boolean;
-  canDrop?: (el: HTMLElement, selection: Array<SelectableState>) => boolean;
+  canDrop?: (el: HTMLElement, dropZone: HTMLElement) => boolean;
   onSelect?: (selectables: Array<SelectableState>) => void;
   onDrag?: (selectables: Array<SelectableState>, boundingBox: ClientRect) => void;
   onDrop?: (selectables: Array<SelectableState>) => void;

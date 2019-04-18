@@ -17,7 +17,6 @@ describe('MoveHandler', function() {
     jest.spyOn(handler, 'updateDestinationAbsolute');
     jest.spyOn(handler, 'updateDestinationNonAbsolute');
     jest.spyOn(handler, 'markPosition');
-    jest.spyOn(handler, 'findDropZonesUnderMouse');
     jest.spyOn(handler, 'findNearestPosition');
     return handler;
   }
@@ -145,32 +144,6 @@ describe('MoveHandler', function() {
     expect(lastAction.selectables[1].el.parentElement.id).toBe(StageStoreMock.elem1.id);
     expect(lastAction.selectables[1].metrics.clientRect.top).toBe(110);
     expect(StageStoreMock.elem2.style.transform).toBe('');
-  });
-
-  it('should find 1 droppable at (150, 150)', function() {
-    // init
-    handler = initHandler();
-
-    // test
-    var droppables = handler.findDropZonesUnderMouse(150, 150);
-    expect(droppables instanceof Array).toBe(true);
-    expect(droppables.length).toBe(1);
-    expect(droppables[0]).toBe(StageStoreMock.elem1);
-  });
-
-  it('should find 1 droppable at (150, 150) with scroll', function() {
-    // init
-    const scroll = {x: 100, y: 100};
-    window.scroll(scroll.x, scroll.y)
-    expect(window.scrollX).toBe(100);
-    expect(window.scrollY).toBe(100);
-    handler = initHandler();
-
-    // test
-    var droppables = handler.findDropZonesUnderMouse(150 - scroll.x, 150 - scroll.y);
-    expect(droppables instanceof Array).toBe(true);
-    expect(droppables.length).toBe(1);
-    expect(droppables[0]).toBe(StageStoreMock.elem1);
   });
 
   it('move to a new container, keep the position', function() {

@@ -292,12 +292,19 @@ export function getCursorData(clientX: number, clientY: number, scrollData: type
   }
 }
 
-export function getSelectableState(store: StageStore, el) {
+
+/**
+ * retrive the state for this element
+ */
+export function getSelectableState(store: StageStore, el): types.SelectableState {
   return store.getState().selectables.find(selectable => selectable.el === el);
 }
 
 
-export function getSelection(store: StageStore) {
+/**
+ * helper to get the states of the selected elements
+ */
+export function getSelection(store: StageStore): Array<types.SelectableState> {
   return store.getState().selectables.filter(selectable => selectable.selected);
 }
 
@@ -306,7 +313,7 @@ export function getSelection(store: StageStore) {
  * returns the state of the first container which is selectable
  * or null if the element and none of its parents are selectable
  */
-export function getSelectable(store: StageStore, element: HTMLElement) {
+export function getSelectable(store: StageStore, element: HTMLElement): types.SelectableState {
   let el = element;
   let data;
   while(!!el && !(data = getSelectableState(store, el))) {
@@ -348,3 +355,30 @@ export function hasASelectedDraggableParent(store: StageStore, el: HTMLElement) 
 //     height: Math.round(metrics.clientRect.height + metrics.border.top + metrics.border.bottom + metrics.padding.top + metrics.padding.bottom),
 //   };
 // }
+
+
+/**
+ * find the dropZone elements which are under the mouse
+ * the first one in the list is the top most one
+ * x and y are relative to the viewport, not the document
+ */
+export function findDropZonesUnderMouse(doc: HTMLDocument, store: StageStore, hooks: types.Hooks, x: number, y: number): Array<HTMLElement> {
+  const win = getWindow(doc);
+  if(x > win.innerWidth || y > win.innerHeight || x < 0 || y < 0) {
+    // FIXME: the drop zone will be the previous one, how to get the drop zone outside the viewport?
+    console.info(`Coords out of viewport => the drop zone will not be updated. I can not get the drop zone at coordinates (${x}, ${y}) while the viewport is (${win.innerWidth}, ${win.innerHeight})`);
+  }
+
+  const selectables = store.getState().selectables;
+  const selection = selectables.filter(s => s.selected);
+
+  // get a list of all dropZone zone under the point (x, y)
+  return doc.elementsFromPoint(x, y)
+  .filter((el: HTMLElement) => {
+    const selectable = selectables.find(s => s.el === el);
+    return selectable
+      && selectable.isDropZone
+      && !selection.find(s => s.el === el);
+  }) as Array<HTMLElement>;
+}
+
