@@ -29,7 +29,7 @@ describe('MouseObserver', function() {
     jest.spyOn(stageStoreMock, 'dispatch');
     jest.spyOn(stageStoreMock, 'getState');
 
-    observer = new MouseObserver(document, stageStoreMock, hooks);
+    observer = new MouseObserver(document, document, stageStoreMock, hooks);
     jest.spyOn(observer, 'onStateChanged');
   });
 
@@ -55,20 +55,5 @@ describe('MouseObserver', function() {
     stageStoreMock.dispatch(null);
     expect(window.scrollX).toBe(0);
     expect(window.scrollY).toBe(100);
-
-    // css class
-    stageStoreMock.state = {
-      ...stageStoreMock.state,
-      mouse: {
-        ...stageStoreMock.state.mouse,
-        cursorData: {
-          y: '',
-          x: '',
-          cursorType: 'alias',
-        }
-      }
-    };
-    stageStoreMock.dispatch(null);
-    expect(document.body.style.cursor).toBe('alias');
   });
 });

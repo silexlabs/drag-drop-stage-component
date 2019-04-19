@@ -6,8 +6,8 @@ import * as mouseState from '../flux/MouseState';
 import * as domMetrics from '../utils/DomMetrics';
 
 export class ResizeHandler extends MouseHandlerBase {
-  constructor(doc: HTMLDocument, store: StageStore, hooks: Hooks) {
-    super(doc, store, hooks);
+  constructor(stageDocument: HTMLDocument, overlayDocument: HTMLDocument, store: StageStore, hooks: Hooks) {
+    super(stageDocument, overlayDocument, store, hooks);
 
     // keep only risizeable elements
     this.selection = this.selection.filter(s => s.resizeable);
@@ -142,7 +142,7 @@ export class ResizeHandler extends MouseHandlerBase {
     // update scroll
     const bb = domMetrics.getBoundingBox(this.selection);
     const initialScroll = this.store.getState().mouse.scrollData;
-    const scroll = domMetrics.getScrollToShow(this.doc, bb);
+    const scroll = domMetrics.getScrollToShow(this.stageDocument, bb);
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
       this.debounceScroll(scroll);
     }
@@ -166,15 +166,18 @@ export class ResizeHandler extends MouseHandlerBase {
     this.store.dispatch(mouseState.setCursorData(domMetrics.getCursorData(state.mouse.mouseData.mouseX, state.mouse.mouseData.mouseY, state.mouse.scrollData, selectable)));
 
     // update the real metrics after drop
-    const updatedState = this.store.getState().selectables.map(selectable => {
-      return {
-        ...selectable,
-        metrics: domMetrics.getMetrics(selectable.el),
-      }
-    });
-    this.store.dispatch(selectableState.updateSelectables(updatedState));
+    setTimeout(() => {
+      const updatedState = this.store.getState().selectables
+      .map(selectable => {
+        return {
+          ...selectable,
+          metrics: domMetrics.getMetrics(selectable.el),
+        }
+      });
+      this.store.dispatch(selectableState.updateSelectables(updatedState));
 
-    // notify the app
-    if(this.hooks.onResizeEnd) this.hooks.onResizeEnd(this.selection);
+      // notify the app
+      if(this.hooks.onResizeEnd) this.hooks.onResizeEnd(this.selection);
+    }, 0)
   }
 }

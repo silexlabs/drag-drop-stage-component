@@ -15,13 +15,13 @@ export enum MouseMode {
 export class Mouse {
   mouseMode = MouseMode.UP; // public for unit tests
   private wasMultiSelected: boolean = false;
-  constructor(private win, private store: StageStore) {
+  constructor(private winStage: Window, private winOverlay: Window, private store: StageStore) {
     // events from inside the iframe
     this.unsubscribeAll.push(
-      addEvent(this.win, 'scroll', (e:MouseEvent) => this.scroll(e), true),
-      addEvent(this.win.document.body, 'mousedown', (e:MouseEvent) => this.down(e), true),
-      addEvent(this.win.document.body, 'mouseup', (e:MouseEvent) => this.up(e), true),
-      addEvent(this.win.document.body, 'mousemove', (e:MouseEvent) => this.move(e), true),
+      addEvent(this.winOverlay, 'scroll', (e:MouseEvent) => this.scroll(e), true),
+      addEvent(this.winOverlay.document.body, 'mousedown', (e:MouseEvent) => this.down(e), true),
+      addEvent(this.winOverlay.document.body, 'mouseup', (e:MouseEvent) => this.up(e), true),
+      addEvent(this.winOverlay.document.body, 'mousemove', (e:MouseEvent) => this.move(e), true),
 
       // events from outside of the iframe
       addEvent(document.body, 'mouseup', (e:MouseEvent) => this.upOut(e), true),
@@ -34,7 +34,7 @@ export class Mouse {
   }
   //////////////////////////////
   scroll(e: MouseEvent) {
-    const scroll = DomMetrics.getScroll(this.win.document);
+    const scroll = DomMetrics.getScroll(this.winOverlay.document);
     this.store.dispatch(MouseState.setScroll(scroll));
   }
   down(e: MouseEvent) {
@@ -72,25 +72,27 @@ export class Mouse {
 
   upOut(e: MouseEvent) {
     if(this.mouseMode !== MouseMode.UP) {
-      const iframe = this.win.frameElement.getBoundingClientRect();
+      const iframe = this.winOverlay.frameElement.getBoundingClientRect();
       this.up(e, iframe);
     }
   }
   moveOut(e: MouseEvent) {
     if(this.mouseMode !== MouseMode.UP) {
-      const iframe = this.win.frameElement.getBoundingClientRect();
+      const iframe = this.winOverlay.frameElement.getBoundingClientRect();
       this.move(e, iframe);
     }
   }
 
   eventToMouseData(e: MouseEvent, offset: ClientRect = null): types.MouseData {
+    const x = e.clientX - (offset ? offset.left : 0);
+    const y = e.clientY - (offset ? offset.top : 0);
     return {
       movementX: e.movementX,
       movementY: e.movementY,
-      mouseX: e.clientX - (offset ? offset.left : 0),
-      mouseY: e.clientY - (offset ? offset.top : 0),
+      mouseX: x,
+      mouseY: y,
       shiftKey: e.shiftKey,
-      target: e.target as HTMLElement,
+      target: this.winStage.document.elementFromPoint(x, y) as HTMLElement,
     };
   }
 

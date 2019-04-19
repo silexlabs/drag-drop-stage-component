@@ -7,8 +7,8 @@ import * as domMetrics from '../utils/DomMetrics';
 export class MoveHandler extends MouseHandlerBase {
   private positionMarker: HTMLElement;
 
-  constructor(doc: HTMLDocument, store: StageStore, hooks: Hooks) {
-    super(doc, store, hooks);
+  constructor(stageDocument: HTMLDocument, overlayDocument: HTMLDocument, store: StageStore, hooks: Hooks) {
+    super(stageDocument, overlayDocument, store, hooks);
 
     // keep only draggable elements
     // which are not in a selected element also being dragged
@@ -17,13 +17,14 @@ export class MoveHandler extends MouseHandlerBase {
     .filter(s => !domMetrics.hasASelectedDraggableParent(store, s.el));
 
     // FIXME: the region marker should be outside the iframe
-    this.positionMarker = this.doc.createElement('div');
+    this.positionMarker = this.stageDocument.createElement('div');
     this.positionMarker.classList.add('position-marker');
-
-    // add css class and style
-    this.selection.forEach(selectable => {
-      selectable.el.classList.add('dragging');
-    });
+    this.positionMarker.style.backgroundColor = 'rgba(0, 0, 0, .5)';
+    this.positionMarker.style.display = 'inline-block';
+    this.positionMarker.style.border = '1px solid rgba(255, 255, 255, .5)';
+    this.positionMarker.style.position = 'absolute';
+    this.positionMarker.style.minWidth = '1px';
+    this.positionMarker.style.minHeight = '1px';
 
     // update state
     this.selection = this.selection.map(selectable => {
@@ -58,7 +59,7 @@ export class MoveHandler extends MouseHandlerBase {
     // update the destination of each element
     this.selection = this.selection
     .map(selectable => {
-      let dropZones = domMetrics.findDropZonesUnderMouse(this.doc, this.store, this.hooks, mouseData.mouseX, mouseData.mouseY)
+      let dropZones = domMetrics.findDropZonesUnderMouse(this.stageDocument, this.store, this.hooks, mouseData.mouseX, mouseData.mouseY)
       .filter(dropZone => this.hooks.canDrop(selectable.el, dropZone));
       if(dropZones.length > 0) {
         switch(selectable.metrics.position) {
@@ -73,13 +74,18 @@ export class MoveHandler extends MouseHandlerBase {
       else return selectable;
     });
 
+    // handle the children which move with the selection
+    const children = this.store.getState().selectables
+    .filter(s => domMetrics.hasASelectedDraggableParent(this.store, s.el))
+    .map(selectable => this.move(selectable, mouseData.movementX, mouseData.movementY));
+
     // update store
-    this.store.dispatch(selectableState.updateSelectables(this.selection));
+    this.store.dispatch(selectableState.updateSelectables(this.selection.concat(children)));
 
     // update scroll
     const bb = domMetrics.getBoundingBox(this.selection);
     const initialScroll = this.store.getState().mouse.scrollData;
-    const scroll = domMetrics.getScrollToShow(this.doc, bb);
+    const scroll = domMetrics.getScrollToShow(this.stageDocument, bb);
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
       this.debounceScroll(scroll);
     }
@@ -96,9 +102,6 @@ export class MoveHandler extends MouseHandlerBase {
     super.release();
 
     this.selection = this.selection.map((selectable) => {
-      // reset css class and style
-      selectable.el.classList.remove('dragging');
-
       // move to a different container
       if(selectable.dropZone && selectable.dropZone.parent) {
         if(selectable.dropZone.nextElementSibling) {
@@ -207,10 +210,10 @@ export class MoveHandler extends MouseHandlerBase {
     // update the store
     return {
       ...selectable,
-      translation: {
+      translation: selectable.translation ? {
         x: selectable.translation.x + movementX,
         y: selectable.translation.y + movementY,
-      },
+      } : null,
       metrics: {
         ...selectable.metrics,
         clientRect: {
@@ -307,7 +310,7 @@ export class MoveHandler extends MouseHandlerBase {
    */
   findNearestPosition(dropZones: Array<HTMLElement>, x, y) {
     // create an empty div to measure distance to the mouse
-    let phantom = this.doc.createElement('div');
+    let phantom = this.stageDocument.createElement('div');
     phantom.classList.add('phantom');
     // init the result to 'not found'
     let nearestPosition: DropZone = {

@@ -11,7 +11,7 @@ import { MouseHandlerBase } from '../handlers/MouseHandlerBase';
  */
 export class UiObserver {
   private handler: MouseHandlerBase;
-  constructor(private doc: HTMLDocument, private store: StageStore, private hooks: types.Hooks) {
+  constructor(private stageDocument: HTMLDocument, private overlayDocument: HTMLDocument, private store: StageStore, private hooks: types.Hooks) {
     this.handler = null;
     this.unsubscribeAll.push(store.subscribe(
       (state: types.UiState, prevState: types.UiState) => this.onUiStateChanged(state, prevState),
@@ -35,17 +35,27 @@ export class UiObserver {
         this.handler.release();
         this.handler = null;
       }
+      // add css class and style
+      this.overlayDocument.body.classList.remove(...[
+        state.mode !== types.UiMode.DRAG ? 'dragging-mode' : 'not-dragging-mode',
+        state.mode !== types.UiMode.RESIZE ? 'resizing-mode' : 'not-resizing-mode',
+      ]);
+      this.overlayDocument.body.classList.add(...[
+        state.mode === types.UiMode.DRAG ? 'dragging-mode' : 'not-dragging-mode',
+        state.mode === types.UiMode.RESIZE ? 'resizing-mode' : 'not-resizing-mode',
+      ]);
+      // manage handlers
       switch(state.mode){
         case types.UiMode.NONE:
           break;
         case types.UiMode.DRAG:
-          this.handler = new MoveHandler(this.doc, this.store, this.hooks);
+          this.handler = new MoveHandler(this.stageDocument, this.overlayDocument, this.store, this.hooks);
           break;
         case types.UiMode.RESIZE:
-          this.handler = new ResizeHandler(this.doc, this.store, this.hooks);
+          this.handler = new ResizeHandler(this.stageDocument, this.overlayDocument, this.store, this.hooks);
           break;
         case types.UiMode.DRAW:
-          this.handler = new DrawHandler(this.doc, this.store, this.hooks);
+          this.handler = new DrawHandler(this.stageDocument, this.overlayDocument, this.store, this.hooks);
           break;
       }
     }

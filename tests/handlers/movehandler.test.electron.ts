@@ -10,7 +10,7 @@ describe('MoveHandler', function() {
   var handler: MoveHandler;
 
   function initHandler() {
-    const handler = new MoveHandler(document, stageStoreMock, hooks);
+    const handler = new MoveHandler(document, document, stageStoreMock, hooks);
     jest.spyOn(handler, 'update');
     jest.spyOn(handler, 'release');
     jest.spyOn(handler, 'move');

@@ -26,7 +26,7 @@ describe('DrawHandler', function() {
     jest.spyOn(stageStoreMock, 'dispatch');
     jest.spyOn(stageStoreMock, 'getState');
 
-    handler = new DrawHandler(document, stageStoreMock, hooks);
+    handler = new DrawHandler(document, document, stageStoreMock, hooks);
     jest.spyOn(handler, 'update');
     jest.spyOn(handler, 'release');
     jest.spyOn(handler, 'moveRegion');

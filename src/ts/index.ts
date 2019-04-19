@@ -12,6 +12,7 @@ import {StageStore} from './flux/StageStore';
 import { resetSelectables, createSelectable, updateSelectables, deleteSelectable } from './flux/SelectableState';
 import { addEvent } from './utils/Events';
 import { setScroll } from './flux/MouseState';
+import { Ui } from './Ui';
 
 /**
  * This class is the entry point of the library
@@ -53,25 +54,21 @@ export class Stage {
     // polyfill the iframe
     Polyfill.patchWindow(this.contentWindow);
 
-    // load styles for the UI in the iframe
-    var link = this.contentDocument.createElement('link');
-    link.setAttribute('rel', 'stylesheet');
-    link.setAttribute('href', /*FIXME: Url.makeAbsolute*/('css/stage.css'));
-    this.contentDocument.head.appendChild(link);
-
     // create the store and populate it
     this.store = new StageStore();
     Array.from(elements).forEach(el => this.addElement(el))
 
+    // add a UI over the iframe
+    const ui = new Ui(iframe, this.store);
 
     // state observers
-    const selectablesObserver = new SelectablesObserver(this.contentDocument, this.store, this.hooks);
-    const uiObserver = new UiObserver(this.contentDocument, this.store, this.hooks);
-    const mouseObserver = new MouseObserver(this.contentDocument, this.store, this.hooks);
+    const selectablesObserver = new SelectablesObserver(this.contentDocument, ui.overlay.contentDocument, this.store, this.hooks);
+    const uiObserver = new UiObserver(this.contentDocument, ui.overlay.contentDocument, this.store, this.hooks);
+    const mouseObserver = new MouseObserver(this.contentDocument, ui.overlay.contentDocument, this.store, this.hooks);
 
     // controllers
-    const mouse = new Mouse(this.contentWindow, this.store);
-    const keyboard = new Keyboard(this.contentWindow, this.store);
+    const mouse = new Mouse(this.contentWindow, ui.overlay.contentWindow, this.store);
+    const keyboard = new Keyboard(ui.overlay.contentWindow, this.store);
 
     this.unsubscribeAll.push(
 

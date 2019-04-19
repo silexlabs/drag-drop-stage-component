@@ -5,7 +5,7 @@ import { DrawHandler } from '../../src/ts/handlers/DrawHandler';
 
 describe('UiObserver', function() {
   var observer;
-  var stageStoreMock;
+  var stageStoreMock: StageStoreMock;
 
   beforeEach(function () {
     document.body.innerHTML = `
@@ -31,7 +31,7 @@ describe('UiObserver', function() {
     jest.spyOn(stageStoreMock, 'dispatch');
     jest.spyOn(stageStoreMock, 'getState');
 
-    observer = new UiObserver(document, stageStoreMock, hooks);
+    observer = new UiObserver(document, document, stageStoreMock, hooks);
     jest.spyOn(observer, 'onUiStateChanged');
   });
 

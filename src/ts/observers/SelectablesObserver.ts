@@ -8,7 +8,7 @@ import * as types from '../Types';
  *   and apply the state changes to the DOM elements
  */
 export class SelectablesObserver {
-  constructor(private doc: HTMLDocument, store: StageStore, private hooks: types.Hooks) {
+  constructor(private stageDocument: HTMLDocument, private overlayDocument: HTMLDocument, store: StageStore, private hooks: types.Hooks) {
     this.unsubscribeAll.push(store.subscribe(
       (state: Array<SelectableState>, prevState: Array<SelectableState>) => this.onStateChanged(state, prevState),
       (state:types.State) => state.selectables
@@ -56,7 +56,7 @@ export class SelectablesObserver {
     selectables.forEach(selectable => {
       // while being dragged, elements are out of the flow, do not apply styles
       if(!selectable.preventMetrics) {
-        DomMetrics.setMetrics(selectable.el, selectable.useMinHeight, selectable.metrics);
+        DomMetrics.setMetrics(selectable.el, selectable.metrics, selectable.useMinHeight);
       }
     });
   }

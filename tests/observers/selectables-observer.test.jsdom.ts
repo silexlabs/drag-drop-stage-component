@@ -29,7 +29,7 @@ describe('SelectablesObserver', function() {
     jest.spyOn(stageStoreMock, 'dispatch');
     jest.spyOn(stageStoreMock, 'getState');
 
-    observer = new SelectablesObserver(stageStoreMock, stageStoreMock, hooks);
+    observer = new SelectablesObserver(document, document, stageStoreMock, hooks);
     jest.spyOn(observer, 'onStateChanged');
     jest.spyOn(observer, 'onMetrics');
     jest.spyOn(observer, 'onSelection');

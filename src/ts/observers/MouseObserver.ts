@@ -1,14 +1,13 @@
 import * as DomMetrics from '../utils/DomMetrics';
 import * as types from '../Types';
 import {StageStore} from '../flux/StageStore';
-import { MouseHandlerBase } from '../handlers/MouseHandlerBase';
 
 /**
  * @class This class listens to the store
  *   and apply the state changes to the view
  */
 export class MouseObserver {
-  constructor(private doc, store: StageStore, private hooks: types.Hooks) {
+  constructor(private stageDocument: HTMLDocument, private overlayDocument: HTMLDocument, store: StageStore, private hooks: types.Hooks) {
     this.unsubscribeAll.push(store.subscribe(
       (state: types.MouseState, prevState: types.MouseState) => this.onStateChanged(state, prevState),
       (state:types.State) => state.mouse
@@ -27,10 +26,11 @@ export class MouseObserver {
    */
   onStateChanged(state: types.MouseState, prevState: types.MouseState) {
     if(state.scrollData.x !== prevState.scrollData.x || state.scrollData.y !== prevState.scrollData.y) {
-      DomMetrics.setScroll(this.doc, state.scrollData);
+      DomMetrics.setScroll(this.stageDocument, state.scrollData);
     }
-    if(state.cursorData.cursorType !== prevState.cursorData.cursorType) {
-      this.doc.body.style.cursor = state.cursorData.cursorType;
-    }
+    // this is now in Ui.ts
+    // if(state.cursorData.cursorType !== prevState.cursorData.cursorType) {
+    //   this.doc.body.style.cursor = state.cursorData.cursorType;
+    // }
   }
 }

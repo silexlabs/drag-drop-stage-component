@@ -39,7 +39,7 @@ export function getBoundingBox(selectables: Array<types.SelectableState>): Clien
 
 export const SCROLL_ZONE_SIZE = 0;
 
-export function getScrollToShow(doc, boundingBox: ClientRect): {x: number, y: number} {
+export function getScrollToShow(doc, boundingBox: ClientRect): types.ScrollData {
   const scroll = getScroll(doc);
   const win = getWindow(doc);
   // vertical
@@ -87,7 +87,7 @@ export function getDocument(el): HTMLDocument {
 /**
  * @param {HTMLElement} el
  */
-export function setMetrics(el: HTMLElement, useMinHeight: boolean, metrics: types.ElementMetrics) {
+export function setMetrics(el: HTMLElement, metrics: types.ElementMetrics, useMinHeight: boolean, useClientRect: boolean = false) {
   const doc = getDocument(el);
   const win = getWindow(doc);
   const style = win.getComputedStyle(el);
@@ -106,16 +106,18 @@ export function setMetrics(el: HTMLElement, useMinHeight: boolean, metrics: type
     }
   }
 
+  const positionObj = useClientRect ? 'clientRect' : 'computedStyleRect';
+
   if(metrics.position !== 'static') {
-    updateStyle('computedStyleRect', 'top', 'top');
-    updateStyle('computedStyleRect', 'left', 'left');
+    updateStyle(positionObj, 'top', 'top');
+    updateStyle(positionObj, 'left', 'left');
   }
-  updateStyle('computedStyleRect', 'width', 'width');
-  updateStyle('computedStyleRect', 'height', useMinHeight ? 'minHeight' : 'height');
+  updateStyle(positionObj, 'width', 'width');
+  updateStyle(positionObj, 'height', useMinHeight ? 'minHeight' : 'height');
   // TODO: expose a hook to decide between height/bottom and width/right
   // just like minHeight and height
-  // updateStyle('computedStyleRect', 'bottom', 'bottom');
-  // updateStyle('computedStyleRect', 'right', 'right');
+  // updateStyle(positionObj, 'bottom', 'bottom');
+  // updateStyle(positionObj, 'right', 'right');
 
   updateStyle('margin', 'top', 'marginTop');
   updateStyle('margin', 'left', 'marginLeft');
@@ -185,7 +187,7 @@ export function getMetrics(el): types.ElementMetrics {
 
 /**
  * @param {HTMLDocument} doc
- * @return {{x: number, y: number}} the scroll state for the document
+ * @return {ScrollData} the scroll state for the document
  */
 export function getScroll(doc) {
   const win = getWindow(doc);
@@ -198,9 +200,9 @@ export function getScroll(doc) {
 
 /**
  * @param {HTMLDocument} doc
- * @param {{x: number, y: number}} scroll, the scroll state for the document
+ * @param {ScrollData} scroll, the scroll state for the document
  */
-export function setScroll(doc, scroll) {
+export function setScroll(doc: HTMLDocument, scroll: types.ScrollData) {
   const win = getWindow(doc);
   win.scroll(scroll.x, scroll.y);
 }

@@ -7,7 +7,7 @@ export class MouseHandlerBase {
   selection: Array<SelectableState>;
   unsubsribe: () => void;
   private unsubsribeScroll: () => void;
-  constructor(protected doc: HTMLDocument, protected store: StageStore, protected hooks: Hooks) {
+  constructor(protected stageDocument: HTMLDocument, private overlayDocument: HTMLDocument, protected store: StageStore, protected hooks: Hooks) {
     // store the selection
     this.selection = store.getState().selectables
     this.selection = this.selection.filter(selectable => selectable.selected);

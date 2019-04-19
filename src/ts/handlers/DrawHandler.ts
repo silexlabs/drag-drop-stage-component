@@ -10,27 +10,27 @@ export class DrawHandler extends MouseHandlerBase {
   initialY: number;
   regionMarker: HTMLElement;
 
-  constructor(doc: HTMLDocument, store: StageStore, hooks: Hooks) {
-    super(doc, store, hooks);
+  constructor(stageDocument: HTMLDocument, overlayDocument: HTMLDocument, store: StageStore, hooks: Hooks) {
+    super(stageDocument, overlayDocument, store, hooks);
 
     const state = store.getState();
 
-    const scrollData = domMetrics.getScroll(this.doc);
+    const scrollData = domMetrics.getScroll(this.stageDocument);
     this.initialX = state.mouse.mouseData.mouseX + scrollData.x;
     this.initialY = state.mouse.mouseData.mouseY + scrollData.y;
 
     // create and attach a div to draw the region
     // FIXME: the region marker should be outside the iframe
-    this.regionMarker = doc.createElement('div');
+    this.regionMarker = overlayDocument.createElement('div');
     this.regionMarker.classList.add('region-marker');
     this.moveRegion({left: -999, top: -999, right: -999, bottom: -999, width: 0, height: 0});
-    doc.body.appendChild(this.regionMarker);
+    overlayDocument.body.appendChild(this.regionMarker);
   }
 
   update(mouseData: MouseData) {
     super.update(mouseData);
 
-    const scrollData = domMetrics.getScroll(this.doc);
+    const scrollData = domMetrics.getScroll(this.stageDocument);
     const bb = {
       left: Math.min(this.initialX, (mouseData.mouseX + scrollData.x)),
       top: Math.min(this.initialY, (mouseData.mouseY + scrollData.y)),
@@ -72,7 +72,7 @@ export class DrawHandler extends MouseHandlerBase {
 
     // update scroll
     const initialScroll = this.store.getState().mouse.scrollData;
-    const scroll = domMetrics.getScrollToShow(this.doc, bb);
+    const scroll = domMetrics.getScrollToShow(this.stageDocument, bb);
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
       this.debounceScroll(scroll);
     }

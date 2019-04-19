@@ -122,7 +122,7 @@ describe('DomMetrics', function() {
       margin: {"left": 1000,"top": 1000,"right": 1000,"bottom": 1000},
       clientRect: {"top": 1000,"left": 1000,"bottom": 1110,"right": 1110,"width": 110,"height": 110},
     }
-    DomMetrics.setMetrics(StageStoreMock.elem1, false, metrics);
+    DomMetrics.setMetrics(StageStoreMock.elem1, metrics, false);
     expect(StageStoreMock.elem1.style.position).toBe("");
     expect({"width": StageStoreMock.elem1.style.width,"height": StageStoreMock.elem1.style.height,"left": StageStoreMock.elem1.style.left,"top": StageStoreMock.elem1.style.top}).toMatchObject({"width": "30px", "height": "999px", "left": "", "top": ""});
     expect({"left": StageStoreMock.elem1.style.borderLeftWidth,"top": StageStoreMock.elem1.style.borderTopWidth,"right": StageStoreMock.elem1.style.borderRightWidth,"bottom": StageStoreMock.elem1.style.borderBottomWidth}).toMatchObject({"left": "30px","top": "30px","right": "30px","bottom": "30px"});
@@ -131,7 +131,7 @@ describe('DomMetrics', function() {
     expect(StageStoreMock.elem1.style.bottom).toBe('');
     expect(StageStoreMock.elem1.style.right).toBe('');
 
-    DomMetrics.setMetrics(StageStoreMock.elem1, true, metrics);
+    DomMetrics.setMetrics(StageStoreMock.elem1, metrics, true);
     expect(StageStoreMock.elem1.style.position).toBe("");
     expect({"width": StageStoreMock.elem1.style.width,"height": StageStoreMock.elem1.style.minHeight,"left": StageStoreMock.elem1.style.left,"top": StageStoreMock.elem1.style.top}).toMatchObject({"width": "30px", "height": "999px", "left": "", "top": ""});
     expect({"left": StageStoreMock.elem1.style.borderLeftWidth,"top": StageStoreMock.elem1.style.borderTopWidth,"right": StageStoreMock.elem1.style.borderRightWidth,"bottom": StageStoreMock.elem1.style.borderBottomWidth}).toMatchObject({"left": "30px","top": "30px","right": "30px","bottom": "30px"});

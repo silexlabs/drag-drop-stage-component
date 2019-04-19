@@ -6,7 +6,7 @@ describe('ResizeHandler', function() {
   var elem3;
   var stageStoreMock: StageStoreMock;
   function initHandler() {
-    var handler = new ResizeHandler(document, stageStoreMock, hooks);
+    var handler = new ResizeHandler(document, document, stageStoreMock, hooks);
     jest.spyOn(handler, 'update');
     jest.spyOn(handler, 'release');
     return handler;
