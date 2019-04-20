@@ -106,18 +106,27 @@ export function setMetrics(el: HTMLElement, metrics: types.ElementMetrics, useMi
     }
   }
 
-  const positionObj = useClientRect ? 'clientRect' : 'computedStyleRect';
-
-  if(metrics.position !== 'static') {
-    updateStyle(positionObj, 'top', 'top');
-    updateStyle(positionObj, 'left', 'left');
+  if(useClientRect) {
+    const computedStyleRect: types.FullBox = fromClientToComputed(metrics);
+    if(metrics.position !== 'static') {
+      el.style.top = computedStyleRect.top + 'px';
+      el.style.left = computedStyleRect.left + 'px';
+    }
+    el.style.width = computedStyleRect.width + 'px';
+    el.style[useMinHeight ? 'minHeight' : 'height'] = computedStyleRect.height + 'px';
   }
-  updateStyle(positionObj, 'width', 'width');
-  updateStyle(positionObj, 'height', useMinHeight ? 'minHeight' : 'height');
-  // TODO: expose a hook to decide between height/bottom and width/right
-  // just like minHeight and height
-  // updateStyle(positionObj, 'bottom', 'bottom');
-  // updateStyle(positionObj, 'right', 'right');
+  else {
+    if(metrics.position !== 'static') {
+      updateStyle('computedStyleRect', 'top', 'top');
+      updateStyle('computedStyleRect', 'left', 'left');
+    }
+    updateStyle('computedStyleRect', 'width', 'width');
+    updateStyle('computedStyleRect', 'height', useMinHeight ? 'minHeight' : 'height');
+    // TODO: expose a hook to decide between height/bottom and width/right
+    // just like minHeight and height
+    // updateStyle('computedStyleRect', 'bottom', 'bottom');
+    // updateStyle('computedStyleRect', 'right', 'right');
+  }
 
   updateStyle('margin', 'top', 'marginTop');
   updateStyle('margin', 'left', 'marginLeft');
@@ -255,10 +264,18 @@ export function getResizeCursorClass(direction) {
 
 export function isResizeable(resizeable: types.Direction | boolean, direction: {x: string, y: string}): boolean {
   if(typeof resizeable === 'object') {
-    return resizeable.top && direction.y !== 'top' ||
-      resizeable.bottom && direction.y !== 'bottom' ||
-      resizeable.left && direction.x !== 'left' ||
-      resizeable.right && direction.x !== 'right';
+    return (direction.x !== '' || direction.y !== '') && [
+      {x: 'left', y: 'top'},
+      {x: 'right', y: 'top'},
+      {x: 'left', y: 'bottom'},
+      {x: 'right', y: 'bottom'},
+    ].reduce((prev, dir): boolean => {
+      const res = prev || (
+        ((resizeable[dir.x] && direction.x === dir.x) || direction.x === '') &&
+        ((resizeable[dir.y] && direction.y === dir.y) || direction.y === '')
+      );
+      return res;
+    }, false);
   }
   else {
     return direction.x !== '' || direction.y !== '';
@@ -352,23 +369,21 @@ export function hasASelectedDraggableParent(store: StageStore, el: HTMLElement) 
   }
 }
 
-// /**
-//  *
-//  * @param {ElementMetrics} metrics
-//  * @return {string} get the computedStyleRect that matches metrics.clientRect
-//  */
-// export function fromClientToComputed(metrics) {
-//   // TODO: should we handle other scroll than the window?
-//   return {
-//     position: metrics.position,
-//     top: Math.round(metrics.clientRect.top + metrics.margin.top),
-//     left: Math.round(metrics.clientRect.left + metrics.margin.left),
-//     right: Math.round(metrics.clientRect.right + metrics.margin.left + metrics.padding.left + metrics.padding.right + metrics.border.left + metrics.border.right),
-//     bottom: Math.round(metrics.clientRect.bottom + metrics.margin.top + metrics.padding.top + metrics.padding.bottom + metrics.border.top + metrics.border.bottom),
-//     width: Math.round(metrics.clientRect.width + metrics.padding.left + metrics.padding.right + metrics.border.left + metrics.border.right),
-//     height: Math.round(metrics.clientRect.height + metrics.border.top + metrics.border.bottom + metrics.padding.top + metrics.padding.bottom),
-//   };
-// }
+/**
+ *
+ * @param {ElementMetrics} metrics
+ * @return {string} get the computedStyleRect that matches metrics.clientRect
+ */
+export function fromClientToComputed(metrics: types.ElementMetrics): types.FullBox {
+  return {
+    top: Math.round(metrics.clientRect.top + metrics.margin.top),
+    left: Math.round(metrics.clientRect.left + metrics.margin.left),
+    right: Math.round(metrics.clientRect.right + metrics.margin.left + metrics.padding.left + metrics.padding.right + metrics.border.left + metrics.border.right - (metrics.border.left + metrics.border.right)),
+    bottom: Math.round(metrics.clientRect.bottom + metrics.margin.top + metrics.padding.top + metrics.padding.bottom + metrics.border.top + metrics.border.bottom - (metrics.border.top + metrics.border.bottom)),
+    width: Math.round(metrics.clientRect.width + metrics.padding.left + metrics.padding.right + metrics.border.left + metrics.border.right - 2*(metrics.border.left + metrics.border.right)),
+    height: Math.round(metrics.clientRect.height + metrics.border.top + metrics.border.bottom + metrics.padding.top + metrics.padding.bottom - 2*(metrics.border.top + metrics.border.bottom)),
+  };
+}
 
 
 /**

@@ -54,7 +54,7 @@ export class MoveHandler extends MouseHandlerBase {
 
     // update elements postition
     this.selection = this.selection
-    .map(selectable => this.move(selectable, mouseData.movementX, mouseData.movementY));
+    .map(selectable => this.move(selectable, false, mouseData.movementX, mouseData.movementY));
 
     // update the destination of each element
     this.selection = this.selection
@@ -77,7 +77,7 @@ export class MoveHandler extends MouseHandlerBase {
     // handle the children which move with the selection
     const children = this.store.getState().selectables
     .filter(s => domMetrics.hasASelectedDraggableParent(this.store, s.el))
-    .map(selectable => this.move(selectable, mouseData.movementX, mouseData.movementY));
+    .map(selectable => this.move(selectable, true, mouseData.movementX, mouseData.movementY));
 
     // update store
     this.store.dispatch(selectableState.updateSelectables(this.selection.concat(children)));
@@ -206,7 +206,7 @@ export class MoveHandler extends MouseHandlerBase {
   /**
    * move an element and update its data in selection
    */
-  move(selectable: SelectableState, movementX, movementY): SelectableState {
+  move(selectable: SelectableState, onlyClientRect: boolean, movementX, movementY): SelectableState {
     // update the store
     return {
       ...selectable,
@@ -216,14 +216,14 @@ export class MoveHandler extends MouseHandlerBase {
       } : null,
       metrics: {
         ...selectable.metrics,
-        clientRect: {
+        clientRect : {
           ...selectable.metrics.clientRect,
           top: selectable.metrics.clientRect.top + movementY,
           left: selectable.metrics.clientRect.left + movementX,
           bottom: selectable.metrics.clientRect.bottom + movementY,
           right: selectable.metrics.clientRect.right + movementX,
         },
-        computedStyleRect: {
+        computedStyleRect: onlyClientRect ? selectable.metrics.computedStyleRect : {
           ...selectable.metrics.computedStyleRect,
           top: selectable.metrics.computedStyleRect.top + movementY,
           left: selectable.metrics.computedStyleRect.left + movementX,

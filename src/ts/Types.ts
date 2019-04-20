@@ -67,23 +67,25 @@ export interface SelectableState {
   translation?: {x: number, y: number}
 }
 
+export interface Box {top: number, left: number, bottom: number, right: number }
+export interface FullBox {top: number, left: number, bottom: number, right: number, width: number, height: number }
 /**
  * @typedef {{
  *   position: {string}
- *   margin: {top: number, left: number, bottom: number, right: number }
- *   padding: {top: number, left: number, bottom: number, right: number }
- *   border: {top: number, left: number, bottom: number, right: number }
- *   computedStyleRect: {top: number, left: number, bottom: number, right: number, width: number, height: number }
- *   clientRect: {top: number, left: number, bottom: number, right: number, width: number, height: number }
+ *   margin: Box
+ *   padding: Box
+ *   border: Box
+ *   computedStyleRect: FullBox
+ *   clientRect: FullBox
  * }} ElementMetrics
  */
 export interface ElementMetrics {
   position: string
-  margin: {top: number, left: number, bottom: number, right: number }
-  padding: {top: number, left: number, bottom: number, right: number }
-  border: {top: number, left: number, bottom: number, right: number }
-  computedStyleRect: {top: number, left: number, bottom: number, right: number, width: number, height: number }
-  clientRect: {top: number, left: number, bottom: number, right: number, width: number, height: number }
+  margin: Box
+  padding: Box
+  border: Box
+  computedStyleRect: FullBox
+  clientRect: FullBox
   proportions: number
 }
 

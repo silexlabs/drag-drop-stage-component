@@ -1,5 +1,5 @@
 import {StageStore} from './flux/StageStore';
-import { SelectableState, State, MouseState, MouseData, ScrollData } from './Types';
+import { SelectableState, State, MouseState, MouseData, ScrollData, ElementMetrics } from './Types';
 import { addEvent } from './utils/Events';
 import * as DomMetrics from './utils/DomMetrics';
 
@@ -34,6 +34,7 @@ export class Ui {
       <style>
         body {
           overflow: hidden;
+          margin: -5px;
         }
 
         body.dragging-mode .box.not-selected,
