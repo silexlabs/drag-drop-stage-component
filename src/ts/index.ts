@@ -130,28 +130,37 @@ export class Stage {
     selected?: boolean,
     selectable?: boolean,
     draggable?: boolean,
-    resizeable?: boolean,
+    resizeable?: types.Direction,
     isDropZone?: boolean,
     useMinHeight?: boolean,
     metrics?: types.ElementMetrics,
   }) {
+    console.log('setState', subState.metrics.computedStyleRect.left);
     const state = this.getState(el);
     this.store.dispatch(updateSelectables([{
       ...state,
       ...subState,
     }]));
+    console.log('setState', this.getState(el).metrics.computedStyleRect.left);
   }
 
   /**
    * Add an element to the store
    */
   addElement(el: HTMLElement) {
+    const boolOrObj: types.Direction | boolean = this.hooks.isResizeable(el);
+    const resizeable = typeof boolOrObj === 'object' ? boolOrObj : {
+      top: boolOrObj as boolean,
+      left: boolOrObj as boolean,
+      bottom: boolOrObj as boolean,
+      right: boolOrObj as boolean,
+    }
     this.store.dispatch(createSelectable({
       el,
       selected: false,
       selectable: this.hooks.isSelectable(el),
       draggable: this.hooks.isDraggable(el),
-      resizeable: this.hooks.isResizeable(el),
+      resizeable,
       isDropZone: this.hooks.isDropZone(el),
       useMinHeight: this.hooks.useMinHeight(el),
       metrics: DomMetrics.getMetrics(el),

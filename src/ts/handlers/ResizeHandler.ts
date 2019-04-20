@@ -1,16 +1,20 @@
 import {MouseHandlerBase} from './MouseHandlerBase';
 import { StageStore } from '../flux/StageStore';
-import { Hooks, SelectableState, MouseData } from '../Types';
+import { Hooks, SelectableState, MouseData, CursorData } from '../Types';
 import * as selectableState from '../flux/SelectableState'
 import * as mouseState from '../flux/MouseState';
 import * as domMetrics from '../utils/DomMetrics';
 
 export class ResizeHandler extends MouseHandlerBase {
+  private cursorData: CursorData;
   constructor(stageDocument: HTMLDocument, overlayDocument: HTMLDocument, store: StageStore, hooks: Hooks) {
     super(stageDocument, overlayDocument, store, hooks);
 
+    // direction
+    this.cursorData = this.store.getState().mouse.cursorData;
+
     // keep only risizeable elements
-    this.selection = this.selection.filter(s => s.resizeable);
+    this.selection = this.selection.filter(s => domMetrics.isResizeable(s.resizeable, this.cursorData));
 
     // add css class
     this.selection.forEach(selectable => selectable.el.classList.add('resizing'));
@@ -33,8 +37,7 @@ export class ResizeHandler extends MouseHandlerBase {
       const computedStyleRect = {
         ...selectable.metrics.computedStyleRect,
       };
-      const cursorData = this.store.getState().mouse.cursorData;
-      switch(cursorData.x) {
+      switch(this.cursorData.x) {
         case '':
           break;
         case 'left':
@@ -45,15 +48,15 @@ export class ResizeHandler extends MouseHandlerBase {
           computedStyleRect.width += mouseData.movementX;
           clientRect.width += mouseData.movementX;
           break;
-        default: throw new Error('unknown direction ' + cursorData.x);
+        default: throw new Error('unknown direction ' + this.cursorData.x);
       }
-      if(cursorData.y != '') {
-        if(mouseData.shiftKey && cursorData.x != '') {
+      if(this.cursorData.y != '') {
+        if(mouseData.shiftKey && this.cursorData.x != '') {
           computedStyleRect.height = computedStyleRect.width * selectable.metrics.proportions;
           clientRect.height = clientRect.width * selectable.metrics.proportions;
         }
         else {
-          if(cursorData.y === 'top') {
+          if(this.cursorData.y === 'top') {
             computedStyleRect.height -= mouseData.movementY;
             clientRect.height -= mouseData.movementY;
           }
@@ -65,19 +68,19 @@ export class ResizeHandler extends MouseHandlerBase {
       }
 
       // handle the position change
-      if(cursorData.x === 'left') {
+      if(this.cursorData.x === 'left') {
         // compute the change
         computedStyleRect.left += mouseData.movementX;
         clientRect.left += mouseData.movementX;
       }
-      if(cursorData.y === 'top') {
+      if(this.cursorData.y === 'top') {
         // compute the change
         computedStyleRect.top += mouseData.movementY;
         clientRect.top += mouseData.movementY;
       }
       // handle the case where the resize has not been possible
       // either because the content is too big, or a min-whidth/height has overriden our changes
-      if(cursorData.x !== '') {
+      if(this.cursorData.x !== '') {
         //  store initial data
         const initialWidth = selectable.el.style.width;
 
@@ -89,7 +92,7 @@ export class ResizeHandler extends MouseHandlerBase {
         const delta = clientRect.width - bb.width;
         computedStyleRect.width -= delta;
         clientRect.width -= delta;
-        if(cursorData.x === 'left') {
+        if(this.cursorData.x === 'left') {
           computedStyleRect.left += delta;
           clientRect.left += delta;
         }
@@ -98,7 +101,7 @@ export class ResizeHandler extends MouseHandlerBase {
       }
       // handle the case where the resize has not been possible
       // either because the content is too big, or a min-whidth/height has overriden our changes
-      if(cursorData.y !== '') {
+      if(this.cursorData.y !== '') {
         //  store initial data
         const heightAttr = selectable.useMinHeight ? 'minHeight' : 'height';
         const initialHeight = selectable.el.style[heightAttr];
@@ -111,7 +114,7 @@ export class ResizeHandler extends MouseHandlerBase {
         const delta = clientRect.height - bb.height;
         computedStyleRect.height -= delta;
         clientRect.height -= delta;
-        if(cursorData.y === 'top') {
+        if(this.cursorData.y === 'top') {
           computedStyleRect.top += delta;
           clientRect.top += delta;
         }

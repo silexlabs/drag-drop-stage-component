@@ -3,7 +3,7 @@ export interface Hooks {
   isSelectable?: (el: HTMLElement) => boolean;
   isDraggable?: (el: HTMLElement) => boolean;
   isDropZone?: (el: HTMLElement) => boolean;
-  isResizeable?: (el: HTMLElement) => boolean;
+  isResizeable?: (el: HTMLElement) => (Direction | boolean);
   useMinHeight?: (el: HTMLElement) => boolean;
   canDrop?: (el: HTMLElement, dropZone: HTMLElement) => boolean;
   onSelect?: (selectables: Array<SelectableState>) => void;
@@ -36,6 +36,13 @@ export interface DropZone {
   distance?: number
 }
 
+export type Direction = {
+  top: boolean
+  left: boolean
+  bottom: boolean
+  right: boolean
+}
+
 /**
  * @typedef {{
  *   el: HTMLElement,
@@ -52,7 +59,7 @@ export interface SelectableState {
   selected: boolean
   selectable: boolean
   draggable: boolean
-  resizeable: boolean
+  resizeable: Direction
   isDropZone: boolean
   useMinHeight: boolean
   metrics: ElementMetrics

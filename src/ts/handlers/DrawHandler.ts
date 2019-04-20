@@ -47,10 +47,10 @@ export class DrawHandler extends MouseHandlerBase {
     let newSelection = this.store.getState().selectables
     .filter(selectable => {
       return selectable.selectable &&
-      selectable.metrics.clientRect.left < bb.right &&
-      selectable.metrics.clientRect.right > bb.left &&
-      selectable.metrics.clientRect.top < bb.bottom &&
-      selectable.metrics.clientRect.bottom > bb.top;
+        selectable.metrics.clientRect.left < bb.right &&
+        selectable.metrics.clientRect.right > bb.left &&
+        selectable.metrics.clientRect.top < bb.bottom &&
+        selectable.metrics.clientRect.bottom > bb.top;
     });
 
     // handle removed elements

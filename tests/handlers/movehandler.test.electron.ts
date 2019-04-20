@@ -216,7 +216,12 @@ describe('MoveHandler', function() {
       selected: true,
       selectable: false,
       draggable: true,
-      resizeable: true,
+      resizeable: {
+        top: true,
+        left: true,
+        bottom: true,
+        right: true,
+      },
       isDropZone: true,
       useMinHeight: true,
       metrics: {
@@ -344,7 +349,12 @@ describe('MoveHandler', function() {
       selected: false,
       selectable: false,
       draggable: true,
-      resizeable: true,
+      resizeable: {
+        top: true,
+        left: true,
+        bottom: true,
+        right: true,
+      },
       isDropZone: true,
       useMinHeight: true,
       metrics: {

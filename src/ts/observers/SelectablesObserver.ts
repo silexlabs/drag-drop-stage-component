@@ -72,9 +72,19 @@ export class SelectablesObserver {
       selectable.el.classList.remove('draggable'));
   }
   onResizeable(selectables: Array<SelectableState>) {
-    selectables.forEach(selectable => selectable.resizeable ?
-      selectable.el.classList.add('resizeable') :
-      selectable.el.classList.remove('resizeable'));
+    selectables.forEach(selectable => {
+      [
+        {name: 'top', value: selectable.resizeable.top, },
+        {name: 'left', value: selectable.resizeable.left, },
+        {name: 'bottom', value: selectable.resizeable.bottom, },
+        {name: 'right', value: selectable.resizeable.right, },
+      ].forEach(dir => {
+        const className = 'resizeable-' + dir.name;
+        dir.value ?
+        selectable.el.classList.add(className) :
+        selectable.el.classList.remove(className);
+      })
+    })
   }
   onDropZone(selectables: Array<SelectableState>) {
     selectables.forEach(selectable => selectable.isDropZone ?

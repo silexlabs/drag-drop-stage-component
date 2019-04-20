@@ -54,8 +54,8 @@ export class Ui {
           border: 1px solid rgba(255, 255, 255, .3);
         }
         .not-selectable,
-        .not-selected .handle,
-        .not-resizeable .handle { display: none; }
+        .not-selected .handle { display: none; }
+
         .handle {
           position: absolute;
           border: 1px solid rgba(0, 0, 0, .5);
@@ -65,9 +65,17 @@ export class Ui {
           border-radius: 2.5px;
         }
         .handle-nw { top: -4px; left: -4px; }
+        .not-resizeable-nw .handle-nw { display: none; }
+
         .handle-ne { top: -4px; right: -4px; }
+        .not-resizeable-ne .handle-ne { display: none; }
+
         .handle-sw { bottom: -4px; left: -4px; }
+        .not-resizeable-sw .handle-sw { display: none; }
+
         .handle-se { bottom: -4px; right: -4px; }
+        .not-resizeable-se .handle-se { display: none; }
+
 
         .region-marker {
           background-color: rgba(0, 0, 0, .1);
@@ -179,7 +187,10 @@ export class Ui {
       !box.selectable.selected ? 'selected' : 'not-selected',
       !box.selectable.selectable ? 'selectable' : 'not-selectable',
       !box.selectable.draggable ? 'draggable' : 'not-draggable',
-      !box.selectable.resizeable ? 'resizeable' : 'not-resizeable',
+      (!box.selectable.resizeable.top && !box.selectable.resizeable.left) ? 'resizeable-nw' : 'not-resizeable-nw',
+      (!box.selectable.resizeable.top && !box.selectable.resizeable.right) ? 'resizeable-ne' : 'not-resizeable-ne',
+      (!box.selectable.resizeable.bottom && !box.selectable.resizeable.left) ? 'resizeable-sw' : 'not-resizeable-sw',
+      (!box.selectable.resizeable.bottom && !box.selectable.resizeable.right) ? 'resizeable-se' : 'not-resizeable-se',
       !box.selectable.isDropZone ? 'isDropZone' : 'not-isDropZone',
     ]);
     box.ui.classList.add(...[
@@ -187,7 +198,10 @@ export class Ui {
       box.selectable.selected ? 'selected' : 'not-selected',
       box.selectable.selectable ? 'selectable' : 'not-selectable',
       box.selectable.draggable ? 'draggable' : 'not-draggable',
-      box.selectable.resizeable ? 'resizeable' : 'not-resizeable',
+      (box.selectable.resizeable.top && box.selectable.resizeable.left) ? 'resizeable-nw' : 'not-resizeable-nw',
+      (box.selectable.resizeable.top && box.selectable.resizeable.right) ? 'resizeable-ne' : 'not-resizeable-ne',
+      (box.selectable.resizeable.bottom && box.selectable.resizeable.left) ? 'resizeable-sw' : 'not-resizeable-sw',
+      (box.selectable.resizeable.bottom && box.selectable.resizeable.right) ? 'resizeable-se' : 'not-resizeable-se',
       box.selectable.isDropZone ? 'isDropZone' : 'not-isDropZone',
     ]);
     return box;

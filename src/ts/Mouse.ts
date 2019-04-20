@@ -155,7 +155,7 @@ export class Mouse {
     if(selectable) {
       const direction = this.store.getState().mouse.cursorData;
       // start resize
-      if(selectable.resizeable && (direction.x != '' || direction.y != '')) {
+      if(DomMetrics.isResizeable(selectable.resizeable, direction)) {
         this.store.dispatch(UiState.setMode(types.UiMode.RESIZE));
       }
       // start drag

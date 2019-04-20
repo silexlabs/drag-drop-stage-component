@@ -36,7 +36,12 @@ export class StageStoreMock extends StageStore {
     selectable: true,
     selected: false,
     draggable: true,
-    resizeable: true,
+    resizeable: {
+      top: true,
+      left: true,
+      bottom: true,
+      right: true,
+    },
     isDropZone: true,
     useMinHeight: true,
     metrics: {
@@ -54,7 +59,12 @@ export class StageStoreMock extends StageStore {
     selectable: true,
     selected: false,
     draggable: true,
-    resizeable: true,
+    resizeable: {
+      top: true,
+      left: true,
+      bottom: true,
+      right: true,
+    },
     isDropZone: true,
     useMinHeight: true,
     metrics: {

@@ -136,8 +136,13 @@ describe('SelectablesObserver', function() {
     stageStoreMock.state = {
       ...stageStoreMock.state,
       selectables: [{
-      ...stageStoreMock.selectableElem1,
-      resizeable: false,
+        ...stageStoreMock.selectableElem1,
+        resizeable: {
+          top: false,
+          left: false,
+          bottom: false,
+          right: false,
+        },
       },
       stageStoreMock.selectableElem2,
       ],

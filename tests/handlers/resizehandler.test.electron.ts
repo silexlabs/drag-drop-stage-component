@@ -75,6 +75,7 @@ describe('ResizeHandler', function() {
     stageStoreMock.mouseState.mouseData = mouseState.mouseData;
     stageStoreMock.mouseState.cursorData = mouseState.cursorData;
     stageStoreMock.mouseState.scrollData = mouseState.scrollData;
+    var handler = initHandler();
     handler.update(mouseState.mouseData);
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
     var calls = stageStoreMock.dispatch['mock'].calls;
@@ -108,6 +109,7 @@ describe('ResizeHandler', function() {
     stageStoreMock.mouseState.mouseData = mouseState.mouseData;
     stageStoreMock.mouseState.cursorData = mouseState.cursorData;
     stageStoreMock.mouseState.scrollData = mouseState.scrollData;
+    var handler = initHandler();
     handler.update(mouseState.mouseData);
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
     var calls = stageStoreMock.dispatch['mock'].calls;
@@ -144,6 +146,7 @@ describe('ResizeHandler', function() {
     stageStoreMock.mouseState.mouseData = mouseState.mouseData;
     stageStoreMock.mouseState.cursorData = mouseState.cursorData;
     stageStoreMock.mouseState.scrollData = mouseState.scrollData;
+    var handler = initHandler();
     handler.update(mouseState.mouseData);
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
     var calls = stageStoreMock.dispatch['mock'].calls;
@@ -179,6 +182,7 @@ describe('ResizeHandler', function() {
     stageStoreMock.mouseState.mouseData = mouseState.mouseData;
     stageStoreMock.mouseState.cursorData = mouseState.cursorData;
     stageStoreMock.mouseState.scrollData = mouseState.scrollData;
+    var handler = initHandler();
     handler.update(mouseState.mouseData);
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
     var calls = stageStoreMock.dispatch['mock'].calls;
@@ -212,6 +216,7 @@ describe('ResizeHandler', function() {
     stageStoreMock.mouseState.mouseData = mouseState.mouseData;
     stageStoreMock.mouseState.cursorData = mouseState.cursorData;
     stageStoreMock.mouseState.scrollData = mouseState.scrollData;
+    var handler = initHandler();
     handler.update(mouseState.mouseData);
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
     var calls = stageStoreMock.dispatch['mock'].calls;

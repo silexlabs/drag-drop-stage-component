@@ -253,10 +253,22 @@ export function getResizeCursorClass(direction) {
   throw new Error('direction not found');
 }
 
+export function isResizeable(resizeable: types.Direction | boolean, direction: {x: string, y: string}): boolean {
+  if(typeof resizeable === 'object') {
+    return resizeable.top && direction.y !== 'top' ||
+      resizeable.bottom && direction.y !== 'bottom' ||
+      resizeable.left && direction.x !== 'left' ||
+      resizeable.right && direction.x !== 'right';
+  }
+  else {
+    return direction.x !== '' || direction.y !== '';
+  }
+}
+
 export function getCursorData(clientX: number, clientY: number, scrollData: types.ScrollData, selectable: types.SelectableState): types.CursorData {
   if(selectable) {
     const direction = getDirection(clientX, clientY, scrollData, selectable);
-    if(selectable.resizeable && (direction.x !== '' || direction.y !== '')) {
+    if(isResizeable(selectable.resizeable, direction)) {
       return {
         x: direction.x,
         y: direction.y,
