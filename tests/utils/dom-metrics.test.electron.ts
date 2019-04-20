@@ -243,6 +243,21 @@ describe('DomMetrics', function() {
     // element position - size - SCROLL_ZONE_SIZE
     expect(scroll.x).toBe(bb.right - winWidth - 0);
     expect(scroll.y).toBe(bb.bottom - winHeight - 0);
+    // element not yet visible
+    window.scroll(100, 100);
+    expect(window.scrollY).toBe(100);
+    expect(window.scrollX).toBe(100);
+    var scroll = DomMetrics.getScrollToShow(document, {
+      top: 10,
+      left: 10,
+      bottom: 10,
+      right: 10,
+      height: 0,
+      width: 0,
+    });
+    // element position - size - SCROLL_ZONE_SIZE
+    expect(scroll.x).toBe(10);
+    expect(scroll.y).toBe(10);
   });
 
   it('getBoundingBoxDocument', function() {

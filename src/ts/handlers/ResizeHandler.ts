@@ -23,8 +23,6 @@ export class ResizeHandler extends MouseHandlerBase {
   update(mouseData: MouseData) {
     super.update(mouseData);
 
-    // console.info('todo: handle scroll on the side of the iframe');
-
     // set a new size
     this.selection = this.selection.map((selectable: SelectableState) => {
       // handle the width and height computation
@@ -140,7 +138,14 @@ export class ResizeHandler extends MouseHandlerBase {
     this.store.dispatch(selectableState.updateSelectables(this.selection));
 
     // update scroll
-    const bb = domMetrics.getBoundingBox(this.selection);
+    const bb: ClientRect = {
+      top: mouseData.mouseY,
+      left: mouseData.mouseX,
+      bottom: mouseData.mouseY,
+      right: mouseData.mouseX,
+      height: 0,
+      width: 0,
+    };
     const initialScroll = this.store.getState().mouse.scrollData;
     const scroll = domMetrics.getScrollToShow(this.stageDocument, bb);
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
