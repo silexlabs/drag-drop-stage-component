@@ -47,6 +47,7 @@ export class DrawHandler extends MouseHandlerBase {
     let newSelection = this.store.getState().selectables
     .filter(selectable => {
       return selectable.selectable &&
+        selectable.draggable && // do not select the background
         selectable.metrics.clientRect.left < bb.right &&
         selectable.metrics.clientRect.right > bb.left &&
         selectable.metrics.clientRect.top < bb.bottom &&
