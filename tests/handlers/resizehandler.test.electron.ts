@@ -1,11 +1,15 @@
 import {ResizeHandler} from '../../src/ts/handlers/ResizeHandler';
 import { hooks, StageStoreMock } from '../flux/StageStoreMock';
+import { MouseState } from '../../src/ts/Types';
 
 describe('ResizeHandler', function() {
 
   var elem3;
   var stageStoreMock: StageStoreMock;
-  function initHandler() {
+  function initHandler(mouseState: MouseState) {
+    stageStoreMock.mouseState.mouseData = mouseState.mouseData;
+    stageStoreMock.mouseState.cursorData = mouseState.cursorData;
+    stageStoreMock.mouseState.scrollData = mouseState.scrollData;
     var handler = new ResizeHandler(document, document, stageStoreMock, hooks);
     jest.spyOn(handler, 'update');
     jest.spyOn(handler, 'release');
@@ -56,7 +60,19 @@ describe('ResizeHandler', function() {
     stageStoreMock.selectableElem1.selected = false;
     stageStoreMock.selectableElem2.selected = true;
 
-    var handler = initHandler();
+    var mouseState = {
+      scrollData: {x: 0, y: 0},
+      cursorData: {x: 'right', y: 'bottom', cursorType: ''},
+      mouseData: {
+        mouseX: 30,
+        movementX: 10,
+        mouseY: 30,
+        movementY: 10,
+        shiftKey: false,
+        target: StageStoreMock.elem2,
+      }
+    };
+    var handler = initHandler(mouseState);
     expect(handler.selection.length).toBe(1);
     expect(handler.selection[0].metrics.clientRect.width).toBe(10);
 
@@ -72,10 +88,7 @@ describe('ResizeHandler', function() {
         target: StageStoreMock.elem2,
       }
     };
-    stageStoreMock.mouseState.mouseData = mouseState.mouseData;
-    stageStoreMock.mouseState.cursorData = mouseState.cursorData;
-    stageStoreMock.mouseState.scrollData = mouseState.scrollData;
-    var handler = initHandler();
+    var handler = initHandler(mouseState);
     handler.update(mouseState.mouseData);
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
     var calls = stageStoreMock.dispatch['mock'].calls;
@@ -91,7 +104,19 @@ describe('ResizeHandler', function() {
     stageStoreMock.selectableElem1.selected = true;
     stageStoreMock.selectableElem2.selected = true;
 
-    var handler = initHandler();
+    var mouseState = {
+      scrollData: {x: 0, y: 0},
+      cursorData: {x: 'right', y: 'bottom', cursorType: ''},
+      mouseData: {
+        mouseX: 120,
+        movementX: 100,
+        mouseY: 120,
+        movementY: 100,
+        shiftKey: false,
+        target: document.body,
+      }
+    };
+    var handler = initHandler(mouseState);
     expect(handler.selection.length).toBe(2);
 
     var mouseState = {
@@ -106,10 +131,7 @@ describe('ResizeHandler', function() {
         target: document.body,
       }
     };
-    stageStoreMock.mouseState.mouseData = mouseState.mouseData;
-    stageStoreMock.mouseState.cursorData = mouseState.cursorData;
-    stageStoreMock.mouseState.scrollData = mouseState.scrollData;
-    var handler = initHandler();
+    var handler = initHandler(mouseState);
     handler.update(mouseState.mouseData);
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
     var calls = stageStoreMock.dispatch['mock'].calls;
@@ -128,7 +150,19 @@ describe('ResizeHandler', function() {
     stageStoreMock.selectableElem1.selected = false;
     stageStoreMock.selectableElem2.selected = true;
 
-    var handler = initHandler();
+    var mouseState = {
+      scrollData: {x: 0, y: 0},
+      cursorData: {x: 'left', y: 'top', cursorType: ''},
+      mouseData: {
+        mouseX: 0,
+        movementX: -10,
+        mouseY: 0,
+        movementY: -10,
+        shiftKey: false,
+        target: document.body,
+      }
+    };
+    var handler = initHandler(mouseState);
     expect(handler.selection.length).toBe(1);
 
     var mouseState = {
@@ -143,10 +177,7 @@ describe('ResizeHandler', function() {
         target: document.body,
       }
     };
-    stageStoreMock.mouseState.mouseData = mouseState.mouseData;
-    stageStoreMock.mouseState.cursorData = mouseState.cursorData;
-    stageStoreMock.mouseState.scrollData = mouseState.scrollData;
-    var handler = initHandler();
+    var handler = initHandler(mouseState);
     handler.update(mouseState.mouseData);
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
     var calls = stageStoreMock.dispatch['mock'].calls;
@@ -164,7 +195,19 @@ describe('ResizeHandler', function() {
     stageStoreMock.selectableElem1.selected = false;
     stageStoreMock.selectableElem2.selected = true;
 
-    var handler = initHandler();
+    var mouseState = {
+      scrollData: {x: 0, y: 0},
+      cursorData: {x: 'right', y: 'bottom', cursorType: ''},
+      mouseData: {
+        mouseX: 120,
+        movementX: 100,
+        mouseY: 20,
+        movementY: 0,
+        shiftKey: true,
+        target: document.body,
+      }
+    };
+    var handler = initHandler(mouseState);
     expect(handler.selection.length).toBe(1);
 
     var mouseState = {
@@ -179,10 +222,7 @@ describe('ResizeHandler', function() {
         target: document.body,
       }
     };
-    stageStoreMock.mouseState.mouseData = mouseState.mouseData;
-    stageStoreMock.mouseState.cursorData = mouseState.cursorData;
-    stageStoreMock.mouseState.scrollData = mouseState.scrollData;
-    var handler = initHandler();
+    var handler = initHandler(mouseState);
     handler.update(mouseState.mouseData);
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
     var calls = stageStoreMock.dispatch['mock'].calls;
@@ -198,7 +238,19 @@ describe('ResizeHandler', function() {
     stageStoreMock.selectableElem1.selected = false;
     stageStoreMock.selectableElem2.selected = true;
 
-    var handler = initHandler();
+    var mouseState = {
+      scrollData: {x: 0, y: 0},
+      cursorData: {x: 'left', y: 'top', cursorType: ''},
+      mouseData: {
+        mouseX: 20,
+        movementX: 10,
+        mouseY: 20,
+        movementY: 10,
+        shiftKey: false,
+        target: document.body,
+      }
+    };
+    var handler = initHandler(mouseState);
     expect(handler.selection.length).toBe(1);
 
     var mouseState = {
@@ -213,10 +265,7 @@ describe('ResizeHandler', function() {
         target: document.body,
       }
     };
-    stageStoreMock.mouseState.mouseData = mouseState.mouseData;
-    stageStoreMock.mouseState.cursorData = mouseState.cursorData;
-    stageStoreMock.mouseState.scrollData = mouseState.scrollData;
-    var handler = initHandler();
+    var handler = initHandler(mouseState);
     handler.update(mouseState.mouseData);
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
     var calls = stageStoreMock.dispatch['mock'].calls;

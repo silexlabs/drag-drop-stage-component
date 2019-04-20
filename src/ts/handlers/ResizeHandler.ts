@@ -15,9 +15,6 @@ export class ResizeHandler extends MouseHandlerBase {
 
     // keep only risizeable elements
     this.selection = this.selection.filter(s => domMetrics.isResizeable(s.resizeable, this.cursorData));
-
-    // add css class
-    this.selection.forEach(selectable => selectable.el.classList.add('resizing'));
   }
 
   /**
@@ -160,7 +157,6 @@ export class ResizeHandler extends MouseHandlerBase {
    */
   release() {
     super.release();
-    this.selection.forEach(selectable => selectable.el.classList.remove('resizing'));
     // reset the state of the mouse
     // this is useful when the resize has not been taken into account (e.g. content too big)
     // and the mouse is not on the edge of the element anymore

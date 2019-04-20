@@ -39,10 +39,12 @@ export class UiObserver {
       this.overlayDocument.body.classList.remove(...[
         state.mode !== types.UiMode.DRAG ? 'dragging-mode' : 'not-dragging-mode',
         state.mode !== types.UiMode.RESIZE ? 'resizing-mode' : 'not-resizing-mode',
+        state.mode !== types.UiMode.DRAW ? 'drawing-mode' : 'not-drawing-mode',
       ]);
       this.overlayDocument.body.classList.add(...[
         state.mode === types.UiMode.DRAG ? 'dragging-mode' : 'not-dragging-mode',
         state.mode === types.UiMode.RESIZE ? 'resizing-mode' : 'not-resizing-mode',
+        state.mode === types.UiMode.DRAW ? 'drawing-mode' : 'not-drawing-mode',
       ]);
       // manage handlers
       switch(state.mode){
