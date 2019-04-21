@@ -8,8 +8,8 @@ export class Keyboard {
   constructor(private win, private store: StageStore) {
     // events from inside the iframe
     this.unsubscribeAll.push(
-      addEvent(window, "keydown", (e: KeyboardEvent) => this.onKeyDown(e.key)),
-      addEvent(win, "keydown", (e: KeyboardEvent) => this.onKeyDown(e.key)),
+      addEvent(window, "keydown", (e: KeyboardEvent) => this.onKeyDown(e)),
+      addEvent(win, "keydown", (e: KeyboardEvent) => this.onKeyDown(e)),
     );
   }
 
@@ -21,21 +21,26 @@ export class Keyboard {
   /**
    * handle shortcuts
    */
-  private onKeyDown(key) {
+  private onKeyDown(e: KeyboardEvent) {
+    const key = e.key;
     const state = this.store.getState();
-    switch(key) {
-      case 'Escape':
-        if(state.ui.mode !== UiMode.NONE) {
-          this.store.dispatch(setMode(UiMode.NONE));
-          this.store.dispatch(reset());
-        }
-        break;
-      case 'Enter':
-        if(state.ui.mode !== UiMode.EDIT && state.selectables.filter(s => s.selected).length > 0) {
-          this.store.dispatch(setMode(UiMode.EDIT));
-        }
-        break;
-      default:
+    if(state.ui.catchingEvents) {
+      switch(key) {
+        case 'Escape':
+          if(state.ui.mode !== UiMode.NONE) {
+            this.store.dispatch(setMode(UiMode.NONE));
+            this.store.dispatch(reset());
+          }
+          e.preventDefault();
+          break;
+        case 'Enter':
+          if(state.ui.mode !== UiMode.EDIT && state.selectables.filter(s => s.selected).length > 0) {
+            this.store.dispatch(setMode(UiMode.EDIT));
+          }
+          e.preventDefault();
+          break;
+        default:
+      }
     }
-  }
+    }
 }

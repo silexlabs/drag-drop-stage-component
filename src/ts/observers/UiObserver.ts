@@ -54,7 +54,7 @@ export class UiObserver {
         case types.UiMode.NONE:
           break;
         case types.UiMode.EDIT:
-          if(this.hooks.onEdit) this.hooks.onEdit(this.store.getState().selectables);
+          if(this.hooks.onEdit) this.hooks.onEdit(this.store.getState().selectables.filter(s => s.selected));
           break;
         case types.UiMode.DRAG:
           this.handler = new MoveHandler(this.stageDocument, this.overlayDocument, this.store, this.hooks);

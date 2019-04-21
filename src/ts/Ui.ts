@@ -1,5 +1,5 @@
 import {StageStore} from './flux/StageStore';
-import { SelectableState, State, MouseState, MouseData, ScrollData, ElementMetrics } from './Types';
+import { SelectableState, State, MouseState, MouseData, ScrollData, ElementMetrics, UiState } from './Types';
 import { addEvent } from './utils/Events';
 import * as DomMetrics from './utils/DomMetrics';
 
@@ -102,6 +102,10 @@ export class Ui {
         (state: MouseState, prevState: MouseState) => this.onMouseChanged(state, prevState),
         (state:State) => state.mouse
       ),
+      store.subscribe(
+        (state: UiState, prevState: UiState) => this.onUiChanged(state, prevState),
+        (state:State) => state.ui
+      ),
     );
   }
 
@@ -125,6 +129,11 @@ export class Ui {
     this.overlay.style.left = bb.left + 'px';
     this.overlay.style.width = bb.width + 'px';
     this.overlay.style.height = bb.height + 'px';
+  }
+  onUiChanged(state: UiState, prevState: UiState) {
+    if(state.catchingEvents !== prevState.catchingEvents) {
+      this.overlay.style.display = state.catchingEvents ? '' : 'none';
+    }
   }
   onMouseChanged(state: MouseState, prevState: MouseState) {
     if(state.scrollData.x !== prevState.scrollData.x || state.scrollData.y !== prevState.scrollData.y) {

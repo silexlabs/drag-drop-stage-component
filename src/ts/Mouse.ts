@@ -43,6 +43,8 @@ export class Mouse {
 
   private clearTimeout: () => void;
   down(e: MouseEvent) {
+    if(!this.store.getState().ui.catchingEvents) return;
+
     e.preventDefault(); // prevent default text selection
     const mouseData = this.eventToMouseData(e);
     if(this.mouseMode === MouseMode.WAITING_DBL_CLICK_UP) {
@@ -69,6 +71,8 @@ export class Mouse {
     }
   }
   up(e: MouseEvent, offset: ClientRect = null) {
+    if(!this.store.getState().ui.catchingEvents) return;
+
     e.preventDefault();
     const mouseData = this.eventToMouseData(e, offset);
     if(this.mouseMode === MouseMode.WAITING_DBL_CLICK_DOWN) {
@@ -89,6 +93,8 @@ export class Mouse {
     }
   }
   move(e: MouseEvent, offset: ClientRect = null) {
+    if(!this.store.getState().ui.catchingEvents) return;
+
     e.preventDefault();
     const mouseData = this.eventToMouseData(e, offset);
     switch(this.mouseMode) {

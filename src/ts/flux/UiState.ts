@@ -12,6 +12,12 @@ export const setRefreshing = (refreshing: boolean) => ({
   refreshing,
 });
 
+export const UI_SET_CATCHING_EVENTS = 'UI_SET_CATCHING_EVENTS';
+export const setCatchingEvents = (catchingEvents: boolean) => ({
+  type: UI_SET_CATCHING_EVENTS,
+  catchingEvents,
+});
+
 /**
  * reducer
  */
@@ -27,6 +33,11 @@ export const ui = (state=getDefaultState(), action) => {
         ...state,
         refreshing: action.refreshing,
       }
+    case UI_SET_CATCHING_EVENTS:
+      return {
+        ...state,
+        catchingEvents: action.catchingEvents,
+      }
     default:
       return state;
   }
@@ -36,5 +47,6 @@ export const getDefaultState = () => {
   return {
     mode: types.UiMode.NONE,
     refreshing: false,
+    catchingEvents: true,
   };
 }

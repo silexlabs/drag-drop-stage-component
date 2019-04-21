@@ -82,6 +82,7 @@ export class StageStoreMock extends StageStore {
   uiState: types.UiState = {
     mode: types.UiMode.NONE,
     refreshing: false,
+    catchingEvents: true,
   };
   mouseState: types.MouseState = {
     scrollData: {x: 0, y: 0},

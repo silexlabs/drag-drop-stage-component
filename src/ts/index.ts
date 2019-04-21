@@ -91,6 +91,29 @@ export class Stage {
     this.unsubscribeAll.forEach(u => u());
   }
 
+  /**
+   * enable/disable catching events
+   */
+  private catchingEvents_ = true;
+  get catchingEvents(): boolean {
+    return this.catchingEvents_;
+  }
+  set catchingEvents(val: boolean) {
+    this.catchingEvents_ = val;
+    this.store.dispatch(UiAction.setCatchingEvents(val));
+  }
+
+  /**
+   * edit state
+   */
+  getEditMode(): boolean {
+    return this.store.getState().ui.mode === types.UiMode.EDIT;
+  }
+  setEditMode(val: boolean) {
+    console.log('setEditMode', val)
+    this.store.dispatch(UiAction.setMode(val ? types.UiMode.EDIT : types.UiMode.NONE));
+  }
+
   ///////////////////////////////////////////////////
   // Elements and metrics
   ///////////////////////////////////////////////////
