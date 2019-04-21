@@ -12,7 +12,9 @@ export interface Hooks {
   onResize?: (selectables: Array<SelectableState>, boundingBox: ClientRect) => void;
   onResizeEnd?: (selectables: Array<SelectableState>) => void;
   onDraw?: (selectables: Array<SelectableState>, boundingBox: ClientRect) => void;
-  onDrawEnd?: (selectables: Array<SelectableState>) => void;
+  onDrawEnd?: () => void;
+  onEdit?: (selectables: Array<SelectableState>) => void;
+  onEditEnd?: () => void;
 }
 
 /**
@@ -107,6 +109,7 @@ export enum UiMode {
   DRAG,
   RESIZE,
   DRAW,
+  EDIT,
 }
 
 export interface MouseState {

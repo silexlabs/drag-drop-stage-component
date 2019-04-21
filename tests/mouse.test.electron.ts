@@ -3,6 +3,14 @@ import {Mouse, MouseMode} from '../src/ts/Mouse';
 import { StageStoreMock } from './flux/StageStoreMock';
 import { UiMode } from '../src/ts/Types';
 
+async function wait(delay) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, delay);
+  })
+}
+
 describe('Mouse', function() {
   var stageStoreMock: StageStoreMock;
   var elem3;
@@ -73,6 +81,7 @@ describe('Mouse', function() {
     jest.spyOn(stageStoreMock, 'getState');
 
     mouse = new Mouse(window, window, stageStoreMock);
+    jest.spyOn(mouse, 'onDblClick');
     jest.spyOn(mouse, 'onDown');
     jest.spyOn(mouse, 'onUp');
     jest.spyOn(mouse, 'onMove');
@@ -107,26 +116,31 @@ describe('Mouse', function() {
     }, 100);
   });
 
-  it('mouse modes', function() {
+  it('mouse modes', async () => {
     mouse.down(new MouseEvent('mousedown', {
       shiftKey: false,
     }));
+    await wait(400); // for dbl click detection
     expect(mouse.mouseMode).toBe(MouseMode.DOWN);
+
     mouse.up(new MouseEvent('mouseup', {
       shiftKey: false,
     }));
     expect(mouse.mouseMode).toBe(MouseMode.UP);
+
     mouse.down(new MouseEvent('mousedown', {
       shiftKey: false,
     }));
+    await wait(400); // for dbl click detection
     expect(mouse.mouseMode).toBe(MouseMode.DOWN);
+
     mouse.move(new MouseEvent('mousemove', {
       shiftKey: false,
     }));
     expect(mouse.mouseMode).toBe(MouseMode.DRAGGING);
   });
 
-  it('selection', function() {
+  it('selection', async () => {
     mouse.onDown({
       shiftKey: false,
       mouseX: 110,
@@ -135,12 +149,13 @@ describe('Mouse', function() {
       movementY: 0,
       target: StageStoreMock.elem1,
     });
+    await wait(400); // for dbl click detection
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('SELECTION_SET');
   });
 
-  it('multi selection', function(done) {
+  it('multi selection', async () => {
     // select elem1
     mouse.onDown({
       shiftKey: true,
@@ -150,13 +165,13 @@ describe('Mouse', function() {
       movementY: 0,
       target: StageStoreMock.elem1,
     });
+    await wait(400); // for dbl click detection
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('SELECTION_ADD');
     expect(calls[calls.length - 1][0].selectable.el).toBe(StageStoreMock.elem1);
     stageStoreMock.selectableElem1.selected = true;
-
-    window.scroll(1000, 1000);
+    mouse.mouseMode = MouseMode.UP; // reset state
 
     // select elem2
     mouse.onDown({
@@ -167,6 +182,7 @@ describe('Mouse', function() {
       movementY: 0,
       target: StageStoreMock.elem2,
     });
+    await wait(400); // for dbl click detection
     expect(stageStoreMock.dispatch).toBeCalledTimes(2);
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('SELECTION_ADD');
@@ -193,6 +209,7 @@ describe('Mouse', function() {
       movementY: 0,
       target: StageStoreMock.elem2,
     });
+    await wait(400); // for dbl click detection
     expect(stageStoreMock.dispatch).toBeCalledTimes(3);
     mouse.onUp({
       shiftKey: true,
@@ -205,7 +222,43 @@ describe('Mouse', function() {
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('SELECTION_REMOVE');
     stageStoreMock.selectableElem2.selected = false;
+  });
 
-    done();
+  it('double click', async () => {
+    mouse.down(new MouseEvent('down'));
+    expect(mouse.onDown).toBeCalledTimes(0);
+    expect(mouse.onUp).toBeCalledTimes(0);
+
+    mouse.up(new MouseEvent('up'));
+    expect(mouse.onDown).toBeCalledTimes(0);
+    expect(mouse.onUp).toBeCalledTimes(0);
+
+    mouse.down(new MouseEvent('down'));
+    mouse.up(new MouseEvent('up'));
+    expect(mouse.onDblClick).toBeCalledTimes(1);
+    expect(mouse.onDown).toBeCalledTimes(0);
+    expect(mouse.onUp).toBeCalledTimes(0);
+    await wait(400); // for dbl click detection
+
+    expect(mouse.onDown).toBeCalledTimes(0);
+    expect(mouse.onUp).toBeCalledTimes(0);
+  });
+
+  it('double click abort', async () => {
+    mouse.down(new MouseEvent('down'));
+    mouse.move(new MouseEvent('move'));
+    expect(mouse.onDown).toBeCalledTimes(1);
+    expect(mouse.onStartDrag).toBeCalledTimes(1);
+
+    jest.resetAllMocks();
+
+    mouse.down(new MouseEvent('down'));
+    mouse.up(new MouseEvent('up'));
+    mouse.move(new MouseEvent('move'));
+    expect(mouse.onDown).toBeCalledTimes(1);
+    expect(mouse.onUp).toBeCalledTimes(1);
+    expect(mouse.onMove).toBeCalledTimes(1);
+    expect(mouse.onStartDrag).toBeCalledTimes(0);
+
   });
 });

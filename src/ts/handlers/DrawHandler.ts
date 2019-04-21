@@ -88,7 +88,7 @@ export class DrawHandler extends MouseHandlerBase {
     this.regionMarker.parentNode.removeChild(this.regionMarker);
 
     // notify the app
-    if(this.hooks.onDrawEnd) this.hooks.onDrawEnd(this.selection);
+    if(this.hooks.onDrawEnd) this.hooks.onDrawEnd();
 
     this.selection = [];
   }

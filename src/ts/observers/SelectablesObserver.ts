@@ -2,13 +2,14 @@ import * as DomMetrics from '../utils/DomMetrics';
 import {StageStore} from '../flux/StageStore';
 import { SelectableState } from '../Types';
 import * as types from '../Types';
+import { setMode } from '../flux/UiState';
 
 /**
  * @class This class listens to the store
  *   and apply the state changes to the DOM elements
  */
 export class SelectablesObserver {
-  constructor(private stageDocument: HTMLDocument, private overlayDocument: HTMLDocument, store: StageStore, private hooks: types.Hooks) {
+  constructor(private stageDocument: HTMLDocument, private overlayDocument: HTMLDocument, private store: StageStore, private hooks: types.Hooks) {
     this.unsubscribeAll.push(
       store.subscribe(
         (state: Array<SelectableState>, prevState: Array<SelectableState>) => this.onStateChanged(state, prevState),
@@ -79,9 +80,14 @@ export class SelectablesObserver {
     }
   }
   onSelection(selectables: Array<SelectableState>) {
+    // stop editing or dragging...
+    const mode = this.store.getState().ui.mode;
+    if(mode !== types.UiMode.NONE) this.store.dispatch(setMode(types.UiMode.NONE));
+    // add css classes
     selectables.forEach(selectable => selectable.selected ?
       selectable.el.classList.add('selected') :
       selectable.el.classList.remove('selected'));
+    // notify the app
     if(this.hooks.onSelect) this.hooks.onSelect(selectables);
   }
   onDraggable(selectables: Array<SelectableState>) {

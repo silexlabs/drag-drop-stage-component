@@ -10,6 +10,9 @@ export enum MouseMode {
   UP,
   DOWN,
   DRAGGING,
+  WAITING_DBL_CLICK_DOWN,
+  WAITING_DBL_CLICK_DOWN2,
+  WAITING_DBL_CLICK_UP,
 }
 
 export class Mouse {
@@ -37,27 +40,70 @@ export class Mouse {
     const scroll = DomMetrics.getScroll(this.winOverlay.document);
     this.store.dispatch(MouseState.setScroll(scroll));
   }
+
+  private clearTimeout: () => void;
   down(e: MouseEvent) {
     e.preventDefault(); // prevent default text selection
     const mouseData = this.eventToMouseData(e);
-    this.mouseMode = MouseMode.DOWN;
-    this.onDown(mouseData);
+    if(this.mouseMode === MouseMode.WAITING_DBL_CLICK_UP) {
+      this.mouseMode = MouseMode.WAITING_DBL_CLICK_DOWN2;
+    }
+    else {
+      this.mouseMode = MouseMode.WAITING_DBL_CLICK_DOWN;
+      const id = setTimeout(() => {
+        if(this.mouseMode === MouseMode.WAITING_DBL_CLICK_DOWN) {
+          this.mouseMode = MouseMode.DOWN;
+          this.onDown(mouseData);
+        }
+        else if(this.mouseMode === MouseMode.WAITING_DBL_CLICK_UP) {
+          this.mouseMode = MouseMode.DOWN;
+          this.onDown(mouseData);
+          this.mouseMode = MouseMode.UP;
+          this.onUp(mouseData);
+        }
+      }, 300);
+      this.clearTimeout = () => {
+        clearTimeout(id);
+        this.clearTimeout = null;
+      }
+    }
   }
   up(e: MouseEvent, offset: ClientRect = null) {
     e.preventDefault();
     const mouseData = this.eventToMouseData(e, offset);
-    if(this.mouseMode === MouseMode.DOWN) {
+    if(this.mouseMode === MouseMode.WAITING_DBL_CLICK_DOWN) {
+      this.mouseMode = MouseMode.WAITING_DBL_CLICK_UP;
+    }
+    else if(this.mouseMode === MouseMode.WAITING_DBL_CLICK_DOWN2) {
+      this.clearTimeout();
+      this.mouseMode = MouseMode.UP;
+      this.onDblClick(mouseData);
+    }
+    else if(this.mouseMode === MouseMode.DOWN) {
+      this.mouseMode = MouseMode.UP;
       this.onUp(mouseData);
     }
     else if (this.mouseMode === MouseMode.DRAGGING) {
+      this.mouseMode = MouseMode.UP;
       this.onDrop(mouseData);
     }
-    this.mouseMode = MouseMode.UP;
   }
   move(e: MouseEvent, offset: ClientRect = null) {
     e.preventDefault();
     const mouseData = this.eventToMouseData(e, offset);
     switch(this.mouseMode) {
+      case MouseMode.WAITING_DBL_CLICK_UP:
+        this.mouseMode = MouseMode.DOWN;
+        this.onDown(mouseData);
+        this.mouseMode = MouseMode.UP;
+        this.onUp(mouseData);
+        this.onMove(mouseData);
+        break;
+      case MouseMode.WAITING_DBL_CLICK_DOWN:
+      case MouseMode.WAITING_DBL_CLICK_DOWN2:
+        this.mouseMode = MouseMode.DOWN;
+        this.onDown(mouseData);
+        // no break; here
       case MouseMode.DOWN:
         this.mouseMode = MouseMode.DRAGGING;
         this.onStartDrag(mouseData);
@@ -97,6 +143,13 @@ export class Mouse {
   }
 
   /////////////////////////////////////
+
+  onDblClick(mouseData: types.MouseData) {
+    const {target, shiftKey} = mouseData;
+    const selectable = DomMetrics.getSelectable(this.store, target as HTMLElement);
+    this.store.dispatch(SelectionAction.add(selectable));
+    this.store.dispatch(UiState.setMode(types.UiMode.EDIT));
+  }
 
   onDown(mouseData: types.MouseData) {
     const {target, shiftKey} = mouseData;

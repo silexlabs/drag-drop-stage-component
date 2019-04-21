@@ -26,6 +26,7 @@ export class StageStoreMock extends StageStore {
 
   dispatch(action: any, cbk: () => void = null, idx: number = 0): any {
     // console.log('Dispatch', action, 'to', idx+1, '/', this.cbks.length, '(', this.preventDispatch, ')');
+    // console.log('===============================================')
     if(!this.preventDispatch && this.cbks[idx]) this.cbks[idx](this.getState(), this.initialState);
     if(cbk) cbk();
     return null;
@@ -80,6 +81,7 @@ export class StageStoreMock extends StageStore {
   static additionalSelectables: Array<types.SelectableState> = [];
   uiState: types.UiState = {
     mode: types.UiMode.NONE,
+    refreshing: false,
   };
   mouseState: types.MouseState = {
     scrollData: {x: 0, y: 0},
