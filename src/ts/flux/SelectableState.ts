@@ -6,9 +6,10 @@ const RESET = 'SELECTABLE_RESET';
 const CREATE = 'SELECTABLE_CREATE';
 const DELETE = 'SELECTABLE_DELETE';
 
-export const updateSelectables = (selectables: Array<SelectableState>) => ({
+export const updateSelectables = (selectables: Array<SelectableState>, preventDispatch: boolean = false) => ({
   type: UPDATE,
   selectables,
+  preventDispatch,
 });
 export const resetSelectables = () => ({
   type: RESET,

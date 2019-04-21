@@ -4,6 +4,7 @@ import { Hooks, SelectableState, MouseData, CursorData } from '../Types';
 import * as selectableState from '../flux/SelectableState'
 import * as mouseState from '../flux/MouseState';
 import * as domMetrics from '../utils/DomMetrics';
+import { setRefreshing } from '../flux/UiState';
 
 export class ResizeHandler extends MouseHandlerBase {
   private cursorData: CursorData;
@@ -171,6 +172,9 @@ export class ResizeHandler extends MouseHandlerBase {
 
     // update the real metrics after drop
     setTimeout(() => {
+      // change UI state while selectables metrics are simply updated
+      this.store.dispatch(setRefreshing(true));
+
       const updatedState = this.store.getState().selectables
       .map(selectable => {
         return {
@@ -179,6 +183,9 @@ export class ResizeHandler extends MouseHandlerBase {
         }
       });
       this.store.dispatch(selectableState.updateSelectables(updatedState));
+
+      // change UI state while selectables metrics are simply updated
+      this.store.dispatch(setRefreshing(false));
 
       // notify the app
       if(this.hooks.onResizeEnd) this.hooks.onResizeEnd(this.selection);

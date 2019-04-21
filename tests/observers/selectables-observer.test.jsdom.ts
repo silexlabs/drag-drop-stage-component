@@ -39,26 +39,12 @@ describe('SelectablesObserver', function() {
   });
 
   it('init', function() {
-    expect(stageStoreMock.subscribe).toHaveBeenCalledTimes(1);
+    expect(stageStoreMock.subscribe).toHaveBeenCalledTimes(2);
     expect(stageStoreMock.getState().selectables.length).toBe(2);
     expect(stageStoreMock.getState().selectables[0]).toBe(stageStoreMock.selectableElem1);
   });
 
   it('onStateChanged', function() {
-    const state = stageStoreMock.getState();
-    // stageStoreMock.state = {
-    //   ...state,
-    //   ui: {
-    //     ...state.ui,
-    //   },
-    //   mouse: {
-    //     ...state.mouse,
-    //   },
-    //   selectables: [
-    //     state.selectables[0],
-    //     state.selectables[1],
-    //   ],
-    // };
     stageStoreMock.dispatch(null);
     expect(observer.onStateChanged).toBeCalledTimes(1);
     expect(observer.onMetrics).toBeCalledTimes(0);

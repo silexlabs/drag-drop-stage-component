@@ -91,6 +91,7 @@ export interface ElementMetrics {
 
 export interface UiState {
   mode: UiMode
+  refreshing: boolean
 }
 
 /**

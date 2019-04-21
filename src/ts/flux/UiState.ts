@@ -6,6 +6,12 @@ export const setMode = (mode: types.UiMode) => ({
   mode,
 });
 
+export const UI_SET_REFRESHING = 'UI_SET_REFRESHING';
+export const setRefreshing = (refreshing: boolean) => ({
+  type: UI_SET_REFRESHING,
+  refreshing,
+});
+
 /**
  * reducer
  */
@@ -16,6 +22,11 @@ export const ui = (state=getDefaultState(), action) => {
         ...state,
         mode: action.mode,
       }
+    case UI_SET_REFRESHING:
+      return {
+        ...state,
+        refreshing: action.refreshing,
+      }
     default:
       return state;
   }
@@ -24,5 +35,6 @@ export const ui = (state=getDefaultState(), action) => {
 export const getDefaultState = () => {
   return {
     mode: types.UiMode.NONE,
+    refreshing: false,
   };
 }

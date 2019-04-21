@@ -3,6 +3,7 @@ import { StageStore } from '../flux/StageStore';
 import { Hooks, SelectableState, MouseData, DropZone, ScrollData, State } from '../Types';
 import * as selectableState from '../flux/SelectableState'
 import * as domMetrics from '../utils/DomMetrics';
+import { setRefreshing } from '../flux/UiState';
 
 export class MoveHandler extends MouseHandlerBase {
   private positionMarker: HTMLElement;
@@ -188,6 +189,9 @@ export class MoveHandler extends MouseHandlerBase {
 
     // update store
     this.store.dispatch(selectableState.updateSelectables(this.selection), () => {
+      // change UI state while selectables metrics are simply updated
+      this.store.dispatch(setRefreshing(true));
+
       // update to real metrics after drop
       const state = this.store.getState().selectables.map(selectable => {
         return {
@@ -197,6 +201,8 @@ export class MoveHandler extends MouseHandlerBase {
       });
       this.store.dispatch(selectableState.updateSelectables(state));
 
+      this.store.dispatch(setRefreshing(false));
+
       // notify the app
       if(this.hooks.onDrop) this.hooks.onDrop(this.selection);
     });
@@ -205,9 +211,9 @@ export class MoveHandler extends MouseHandlerBase {
 
   /**
    * move an element and update its data in selection
+   * when elements are in a container which is moved, the clientRect changes but not the computedStyleRect
    */
   move(selectable: SelectableState, onlyClientRect: boolean, movementX, movementY): SelectableState {
-    // update the store
     return {
       ...selectable,
       translation: selectable.translation ? {

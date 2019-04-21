@@ -1,30 +1,42 @@
-import * as redux from 'redux';
-import * as types from '../Types';
-import { selection } from './SelectionState';
-import * as selectableState from './SelectableState';
+import { applyMiddleware, combineReducers, createStore, Store } from 'redux';
+import { MouseState, SelectableState, State, UiState } from '../Types';
 import * as mouseState from './MouseState';
-import * as uiState from './UiState';
-import * as DomMetrics from '../utils/DomMetrics';
+import * as selectableState from './SelectableState';
+import { selection } from './SelectionState';
+import { ui } from './UiState';
 
-export class StageStore implements redux.Store<types.State> {
+export class StageStore implements Store<State> {
   /**
    * Create a redux store with composed reducers
-   * @return redux.Store
+   * @return Store
    */
-  protected static createStore(): redux.Store<types.State> {
-    const reducer = redux.combineReducers({
-      selectables: (state: Array<types.SelectableState>, action) => selectableState.selectables(selection(state, action), action),
-      ui: (state: types.UiState, action) => uiState.ui(state, action),
-      mouse: (state: types.MouseState, action) => mouseState.mouse(state, action),
+  protected static createStore(): Store<State> {
+    const reducer = combineReducers({
+      selectables: (state: Array<SelectableState>, action) => selectableState.selectables(selection(state, action), action),
+      ui: (state: UiState, action) => ui(state, action),
+      mouse: (state: MouseState, action) => mouseState.mouse(state, action),
     });
-    return redux.createStore(reducer) as redux.Store<types.State>;
+    return createStore(reducer, applyMiddleware(StageStore.preventDispatchDuringRedraw)) as Store<State>;
   };
+
+  private static preventDispatchDuringRedraw({ getState }) {
+    return next => action => {
+      if(action.preventDispatch) {
+        console.log('prevent dispatch', action)
+      }
+      else {
+        const returnValue = next(action)
+        return returnValue
+      }
+      return null;
+    }
+  }
 
   /**
    * the main redux store
-   * @type {redux.Store}
+   * @type {Store}
    */
-  protected store: redux.Store<types.State> = StageStore.createStore();
+  protected store: Store<State> = StageStore.createStore();
 
   /**
    * Subscribe to state changes with the ability to filter by substate
@@ -32,7 +44,7 @@ export class StageStore implements redux.Store<types.State> {
    * @param select method to select the sub state
    * @return {function()} function to call to unsubscribe
    */
-  subscribe<SubState>(onChange: (state:SubState, prevState:SubState) => void, select=(state:types.State):SubState => (state as any)) {
+  subscribe<SubState>(onChange: (state:SubState, prevState:SubState) => void, select=(state:State):SubState => (state as any)) {
     let currentState = select(this.store.getState());
 
     const handleChange = () => {
@@ -66,7 +78,7 @@ export class StageStore implements redux.Store<types.State> {
       if(cbk) cbk();
     return null;
   }
-  getState(): types.State {
+  getState(): State {
     return this.store.getState();
   }
   replaceReducer() {

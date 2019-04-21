@@ -9,10 +9,22 @@ import * as types from '../Types';
  */
 export class SelectablesObserver {
   constructor(private stageDocument: HTMLDocument, private overlayDocument: HTMLDocument, store: StageStore, private hooks: types.Hooks) {
-    this.unsubscribeAll.push(store.subscribe(
-      (state: Array<SelectableState>, prevState: Array<SelectableState>) => this.onStateChanged(state, prevState),
-      (state:types.State) => state.selectables
-    ));
+    this.unsubscribeAll.push(
+      store.subscribe(
+        (state: Array<SelectableState>, prevState: Array<SelectableState>) => this.onStateChanged(state, prevState),
+        (state:types.State) => state.selectables
+      ),
+      store.subscribe(
+        (state: types.UiState, prevState: types.UiState) => this.onUiChanged(state),
+        (state:types.State) => state.ui
+      ),
+    );
+  }
+
+  private isRefreshing: boolean = false;
+  onUiChanged(state: types.UiState) {
+    console.log('ui changed', state.refreshing);
+    this.isRefreshing = state.refreshing;
   }
 
   private unsubscribeAll: Array<() => void> = [];
@@ -53,12 +65,18 @@ export class SelectablesObserver {
   }
   // update elements position and size
   onMetrics(selectables: Array<SelectableState>) {
-    selectables.forEach(selectable => {
-      // while being dragged, elements are out of the flow, do not apply styles
-      if(!selectable.preventMetrics) {
-        DomMetrics.setMetrics(selectable.el, selectable.metrics, selectable.useMinHeight);
-      }
-    });
+    console.log('update metrics', selectables.length, selectables.filter(s => !s.preventMetrics).length)
+    if(this.isRefreshing) {
+      // console.log('prevent update because refreshing');
+    }
+    else {
+      selectables.forEach(selectable => {
+        // while being dragged, elements are out of the flow, do not apply styles
+        if(!selectable.preventMetrics) {
+          DomMetrics.setMetrics(selectable.el, selectable.metrics, selectable.useMinHeight);
+        }
+      });
+    }
   }
   onSelection(selectables: Array<SelectableState>) {
     selectables.forEach(selectable => selectable.selected ?

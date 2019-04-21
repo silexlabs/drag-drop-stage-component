@@ -87,111 +87,121 @@ describe('Mouse', function() {
     setTimeout(() => { done() }, 0);
   });
 
-  // it('onScroll, a callback should listen for scroll event on mouse', function(done) {
-  //   window.scroll(0, 100);
-  //   expect(window.scrollY).toBe(100);
+  it('onScroll, a callback should listen for scroll event on mouse', function(done) {
+    window.scroll(0, 100);
+    expect(window.scrollY).toBe(100);
 
-  //   // needed to wait i don't know why
-  //   setTimeout(() => {
-  //     var calls = stageStoreMock.dispatch['mock'].calls;
-  //     expect(calls.length).toBe(1);
+    // needed to wait i don't know why
+    setTimeout(() => {
+      try {
+        var calls = stageStoreMock.dispatch['mock'].calls;
+        expect(calls.length).toBe(1);
 
-  //     var lastAction = calls[calls.length - 1][0];
-  //     expect(lastAction.type).toBe('MOUSE_SCROLL');
-  //     done();
-  //   }, 0);
-  // });
+        var lastAction = calls[calls.length - 1][0];
+        expect(lastAction.type).toBe('MOUSE_SCROLL');
+        done();
+      }
+      catch(e) {
+        done(e)
+      }
+    }, 100);
+  });
 
-  // it('mouse modes', function() {
-  //   mouse.down(new MouseEvent('mousedown', {
-  //     shiftKey: false,
-  //   }));
-  //   expect(mouse.mouseMode).toBe(MouseMode.DOWN);
-  //   mouse.up(new MouseEvent('mouseup', {
-  //     shiftKey: false,
-  //   }));
-  //   expect(mouse.mouseMode).toBe(MouseMode.UP);
-  //   mouse.down(new MouseEvent('mousedown', {
-  //     shiftKey: false,
-  //   }));
-  //   expect(mouse.mouseMode).toBe(MouseMode.DOWN);
-  //   mouse.move(new MouseEvent('mousemove', {
-  //     shiftKey: false,
-  //   }));
-  //   expect(mouse.mouseMode).toBe(MouseMode.DRAGGING);
-  // });
+  it('mouse modes', function() {
+    mouse.down(new MouseEvent('mousedown', {
+      shiftKey: false,
+    }));
+    expect(mouse.mouseMode).toBe(MouseMode.DOWN);
+    mouse.up(new MouseEvent('mouseup', {
+      shiftKey: false,
+    }));
+    expect(mouse.mouseMode).toBe(MouseMode.UP);
+    mouse.down(new MouseEvent('mousedown', {
+      shiftKey: false,
+    }));
+    expect(mouse.mouseMode).toBe(MouseMode.DOWN);
+    mouse.move(new MouseEvent('mousemove', {
+      shiftKey: false,
+    }));
+    expect(mouse.mouseMode).toBe(MouseMode.DRAGGING);
+  });
 
-  // it('selection', function() {
-  //   StageStoreMock.elem1.dispatchEvent(new MouseEvent('mousedown', {
-  //     shiftKey: false,
-  //     clientX: 110,
-  //     clientY: 110,
-  //   }));
-  //   expect(mouse.onDown).toBeCalledTimes(1);
-  //   expect(stageStoreMock.dispatch).toBeCalledTimes(1);
-  //   var calls = stageStoreMock.dispatch['mock'].calls;
-  //   expect(calls[calls.length - 1][0].type).toBe('SELECTION_SET');
-
-  //   StageStoreMock.elem1.dispatchEvent(new MouseEvent('mouseup', {
-  //     shiftKey: false,
-  //   }));
-  //   expect(mouse.onUp).toBeCalledTimes(1);
-  // });
+  it('selection', function() {
+    mouse.onDown({
+      shiftKey: false,
+      mouseX: 110,
+      mouseY: 110,
+      movementX: 0,
+      movementY: 0,
+      target: StageStoreMock.elem1,
+    });
+    expect(stageStoreMock.dispatch).toBeCalledTimes(1);
+    var calls = stageStoreMock.dispatch['mock'].calls;
+    expect(calls[calls.length - 1][0].type).toBe('SELECTION_SET');
+  });
 
   it('multi selection', function(done) {
     // select elem1
-    StageStoreMock.elem1.dispatchEvent(new MouseEvent('mousedown', {
+    mouse.onDown({
       shiftKey: true,
-      clientX: 110,
-      clientY: 110,
-    }));
-    expect(mouse.onDown).toBeCalledTimes(1);
+      mouseX: 110,
+      mouseY: 110,
+      movementX: 0,
+      movementY: 0,
+      target: StageStoreMock.elem1,
+    });
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('SELECTION_ADD');
     expect(calls[calls.length - 1][0].selectable.el).toBe(StageStoreMock.elem1);
     stageStoreMock.selectableElem1.selected = true;
 
-    StageStoreMock.elem1.dispatchEvent(new MouseEvent('mouseup', {
-      shiftKey: true,
-    }));
-    expect(mouse.onUp).toBeCalledTimes(1);
-
     window.scroll(1000, 1000);
 
     // select elem2
-    StageStoreMock.elem2.dispatchEvent(new MouseEvent('mousedown', {
+    mouse.onDown({
       shiftKey: true,
-      clientX: 300,
-      clientY: 300,
-    }));
-
-    expect(mouse.onDown).toBeCalledTimes(2);
+      mouseX: 300,
+      mouseY: 300,
+      movementX: 0,
+      movementY: 0,
+      target: StageStoreMock.elem2,
+    });
     expect(stageStoreMock.dispatch).toBeCalledTimes(2);
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('SELECTION_ADD');
     expect(calls[calls.length - 1][0].selectable.el).toBe(StageStoreMock.elem2);
     stageStoreMock.selectableElem2.selected = true;
 
-    StageStoreMock.elem2.dispatchEvent(new MouseEvent('mouseup', {
+    mouse.onUp({
       shiftKey: true,
-    }));
-    expect(mouse.onUp).toBeCalledTimes(2);
+      mouseX: 300,
+      mouseY: 300,
+      movementX: 0,
+      movementY: 0,
+      target: StageStoreMock.elem2,
+    });
     expect(stageStoreMock.dispatch).toBeCalledTimes(2);
 
     // deselect elem2
     stageStoreMock.selectableElem2.selected = true;
-    StageStoreMock.elem2.dispatchEvent(new MouseEvent('mousedown', {
+    mouse.onDown({
       shiftKey: true,
-      clientX: 300,
-      clientY: 300,
-    }));
-    expect(mouse.onDown).toBeCalledTimes(3);
+      mouseX: 300,
+      mouseY: 300,
+      movementX: 0,
+      movementY: 0,
+      target: StageStoreMock.elem2,
+    });
     expect(stageStoreMock.dispatch).toBeCalledTimes(3);
-    StageStoreMock.elem2.dispatchEvent(new MouseEvent('mouseup', {
+    mouse.onUp({
       shiftKey: true,
-    }));
-    expect(mouse.onUp).toBeCalledTimes(3);
+      mouseX: 300,
+      mouseY: 300,
+      movementX: 0,
+      movementY: 0,
+      target: StageStoreMock.elem2,
+    });
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('SELECTION_REMOVE');
     stageStoreMock.selectableElem2.selected = false;
