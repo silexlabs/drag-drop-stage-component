@@ -22,6 +22,7 @@ export class Keyboard {
    * handle shortcuts
    */
   private onKeyDown(e: KeyboardEvent) {
+    console.log(e.key.toLowerCase(), e.defaultPrevented);
     const key = e.key;
     const state = this.store.getState();
     if(state.ui.catchingEvents) {
@@ -30,14 +31,14 @@ export class Keyboard {
           if(state.ui.mode !== UiMode.NONE) {
             this.store.dispatch(setMode(UiMode.NONE));
             this.store.dispatch(reset());
+            e.preventDefault();
           }
-          e.preventDefault();
           break;
         case 'Enter':
           if(state.ui.mode !== UiMode.EDIT && state.selectables.filter(s => s.selected).length > 0) {
             this.store.dispatch(setMode(UiMode.EDIT));
+            e.preventDefault();
           }
-          e.preventDefault();
           break;
         default:
       }

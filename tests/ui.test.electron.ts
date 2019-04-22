@@ -98,7 +98,7 @@ describe('Ui', () => {
   });
 
   it('should listen to the store and update', () => {
-    expect(stageStoreMock.subscribe).toBeCalledTimes(2);
+    expect(stageStoreMock.subscribe).toBeCalledTimes(3);
     addSelectable();
     expect(ui.update).toBeCalledTimes(1);
   });

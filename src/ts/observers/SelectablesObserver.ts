@@ -80,9 +80,6 @@ export class SelectablesObserver {
     }
   }
   onSelection(selectables: Array<SelectableState>) {
-    // stop editing or dragging...
-    const mode = this.store.getState().ui.mode;
-    if(mode !== types.UiMode.NONE) this.store.dispatch(setMode(types.UiMode.NONE));
     // add css classes
     selectables.forEach(selectable => selectable.selected ?
       selectable.el.classList.add('selected') :

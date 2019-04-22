@@ -12,6 +12,17 @@ async function wait(delay) {
 }
 
 describe('Mouse', function() {
+
+  function init() {
+    mouse = new Mouse(window, window, stageStoreMock);
+    jest.spyOn(mouse, 'onDblClick');
+    jest.spyOn(mouse, 'onDown');
+    jest.spyOn(mouse, 'onUp');
+    jest.spyOn(mouse, 'onMove');
+    jest.spyOn(mouse, 'onDrag');
+    jest.spyOn(mouse, 'onStartDrag');
+  }
+
   var stageStoreMock: StageStoreMock;
   var elem3;
   var elem4;
@@ -80,13 +91,7 @@ describe('Mouse', function() {
     jest.spyOn(stageStoreMock, 'dispatch');
     jest.spyOn(stageStoreMock, 'getState');
 
-    mouse = new Mouse(window, window, stageStoreMock);
-    jest.spyOn(mouse, 'onDblClick');
-    jest.spyOn(mouse, 'onDown');
-    jest.spyOn(mouse, 'onUp');
-    jest.spyOn(mouse, 'onMove');
-    jest.spyOn(mouse, 'onDrag');
-    jest.spyOn(mouse, 'onStartDrag');
+    init();
 
     // const timeout = 10000;
     // jest.setTimeout(timeout);
@@ -250,7 +255,7 @@ describe('Mouse', function() {
     expect(mouse.onDown).toBeCalledTimes(1);
     expect(mouse.onStartDrag).toBeCalledTimes(1);
 
-    jest.resetAllMocks();
+    init();
 
     mouse.down(new MouseEvent('down'));
     mouse.up(new MouseEvent('up'));

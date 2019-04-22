@@ -94,24 +94,22 @@ export class Stage {
   /**
    * enable/disable catching events
    */
-  private catchingEvents_ = true;
   get catchingEvents(): boolean {
-    return this.catchingEvents_;
+    return this.store.getState().ui.catchingEvents;
   }
   set catchingEvents(val: boolean) {
-    this.catchingEvents_ = val;
     this.store.dispatch(UiAction.setCatchingEvents(val));
   }
 
   /**
    * edit state
    */
-  getEditMode(): boolean {
+  get editMode(): boolean {
     return this.store.getState().ui.mode === types.UiMode.EDIT;
   }
-  setEditMode(val: boolean) {
-    console.log('setEditMode', val)
-    this.store.dispatch(UiAction.setMode(val ? types.UiMode.EDIT : types.UiMode.NONE));
+  set editMode(val: boolean) {
+    const mode = val ? types.UiMode.EDIT : types.UiMode.NONE;
+    this.store.dispatch(UiAction.setMode(mode));
   }
 
   ///////////////////////////////////////////////////
@@ -122,7 +120,12 @@ export class Stage {
    * recalculate all the metrics
    */
   redraw() {
-    this.store.dispatch(updateSelectables(this.store.getState().selectables));
+    this.store.dispatch(updateSelectables(this.store.getState().selectables.map(selectable => {
+      return {
+        ...selectable,
+        metrics: DomMetrics.getMetrics(selectable.el),
+      }
+    })));
   }
 
   /**
