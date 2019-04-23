@@ -71,7 +71,6 @@ export class Stage {
     const keyboard = new Keyboard(ui.overlay.contentWindow, this.store, this.hooks);
 
     this.unsubscribeAll.push(
-
       () => selectablesObserver.cleanup(),
       () => uiObserver.cleanup(),
       () => mouseObserver.cleanup(),
@@ -109,12 +108,14 @@ export class Stage {
    * recalculate all the metrics
    */
   redraw() {
+    this.store.dispatch(UiAction.setRefreshing(true));
     this.store.dispatch(updateSelectables(this.store.getState().selectables.map(selectable => {
       return {
         ...selectable,
         metrics: DomMetrics.getMetrics(selectable.el),
       }
     })));
+    this.store.dispatch(UiAction.setRefreshing(false));
   }
 
   /**
