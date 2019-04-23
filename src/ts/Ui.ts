@@ -1,5 +1,5 @@
 import {StageStore} from './flux/StageStore';
-import { SelectableState, State, MouseState, MouseData, ScrollData, ElementMetrics, UiState } from './Types';
+import { SelectableState, State, MouseState, MouseData, ScrollData, ElementMetrics, UiState, UiMode } from './Types';
 import { addEvent } from './utils/Events';
 import * as DomMetrics from './utils/DomMetrics';
 
@@ -19,9 +19,9 @@ export class Ui {
 
     // create the overlay
     doc.body.style.overflow = 'hidden';
-    if(!!this.overlay && !!this.overlay.parentElement) {
-      this.overlay.parentElement.removeChild(this.overlay); // could use less supported this.overlay.remove()
-    }
+    // if(!!this.overlay && !!this.overlay.parentElement) {
+    //   this.overlay.parentElement.removeChild(this.overlay); // could use less supported this.overlay.remove()
+    // }
     this.overlay = doc.createElement('iframe');
     doc.body.appendChild(this.overlay);
 
@@ -103,7 +103,7 @@ export class Ui {
         (state:State) => state.mouse
       ),
       store.subscribe(
-        (state: UiState, prevState: UiState) => this.onUiChanged(state, prevState),
+        (state: UiState, prevState: UiState) => this.onUiChanged(state, prevState, iframe),
         (state:State) => state.ui
       ),
     );
@@ -130,9 +130,13 @@ export class Ui {
     this.overlay.style.width = bb.width + 'px';
     this.overlay.style.height = bb.height + 'px';
   }
-  onUiChanged(state: UiState, prevState: UiState) {
-    if(state.catchingEvents !== prevState.catchingEvents) {
-      this.overlay.style.display = state.catchingEvents ? '' : 'none';
+  onUiChanged(state: UiState, prevState: UiState, iframe: HTMLIFrameElement) {
+    if(state.catchingEvents !== prevState.catchingEvents || state.mode !== prevState.mode) {
+      const value = state.catchingEvents && state.mode !== UiMode.HIDE ? '' : 'none';
+      this.overlay.style.display = value;
+      // this is to give the focus on the UI, and not prevent the user from pressing tab again
+      // FIXME: this could be a problem if saved with the site
+      iframe.style.pointerEvents = value;
     }
   }
   onMouseChanged(state: MouseState, prevState: MouseState) {

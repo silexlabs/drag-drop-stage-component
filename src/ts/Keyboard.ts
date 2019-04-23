@@ -27,20 +27,28 @@ export class Keyboard {
     if(state.ui.catchingEvents) {
       switch(key) {
         case 'Escape':
-          if(state.ui.mode !== UiMode.NONE) {
+        if(state.ui.mode !== UiMode.NONE) {
+          this.store.dispatch(setMode(UiMode.NONE));
+          this.store.dispatch(reset());
+        }
+        break;
+        case 'Enter':
+        if(this.hooks.onEdit) this.hooks.onEdit();
+        break;
+        case 'Tab':
+          if(this.store.getState().ui.mode === UiMode.HIDE) {
             this.store.dispatch(setMode(UiMode.NONE));
-            this.store.dispatch(reset());
-            e.preventDefault();
-            e.stopPropagation();
+          }
+          else {
+            this.store.dispatch(setMode(UiMode.HIDE));
           }
           break;
-        case 'Enter':
-          if(this.hooks.onEdit) this.hooks.onEdit();
-          e.preventDefault();
-          e.stopPropagation();
-          break;
         default:
+          return;
       }
+      // only if we catched a shortcut
+      e.preventDefault();
+      e.stopPropagation();
     }
-    }
+  }
 }

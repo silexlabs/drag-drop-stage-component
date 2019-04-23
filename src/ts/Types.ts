@@ -109,6 +109,7 @@ export enum UiMode {
   DRAG,
   RESIZE,
   DRAW,
+  HIDE,
 }
 
 export interface MouseState {
