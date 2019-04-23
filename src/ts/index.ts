@@ -169,6 +169,10 @@ export class Stage {
       bottom: boolOrObj as boolean,
       right: boolOrObj as boolean,
     }
+    // do not apply style change to this element
+    this.store.dispatch(UiAction.setRefreshing(true));
+
+    // create an element in the store
     this.store.dispatch(createSelectable({
       el,
       selected: false,
