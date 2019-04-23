@@ -13,7 +13,7 @@ export class Ui {
   overlay: HTMLIFrameElement;
   boxes: Array<Box> = [];
 
-  constructor(iframe: HTMLIFrameElement, store: StageStore) {
+  constructor(private iframe: HTMLIFrameElement, private store: StageStore) {
     const doc = DomMetrics.getDocument(iframe);
     const win = DomMetrics.getWindow(doc);
 
@@ -26,8 +26,7 @@ export class Ui {
     doc.body.appendChild(this.overlay);
 
     // init iframe
-    this.resize(DomMetrics.getBoundingBoxDocument(iframe), win.getComputedStyle(iframe).zIndex);
-    this.update(store.getState().selectables, this.getScrollData(iframe));
+    this.resizeOverlay();
 
     // overlay content
     this.overlay.contentDocument.head.innerHTML = `
@@ -90,10 +89,8 @@ export class Ui {
         }
     `;
     this.unsubscribeAll.push(
-      addEvent(win, 'resize', () => {
-        this.resize(DomMetrics.getBoundingBoxDocument(iframe), win.getComputedStyle(iframe).zIndex)
-        this.update(store.getState().selectables, this.getScrollData(iframe));
-      }),
+      // addEvent(win, 'resize', () => this.resizeOverlay()),
+      addEvent(window, 'resize', () => this.resizeOverlay()),
       store.subscribe(
         (selectables: Array<SelectableState>) => this.update(selectables, this.getScrollData(iframe)),
         (state: State) => state.selectables,
@@ -109,9 +106,16 @@ export class Ui {
     );
   }
 
+  resizeOverlay() {
+    this.resize(DomMetrics.getBoundingBoxDocument(this.iframe), this.iframe.contentWindow.getComputedStyle(this.iframe).zIndex)
+    this.update(this.store.getState().selectables, this.getScrollData(this.iframe));
+  }
+
   private unsubscribeAll: Array<() => void> = [];
   cleanup() {
     this.unsubscribeAll.forEach(u => u());
+    this.overlay.parentElement.removeChild(this.overlay);
+    this.overlay = null;
   }
 
   private getScrollData(iframe: HTMLIFrameElement): ScrollData {
@@ -130,7 +134,7 @@ export class Ui {
     this.overlay.style.width = bb.width + 'px';
     this.overlay.style.height = bb.height + 'px';
   }
-  onUiChanged(state: UiState, prevState: UiState, iframe: HTMLIFrameElement) {
+  private onUiChanged(state: UiState, prevState: UiState, iframe: HTMLIFrameElement) {
     if(state.catchingEvents !== prevState.catchingEvents || state.mode !== prevState.mode) {
       const value = state.catchingEvents && state.mode !== UiMode.HIDE ? '' : 'none';
       this.overlay.style.display = value;
@@ -139,7 +143,7 @@ export class Ui {
       iframe.style.pointerEvents = value;
     }
   }
-  onMouseChanged(state: MouseState, prevState: MouseState) {
+  private onMouseChanged(state: MouseState, prevState: MouseState) {
     if(state.scrollData.x !== prevState.scrollData.x || state.scrollData.y !== prevState.scrollData.y) {
       DomMetrics.setScroll(this.overlay.contentDocument, state.scrollData);
     }
@@ -147,7 +151,7 @@ export class Ui {
       this.overlay.contentDocument.body.style.cursor = state.cursorData.cursorType;
     }
   }
-  update(selectables: Array<SelectableState>, scrollData: ScrollData) {
+  private update(selectables: Array<SelectableState>, scrollData: ScrollData) {
     //  update scroll
     this.overlay.contentDocument.body.style.overflow = 'auto';
     this.overlay.contentDocument.body.style.width = scrollData.x + 'px';
@@ -178,7 +182,7 @@ export class Ui {
     // update the view
     this.boxes.map(r => this.updateBox(r, selectables.find(s => s.el === r.selectable.el)));
   }
-  createBoxUi(): HTMLElement {
+  private createBoxUi(): HTMLElement {
     const box = this.overlay.contentDocument.createElement('div');
     box.innerHTML = `
       <div class='handle handle-nw'></div>
@@ -188,7 +192,7 @@ export class Ui {
     `;
     return box;
   }
-  updateBox(box: Box, selectable: SelectableState): Box {
+  private updateBox(box: Box, selectable: SelectableState): Box {
     box.selectable = selectable;
     DomMetrics.setMetrics(box.ui, {
       ...box.selectable.metrics,

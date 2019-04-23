@@ -25,7 +25,8 @@ export class Stage {
   protected iframe: HTMLIFrameElement;
   protected hooks: types.Hooks;
   protected unsubscribeAll: Array<() => void> = [];
-  store: StageStore;
+  protected ui: Ui;
+  protected store: StageStore;
 
   /**
    * Init the useful classes,
@@ -59,16 +60,16 @@ export class Stage {
     Array.from(elements).forEach(el => this.addElement(el))
 
     // add a UI over the iframe
-    const ui = new Ui(iframe, this.store);
+    this.ui = new Ui(iframe, this.store);
 
     // state observers
-    const selectablesObserver = new SelectablesObserver(this.contentDocument, ui.overlay.contentDocument, this.store, this.hooks);
-    const uiObserver = new UiObserver(this.contentDocument, ui.overlay.contentDocument, this.store, this.hooks);
-    const mouseObserver = new MouseObserver(this.contentDocument, ui.overlay.contentDocument, this.store, this.hooks);
+    const selectablesObserver = new SelectablesObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
+    const uiObserver = new UiObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
+    const mouseObserver = new MouseObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
 
     // controllers
-    const mouse = new Mouse(this.contentWindow, ui.overlay.contentWindow, this.store, this.hooks);
-    const keyboard = new Keyboard(ui.overlay.contentWindow, this.store, this.hooks);
+    const mouse = new Mouse(this.contentWindow, this.ui.overlay.contentWindow, this.store, this.hooks);
+    const keyboard = new Keyboard(this.ui.overlay.contentWindow, this.store, this.hooks);
 
     this.unsubscribeAll.push(
       () => selectablesObserver.cleanup(),
@@ -88,6 +89,8 @@ export class Stage {
    */
   cleanup() {
     this.unsubscribeAll.forEach(u => u());
+    this.ui.cleanup();
+    this.ui = null;
   }
 
   /**
@@ -98,6 +101,12 @@ export class Stage {
   }
   set catchingEvents(val: boolean) {
     this.store.dispatch(UiAction.setCatchingEvents(val));
+  }
+  /**
+   * force resize of UI
+   */
+  resizeWindow() {
+    this.ui.resizeOverlay();
   }
 
   ///////////////////////////////////////////////////
