@@ -35,9 +35,6 @@ export class UiObserver {
         this.handler.release();
         this.handler = null;
       }
-      else if (prevState.mode === types.UiMode.EDIT) {
-        if(this.hooks.onEditEnd) this.hooks.onEditEnd();
-      }
       // add css class and style
       this.overlayDocument.body.classList.remove(...[
         state.mode !== types.UiMode.DRAG ? 'dragging-mode' : 'not-dragging-mode',
@@ -52,9 +49,6 @@ export class UiObserver {
       // manage handlers
       switch(state.mode){
         case types.UiMode.NONE:
-          break;
-        case types.UiMode.EDIT:
-          if(this.hooks.onEdit) this.hooks.onEdit(this.store.getState().selectables.filter(s => s.selected));
           break;
         case types.UiMode.DRAG:
           this.handler = new MoveHandler(this.stageDocument, this.overlayDocument, this.store, this.hooks);

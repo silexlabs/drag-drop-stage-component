@@ -18,7 +18,7 @@ export enum MouseMode {
 export class Mouse {
   mouseMode = MouseMode.UP; // public for unit tests
   private wasMultiSelected: boolean = false;
-  constructor(private winStage: Window, private winOverlay: Window, private store: StageStore) {
+  constructor(private winStage: Window, private winOverlay: Window, private store: StageStore, private hooks: types.Hooks) {
     // events from inside the iframe
     this.unsubscribeAll.push(
       addEvent(this.winOverlay, 'scroll', (e:MouseEvent) => this.scroll(e), true),
@@ -154,7 +154,7 @@ export class Mouse {
     const {target, shiftKey} = mouseData;
     const selectable = DomMetrics.getSelectable(this.store, target as HTMLElement);
     this.store.dispatch(SelectionAction.add(selectable));
-    this.store.dispatch(UiState.setMode(types.UiMode.EDIT));
+    if(this.hooks.onEdit) this.hooks.onEdit();
   }
 
   onDown(mouseData: types.MouseData) {

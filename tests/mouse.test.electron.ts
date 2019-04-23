@@ -1,6 +1,6 @@
 import * as electron from 'electron';
 import {Mouse, MouseMode} from '../src/ts/Mouse';
-import { StageStoreMock } from './flux/StageStoreMock';
+import { StageStoreMock, hooks } from './flux/StageStoreMock';
 import { UiMode } from '../src/ts/Types';
 
 async function wait(delay) {
@@ -14,7 +14,7 @@ async function wait(delay) {
 describe('Mouse', function() {
 
   function init() {
-    mouse = new Mouse(window, window, stageStoreMock);
+    mouse = new Mouse(window, window, stageStoreMock, hooks);
     jest.spyOn(mouse, 'onDblClick');
     jest.spyOn(mouse, 'onDown');
     jest.spyOn(mouse, 'onUp');

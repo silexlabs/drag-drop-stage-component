@@ -67,8 +67,8 @@ export class Stage {
     const mouseObserver = new MouseObserver(this.contentDocument, ui.overlay.contentDocument, this.store, this.hooks);
 
     // controllers
-    const mouse = new Mouse(this.contentWindow, ui.overlay.contentWindow, this.store);
-    const keyboard = new Keyboard(ui.overlay.contentWindow, this.store);
+    const mouse = new Mouse(this.contentWindow, ui.overlay.contentWindow, this.store, this.hooks);
+    const keyboard = new Keyboard(ui.overlay.contentWindow, this.store, this.hooks);
 
     this.unsubscribeAll.push(
 
@@ -79,7 +79,7 @@ export class Stage {
       () => keyboard.cleanup(),
 
       // window resize
-      addEvent(window, "resize", (e: MouseEvent) => this.redraw()),
+      addEvent(window, 'resize', (e: MouseEvent) => this.redraw()),
     );
   }
 
@@ -99,17 +99,6 @@ export class Stage {
   }
   set catchingEvents(val: boolean) {
     this.store.dispatch(UiAction.setCatchingEvents(val));
-  }
-
-  /**
-   * edit state
-   */
-  get editMode(): boolean {
-    return this.store.getState().ui.mode === types.UiMode.EDIT;
-  }
-  set editMode(val: boolean) {
-    const mode = val ? types.UiMode.EDIT : types.UiMode.NONE;
-    this.store.dispatch(UiAction.setMode(mode));
   }
 
   ///////////////////////////////////////////////////
@@ -161,13 +150,11 @@ export class Stage {
     useMinHeight?: boolean,
     metrics?: types.ElementMetrics,
   }) {
-    console.log('setState', subState.metrics.computedStyleRect.left);
     const state = this.getState(el);
     this.store.dispatch(updateSelectables([{
       ...state,
       ...subState,
     }]));
-    console.log('setState', this.getState(el).metrics.computedStyleRect.left);
   }
 
   /**

@@ -45,7 +45,7 @@ export class Ui {
         }
         .selected.box:before,
         .box:hover:before {
-          content: " ";
+          content: ' ';
           position: absolute;
           z-index: -1;
           top: 1px;
@@ -177,10 +177,10 @@ export class Ui {
   createBoxUi(): HTMLElement {
     const box = this.overlay.contentDocument.createElement('div');
     box.innerHTML = `
-      <div class="handle handle-nw"></div>
-      <div class="handle handle-ne"></div>
-      <div class="handle handle-sw"></div>
-      <div class="handle handle-se"></div>
+      <div class='handle handle-nw'></div>
+      <div class='handle handle-ne'></div>
+      <div class='handle handle-sw'></div>
+      <div class='handle handle-se'></div>
     `;
     return box;
   }

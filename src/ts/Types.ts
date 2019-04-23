@@ -13,8 +13,7 @@ export interface Hooks {
   onResizeEnd?: (selectables: Array<SelectableState>) => void;
   onDraw?: (selectables: Array<SelectableState>, boundingBox: ClientRect) => void;
   onDrawEnd?: () => void;
-  onEdit?: (selectables: Array<SelectableState>) => void;
-  onEditEnd?: () => void;
+  onEdit?: () => void; // this occures when the user double clicks or press enter with one or more elements selected
 }
 
 /**
@@ -110,7 +109,6 @@ export enum UiMode {
   DRAG,
   RESIZE,
   DRAW,
-  EDIT,
 }
 
 export interface MouseState {

@@ -19,10 +19,11 @@ export class StageStore implements Store<State> {
     return createStore(reducer, applyMiddleware(StageStore.preventDispatchDuringRedraw)) as Store<State>;
   };
 
+  // this is unused for now, I used the "refreshing" prop instead, on state.ui
   private static preventDispatchDuringRedraw({ getState }) {
     return next => action => {
       if(action.preventDispatch) {
-        console.log('prevent dispatch', action)
+        console.warn('prevent dispatch', action)
       }
       else {
         const returnValue = next(action)
@@ -71,7 +72,6 @@ export class StageStore implements Store<State> {
   dispatch(action: any, cbk: () => void = null): any {
     // avoid too much recursions
     // TODO: queue?
-    // console.log('dispatch', action);
     setTimeout(() => {
     }, 0);
       this.store.dispatch(action);

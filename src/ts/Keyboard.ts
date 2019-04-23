@@ -1,15 +1,15 @@
-import { StageStore } from "./flux/StageStore";
-import { addEvent } from "./utils/Events";
-import { setMode } from "./flux/UiState";
-import { reset } from "./flux/SelectionState";
-import { UiMode } from "./Types";
+import { StageStore } from './flux/StageStore';
+import { addEvent } from './utils/Events';
+import { setMode } from './flux/UiState';
+import { reset } from './flux/SelectionState';
+import { UiMode, Hooks } from './Types';
 
 export class Keyboard {
-  constructor(private win, private store: StageStore) {
+  constructor(private win, private store: StageStore, private hooks: Hooks) {
     // events from inside the iframe
     this.unsubscribeAll.push(
-      addEvent(window, "keydown", (e: KeyboardEvent) => this.onKeyDown(e)),
-      addEvent(win, "keydown", (e: KeyboardEvent) => this.onKeyDown(e)),
+      addEvent(window, 'keydown', (e: KeyboardEvent) => this.onKeyDown(e)),
+      addEvent(win, 'keydown', (e: KeyboardEvent) => this.onKeyDown(e)),
     );
   }
 
@@ -22,7 +22,6 @@ export class Keyboard {
    * handle shortcuts
    */
   private onKeyDown(e: KeyboardEvent) {
-    console.log(e.key.toLowerCase(), e.defaultPrevented);
     const key = e.key;
     const state = this.store.getState();
     if(state.ui.catchingEvents) {
@@ -32,13 +31,13 @@ export class Keyboard {
             this.store.dispatch(setMode(UiMode.NONE));
             this.store.dispatch(reset());
             e.preventDefault();
+            e.stopPropagation();
           }
           break;
         case 'Enter':
-          if(state.ui.mode !== UiMode.EDIT && state.selectables.filter(s => s.selected).length > 0) {
-            this.store.dispatch(setMode(UiMode.EDIT));
-            e.preventDefault();
-          }
+          if(this.hooks.onEdit) this.hooks.onEdit();
+          e.preventDefault();
+          e.stopPropagation();
           break;
         default:
       }

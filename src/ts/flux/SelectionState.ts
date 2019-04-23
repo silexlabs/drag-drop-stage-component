@@ -1,4 +1,4 @@
-import { SelectableState } from "../Types";
+import { SelectableState } from '../Types';
 
 const SET = 'SELECTION_SET';
 const RESET = 'SELECTION_RESET';

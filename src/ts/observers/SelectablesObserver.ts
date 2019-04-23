@@ -24,7 +24,6 @@ export class SelectablesObserver {
 
   private isRefreshing: boolean = false;
   onUiChanged(state: types.UiState) {
-    console.log('ui changed', state.refreshing);
     this.isRefreshing = state.refreshing;
   }
 
@@ -66,11 +65,7 @@ export class SelectablesObserver {
   }
   // update elements position and size
   onMetrics(selectables: Array<SelectableState>) {
-    console.log('update metrics', selectables.length, selectables.filter(s => !s.preventMetrics).length)
-    if(this.isRefreshing) {
-      // console.log('prevent update because refreshing');
-    }
-    else {
+    if(!this.isRefreshing) {
       selectables.forEach(selectable => {
         // while being dragged, elements are out of the flow, do not apply styles
         if(!selectable.preventMetrics) {
