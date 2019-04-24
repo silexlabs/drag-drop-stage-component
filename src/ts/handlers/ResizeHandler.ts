@@ -139,15 +139,15 @@ export class ResizeHandler extends MouseHandlerBase {
     this.store.dispatch(selectableState.updateSelectables(this.selection));
 
     // update scroll
+    const initialScroll = this.store.getState().mouse.scrollData;
     const bb: ClientRect = {
-      top: mouseData.mouseY,
-      left: mouseData.mouseX,
-      bottom: mouseData.mouseY,
-      right: mouseData.mouseX,
+      top: mouseData.mouseY + initialScroll.y,
+      left: mouseData.mouseX + initialScroll.x,
+      bottom: mouseData.mouseY + initialScroll.y,
+      right: mouseData.mouseX + initialScroll.x,
       height: 0,
       width: 0,
     };
-    const initialScroll = this.store.getState().mouse.scrollData;
     const scroll = domMetrics.getScrollToShow(this.stageDocument, bb);
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
       this.debounceScroll(scroll);
