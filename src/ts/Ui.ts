@@ -159,7 +159,7 @@ export class Ui {
       this.overlay.contentDocument.body.style.cursor = state.cursorData.cursorType;
     }
   }
-  private update(selectables: Array<SelectableState>, scrollData: ScrollData) {
+  update(selectables: Array<SelectableState>, scrollData: ScrollData) {
     //  update scroll
     this.overlay.contentDocument.body.style.overflow = 'auto';
     this.overlay.contentDocument.body.style.width = scrollData.x + 'px';
