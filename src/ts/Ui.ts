@@ -19,9 +19,7 @@ export class Ui {
 
     // create the overlay
     doc.body.style.overflow = 'hidden';
-    // if(!!this.overlay && !!this.overlay.parentElement) {
-    //   this.overlay.parentElement.removeChild(this.overlay); // could use less supported this.overlay.remove()
-    // }
+
     this.overlay = doc.createElement('iframe');
     doc.body.appendChild(this.overlay);
 
@@ -136,11 +134,21 @@ export class Ui {
   }
   private onUiChanged(state: UiState, prevState: UiState, iframe: HTMLIFrameElement) {
     if(state.catchingEvents !== prevState.catchingEvents || state.mode !== prevState.mode) {
-      const value = state.catchingEvents && state.mode !== UiMode.HIDE ? '' : 'none';
-      this.overlay.style.display = value;
-      // this is to give the focus on the UI, and not prevent the user from pressing tab again
       // FIXME: this could be a problem if saved with the site
-      iframe.style.pointerEvents = value;
+      iframe.contentDocument.body.style.overflow = state.mode === UiMode.HIDE ? '' : 'hidden';
+
+      // this is to give the focus on the UI, and not prevent the user from pressing tab again
+      this.overlay.style.pointerEvents = state.catchingEvents ? '' : 'none';
+
+      if(state.mode === UiMode.HIDE) {
+        this.overlay.style.top = "-999999px";
+        this.overlay.style.left = "-999999px";
+        this.overlay.style.width = "0";
+        this.overlay.style.height = "0";
+      }
+      else {
+        this.resizeOverlay();
+      }
     }
   }
   private onMouseChanged(state: MouseState, prevState: MouseState) {

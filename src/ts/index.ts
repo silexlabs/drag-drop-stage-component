@@ -103,6 +103,21 @@ export class Stage {
     this.store.dispatch(UiAction.setCatchingEvents(val));
   }
   /**
+   * enable/disable catching events
+   */
+  get visible(): boolean {
+    return this.store.getState().ui.mode !== types.UiMode.HIDE;
+  }
+  set visible(val: boolean) {
+    // dispatch UI mode change
+    this.store.dispatch(UiAction.setMode(val ? types.UiMode.NONE : types.UiMode.HIDE));
+    // scroll may have changed
+    this.setScroll({
+      x: this.iframe.contentWindow.scrollX,
+      y: this.iframe.contentWindow.scrollY,
+    });
+  }
+  /**
    * force resize of UI
    */
   resizeWindow() {
