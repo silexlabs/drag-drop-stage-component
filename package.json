@@ -13,10 +13,10 @@
     "watch": "npm run build:js -- --watch",
     "build:js": "npm run workaround-babel && tsc -p tsconfig.json",
     "build:demo": "npm run install:redux && npm run workaround-babel && tsc -p tsconfig.json && pug src/jade/index.jade -o pub && lessc src/less/demo.less pub/css/demo.css",
-    "workaround-babel": "rm -rf `node_modules`/@types/babel__*",
+    "workaround-babel": "rm -rf `node_modules`/@types/babel__* ; echo 'Last command can fail if stage is a depenency'",
     "note: workaround issue:": "https://github.com/facebook/jest/issues/8218",
-    "install:redux": "cp `node_modules`/redux/dist/redux.min.js pub/redux.js",
-    "install:requirejs": "cp `node_modules`/requirejs/require.js pub/js/"
+    "install:redux": "cp `node_modules`/redux/dist/redux.min.js pub/redux.js ; echo 'Last command can fail if stage is a depenency'",
+    "install:requirejs": "cp `node_modules`/requirejs/require.js pub/js/ ; echo 'Last command can fail if stage is a depenency'"
   },
   "author": "lexoyo",
   "license": "MIT",
