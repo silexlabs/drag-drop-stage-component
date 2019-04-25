@@ -47,6 +47,8 @@ describe('UiObserver', function() {
       ...stageStoreMock.state,
       ui: {
         mode: types.UiMode.DRAW,
+        catchingEvents: true,
+        refreshing: false,
       }
     };
     stageStoreMock.dispatch(null);
@@ -58,12 +60,16 @@ describe('UiObserver', function() {
       ...stageStoreMock.state,
       ui: {
         mode: types.UiMode.DRAW,
+        catchingEvents: true,
+        refreshing: false,
       }
     };
     stageStoreMock.state = {
       ...stageStoreMock.state,
       ui: {
         mode: types.UiMode.NONE,
+        catchingEvents: true,
+        refreshing: false,
       }
     };
     stageStoreMock.dispatch(null);
@@ -76,6 +82,8 @@ describe('UiObserver', function() {
       ...stageStoreMock.state,
       ui: {
         mode: types.UiMode.DRAW,
+        catchingEvents: true,
+        refreshing: false,
       }
     };
     stageStoreMock.state = {

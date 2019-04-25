@@ -9,13 +9,15 @@ describe('Ui', () => {
   var stageStoreMock: StageStoreMock;
   var iframeUi: HTMLIFrameElement;
 
-  function resetUi() {
+  async function resetUi() {
     iframeTest = document.querySelector('#iframe-test-id');
-    ui = new Ui(iframeTest, stageStoreMock);
-    jest.spyOn(ui, 'update');
+    return Ui.createUi(iframeTest, stageStoreMock).then(_ui => {
+      ui = _ui;
+      jest.spyOn(ui, 'update');
 
-    const iframes = Array.from(document.querySelectorAll('iframe'));
-    iframeUi = iframes.find(i => i.id != 'iframe-test-id');
+      const iframes = Array.from(document.querySelectorAll('iframe'));
+      iframeUi = iframes.find(i => i.id != 'iframe-test-id');
+    });
   }
 
   function addSelectable() {
@@ -51,7 +53,7 @@ describe('Ui', () => {
     stageStoreMock.dispatch(null)
   }
 
-  beforeEach((done) => {
+  beforeEach(async () => {
     // DOM
     document.body.innerHTML = `
       <style>
@@ -71,14 +73,13 @@ describe('Ui', () => {
     jest.spyOn(stageStoreMock, 'dispatch');
     jest.spyOn(stageStoreMock, 'getState');
 
-    resetUi();
+    await resetUi();
 
     // const timeout = 10000;
     // jest.setTimeout(timeout);
     // electron.remote.getCurrentWindow().show();
     // setTimeout(() => { done() }, timeout);
     // return;
-    setTimeout(() => { done() }, 0);
   });
 
 
