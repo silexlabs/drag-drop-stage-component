@@ -9,24 +9,52 @@ interface Box {
 }
 
 export class Ui {
-
-  overlay: HTMLIFrameElement;
   boxes: Array<Box> = [];
 
-  constructor(private iframe: HTMLIFrameElement, private store: StageStore) {
-    const doc = DomMetrics.getDocument(iframe);
-    const win = DomMetrics.getWindow(doc);
+  static async createUi(iframe: HTMLIFrameElement, store: StageStore): Promise<Ui> {
+    return new Promise<Ui>((resolve, reject) => {
+      const doc = DomMetrics.getDocument(iframe);
 
-    // create the overlay
-    doc.body.style.overflow = 'hidden';
+      const overlay = doc.createElement('iframe');
+      doc.body.appendChild(overlay);
 
-    this.overlay = doc.createElement('iframe');
-    doc.body.appendChild(this.overlay);
+      if(overlay.contentDocument.readyState === 'complete') {
+        // chrome
+        resolve(new Ui(iframe, overlay, store));
+      }
+      else {
+        // firefox
+        overlay.contentWindow.onload = () => {
+          resolve(new Ui(iframe, overlay, store));
+        }
+      }
+    });
+  }
+
+  private constructor(private iframe: HTMLIFrameElement, public overlay: HTMLIFrameElement, private store: StageStore) {
+    // listen to events
+    this.unsubscribeAll.push(
+      // addEvent(win, 'resize', () => this.resizeOverlay()),
+      addEvent(window, 'resize', () => this.resizeOverlay()),
+      store.subscribe(
+        (selectables: Array<SelectableState>) => this.update(selectables, this.getScrollData(iframe)),
+        (state: State) => state.selectables,
+      ),
+      store.subscribe(
+        (state: MouseState, prevState: MouseState) => this.onMouseChanged(state, prevState),
+        (state:State) => state.mouse
+      ),
+      store.subscribe(
+        (state: UiState, prevState: UiState) => this.onUiChanged(state, prevState, iframe),
+        (state:State) => state.ui
+      ),
+    );
 
     // init iframe
+    iframe.contentDocument.body.style.overflow = 'hidden';
     this.resizeOverlay();
 
-    // overlay content
+    // add UI styles
     this.overlay.contentDocument.head.innerHTML = `
       <style>
         body {
@@ -86,22 +114,6 @@ export class Ui {
           min-height: 1px;
         }
     `;
-    this.unsubscribeAll.push(
-      // addEvent(win, 'resize', () => this.resizeOverlay()),
-      addEvent(window, 'resize', () => this.resizeOverlay()),
-      store.subscribe(
-        (selectables: Array<SelectableState>) => this.update(selectables, this.getScrollData(iframe)),
-        (state: State) => state.selectables,
-      ),
-      store.subscribe(
-        (state: MouseState, prevState: MouseState) => this.onMouseChanged(state, prevState),
-        (state:State) => state.mouse
-      ),
-      store.subscribe(
-        (state: UiState, prevState: UiState) => this.onUiChanged(state, prevState, iframe),
-        (state:State) => state.ui
-      ),
-    );
   }
 
   resizeOverlay() {
@@ -159,6 +171,7 @@ export class Ui {
       this.overlay.contentDocument.body.style.cursor = state.cursorData.cursorType;
     }
   }
+
   update(selectables: Array<SelectableState>, scrollData: ScrollData) {
     //  update scroll
     this.overlay.contentDocument.body.style.overflow = 'auto';

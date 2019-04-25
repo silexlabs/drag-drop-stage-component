@@ -70,12 +70,8 @@ export class StageStore implements Store<State> {
     return res;
   }
   dispatch(action: any, cbk: () => void = null): any {
-    // avoid too much recursions
-    // TODO: queue?
-    setTimeout(() => {
-    }, 0);
-      this.store.dispatch(action);
-      if(cbk) cbk();
+    this.store.dispatch(action);
+    if(cbk) cbk();
     return null;
   }
   getState(): State {

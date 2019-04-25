@@ -57,30 +57,33 @@ export class Stage {
 
     // create the store and populate it
     this.store = new StageStore();
-    Array.from(elements).forEach(el => this.addElement(el))
+    Array.from(elements).forEach(el => this.addElement(el));
 
     // add a UI over the iframe
-    this.ui = new Ui(iframe, this.store);
+    Ui.createUi(iframe, this.store)
+    .then((ui: Ui) => {
+      this.ui = ui;
 
-    // state observers
-    const selectablesObserver = new SelectablesObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
-    const uiObserver = new UiObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
-    const mouseObserver = new MouseObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
+      // state observers
+      const selectablesObserver = new SelectablesObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
+      const uiObserver = new UiObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
+      const mouseObserver = new MouseObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
 
-    // controllers
-    const mouse = new Mouse(this.contentWindow, this.ui.overlay.contentWindow, this.store, this.hooks);
-    const keyboard = new Keyboard(this.ui.overlay.contentWindow, this.store, this.hooks);
+      // controllers
+      const mouse = new Mouse(this.contentWindow, this.ui.overlay.contentWindow, this.store, this.hooks);
+      const keyboard = new Keyboard(this.ui.overlay.contentWindow, this.store, this.hooks);
 
-    this.unsubscribeAll.push(
-      () => selectablesObserver.cleanup(),
-      () => uiObserver.cleanup(),
-      () => mouseObserver.cleanup(),
-      () => mouse.cleanup(),
-      () => keyboard.cleanup(),
+      this.unsubscribeAll.push(
+        () => selectablesObserver.cleanup(),
+        () => uiObserver.cleanup(),
+        () => mouseObserver.cleanup(),
+        () => mouse.cleanup(),
+        () => keyboard.cleanup(),
 
-      // window resize
-      addEvent(window, 'resize', (e: MouseEvent) => this.redraw()),
-    );
+        // window resize
+        addEvent(window, 'resize', (e: MouseEvent) => this.redraw()),
+      );
+    })
   }
 
 

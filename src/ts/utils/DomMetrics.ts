@@ -79,6 +79,7 @@ export function getScrollToShow(doc, boundingBox: ClientRect): types.ScrollData 
 
 
 /**
+ * retrieve the document's window
  * @param {HTMLDocument} doc
  * @return {Window}
  */
@@ -87,6 +88,7 @@ export function getWindow(doc): Window {
 }
 
 /**
+ * retrieve the document which holds this element
  * @param {HTMLElement} el
  * @return {HTMLDocument}
  */
