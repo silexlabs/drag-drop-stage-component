@@ -142,6 +142,7 @@ export class Ui {
     DomMetrics.setMetrics(this.overlay, metrics, false, true);
     this.overlay.style.backgroundColor = 'transparent';
     this.overlay.style.zIndex = ((parseInt(zIndex) || 0) + 1).toString();
+    this.overlay.style.border = 'none';
   }
   private onUiChanged(state: UiState, prevState: UiState) {
     if(state.catchingEvents !== prevState.catchingEvents || state.mode !== prevState.mode) {
