@@ -45,20 +45,21 @@ export class Ui {
         (state:State) => state.mouse
       ),
       store.subscribe(
-        (state: UiState, prevState: UiState) => this.onUiChanged(state, prevState, iframe),
+        (state: UiState, prevState: UiState) => this.onUiChanged(state, prevState),
         (state:State) => state.ui
       ),
     );
 
-    // init iframe
-    iframe.contentDocument.body.style.overflow = 'hidden';
+    // init iframes
     this.resizeOverlay();
+    this.overlay.contentDocument.body.style.overflow = 'auto';
+    iframe.contentDocument.body.style.overflow = 'scroll'; // FIXME: this could be a problem if saved with the site
 
     // add UI styles
     this.overlay.contentDocument.head.innerHTML = `
       <style>
         body {
-          overflow: hidden;
+          overflow: scroll;
           margin: -5px;
         }
 
@@ -117,7 +118,7 @@ export class Ui {
   }
 
   resizeOverlay() {
-    this.resize(DomMetrics.getBoundingBoxDocument(this.iframe), this.iframe.contentWindow.getComputedStyle(this.iframe).zIndex)
+    this.resize()
     this.update(this.store.getState().selectables, this.getScrollData(this.iframe));
   }
 
@@ -134,21 +135,16 @@ export class Ui {
       y: iframe.contentWindow.document.scrollingElement.scrollHeight,
     };
   }
-  private resize(bb: ClientRect, zIndex: string) {
-    this.overlay.style.border = 'none';
-    this.overlay.style.zIndex = ((parseInt(zIndex) || 0) + 1).toString();
+  private resize() {
+    const metrics = DomMetrics.getMetrics(this.iframe);
+    const zIndex = this.iframe.contentWindow.getComputedStyle(this.iframe).getPropertyValue('z-index');
+    metrics.position = 'absolute';
+    DomMetrics.setMetrics(this.overlay, metrics, false, true);
     this.overlay.style.backgroundColor = 'transparent';
-    this.overlay.style.position = 'absolute';
-    this.overlay.style.top = bb.top + 'px';
-    this.overlay.style.left = bb.left + 'px';
-    this.overlay.style.width = bb.width + 'px';
-    this.overlay.style.height = bb.height + 'px';
+    this.overlay.style.zIndex = ((parseInt(zIndex) || 0) + 1).toString();
   }
-  private onUiChanged(state: UiState, prevState: UiState, iframe: HTMLIFrameElement) {
+  private onUiChanged(state: UiState, prevState: UiState) {
     if(state.catchingEvents !== prevState.catchingEvents || state.mode !== prevState.mode) {
-      // FIXME: this could be a problem if saved with the site
-      iframe.contentDocument.body.style.overflow = state.mode === UiMode.HIDE ? '' : 'hidden';
-
       // this is to give the focus on the UI, and not prevent the user from pressing tab again
       this.overlay.style.pointerEvents = state.catchingEvents ? '' : 'none';
 
@@ -166,6 +162,16 @@ export class Ui {
   private onMouseChanged(state: MouseState, prevState: MouseState) {
     if(state.scrollData.x !== prevState.scrollData.x || state.scrollData.y !== prevState.scrollData.y) {
       DomMetrics.setScroll(this.overlay.contentDocument, state.scrollData);
+
+      // adjust scroll - sometimes there is a 1px difference because of the border of the UI
+      if(this.store.getState().ui.mode !== UiMode.HIDE) {
+        DomMetrics.setScroll(this.iframe.contentDocument, state.scrollData);
+        const newScrollData = DomMetrics.getScroll(this.iframe.contentDocument);
+        if(state.scrollData.x !== newScrollData.x || state.scrollData.y !== newScrollData.y) {
+          // there is a delta in scroll
+          DomMetrics.setScroll(this.overlay.contentDocument, newScrollData);
+        }
+      }
     }
     if(state.cursorData.cursorType !== prevState.cursorData.cursorType) {
       this.overlay.contentDocument.body.style.cursor = state.cursorData.cursorType;
@@ -174,7 +180,6 @@ export class Ui {
 
   update(selectables: Array<SelectableState>, scrollData: ScrollData) {
     //  update scroll
-    this.overlay.contentDocument.body.style.overflow = 'auto';
     this.overlay.contentDocument.body.style.width = scrollData.x + 'px';
     this.overlay.contentDocument.body.style.height = scrollData.y + 'px';
 
