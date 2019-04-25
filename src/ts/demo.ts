@@ -3,6 +3,7 @@ import {Stage} from './index';
 // find the empty iframe in the page
 const iframe = document.querySelector('#iframe') as HTMLIFrameElement;
 const output = document.querySelector('#output') as HTMLInputElement;
+console.log('iframe found:', iframe);
 // load some content in the iframe
 iframe.src = '../demo-template/'
 iframe.onload = () => {

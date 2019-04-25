@@ -2,13 +2,14 @@ doctype html
 html(lang="en")
   head
     title Stage demo
-    link(rel="shortcut icon", href="../../favicon.png")
+    link(rel="shortcut icon", href="../favicon.png")
     script(type='text/javascript', src='./js/require.js')
     link(rel="stylesheet", href="css/demo.css")
-    script(type='text/javascript')
-      |   require(['js/demo'], function() {});
   body
     .bg
     section
       iframe#iframe
       input#output(readonly)
+
+    script(type='text/javascript')
+      |   require(['js/demo'], function() {});
