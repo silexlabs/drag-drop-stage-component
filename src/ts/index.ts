@@ -57,7 +57,7 @@ export class Stage {
 
     // create the store and populate it
     this.store = new StageStore();
-    Array.from(elements).forEach(el => this.addElement(el));
+    this.reset(elements);
 
     // add a UI over the iframe
     Ui.createUi(iframe, this.store)
@@ -145,6 +145,13 @@ export class Stage {
     this.store.dispatch(UiAction.setRefreshing(false));
   }
 
+  reset(elements: ArrayLike<HTMLElement>) {
+    this.store.dispatch(UiAction.setRefreshing(true));
+    this.store.dispatch(resetSelectables());
+    Array.from(elements).forEach(el => this.addElement(el, false));
+    this.store.dispatch(UiAction.setRefreshing(false));
+  }
+
   /**
    * get/set the states of the selected elements
    */
@@ -188,16 +195,11 @@ export class Stage {
   /**
    * Add an element to the store
    */
-  addElement(el: HTMLElement) {
-    const boolOrObj: types.Direction | boolean = this.hooks.isResizeable(el);
-    const resizeable = typeof boolOrObj === 'object' ? boolOrObj : {
-      top: boolOrObj as boolean,
-      left: boolOrObj as boolean,
-      bottom: boolOrObj as boolean,
-      right: boolOrObj as boolean,
+  addElement(el: HTMLElement, preventDispatch = true) {
+    if(preventDispatch) {
+      // do not apply style change to this element
+      this.store.dispatch(UiAction.setRefreshing(true));
     }
-    // do not apply style change to this element
-    this.store.dispatch(UiAction.setRefreshing(true));
 
     // create an element in the store
     this.store.dispatch(createSelectable({
@@ -205,13 +207,28 @@ export class Stage {
       selected: false,
       selectable: this.hooks.isSelectable(el),
       draggable: this.hooks.isDraggable(el),
-      resizeable,
+      resizeable: this.getElementResizeable(el),
       isDropZone: this.hooks.isDropZone(el),
       useMinHeight: this.hooks.useMinHeight(el),
       metrics: DomMetrics.getMetrics(el),
     }));
-    // compute all metrics again because this element might affect others
-    this.redraw();
+
+    if(preventDispatch) {
+      // compute all metrics again because this element might affect others
+      this.redraw();
+      // this is done in redraw
+      // this.store.dispatch(UiAction.setRefreshing(false));
+    }
+  }
+
+  protected getElementResizeable(el: HTMLElement): types.Direction {
+    const boolOrObj: types.Direction | boolean = this.hooks.isResizeable(el);
+    return typeof boolOrObj === 'object' ? boolOrObj : {
+      top: boolOrObj as boolean,
+      left: boolOrObj as boolean,
+      bottom: boolOrObj as boolean,
+      right: boolOrObj as boolean,
+    }
   }
 
   /**

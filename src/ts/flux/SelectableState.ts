@@ -23,7 +23,7 @@ export const deleteSelectable = (selectable: SelectableState) => ({
   selectable,
 });
 
-export const selectables = (state=[], action) => {
+export const selectables = (state: Array<SelectableState>=[], action) => {
   switch(action.type) {
     case CREATE:
       return [
@@ -31,10 +31,7 @@ export const selectables = (state=[], action) => {
         action.selectable,
       ];
     case RESET:
-      return [
-        ...state,
-        [],
-      ];
+      return [];
     case DELETE:
       return state.filter((selectable: SelectableState) => selectable.el !== action.selectable.el);
     case UPDATE:
