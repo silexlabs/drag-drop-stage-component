@@ -53,7 +53,7 @@ export class Ui {
     // init iframes
     this.resizeOverlay();
     this.overlay.contentDocument.body.style.overflow = 'auto';
-    iframe.contentDocument.body.style.overflow = 'scroll'; // FIXME: this could be a problem if saved with the site
+    iframe.contentDocument.body.style.overflow = 'scroll'; // FIXME: this could be a problem if saved with the site, what other solution?
 
     // add UI styles
     this.overlay.contentDocument.head.innerHTML = `

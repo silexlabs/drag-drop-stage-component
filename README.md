@@ -4,20 +4,26 @@
 
 ## About this project
 
-This is an attempt to make a "stage" component which lets the user select elements, drag and drop them, resize them.
+This "stage" component enables the user select elements, drag and drop them, resize them.
 
 A component like this will be useful to the developer building any tool which includes a WYSIWYG.
+
+This project is maintained, has very few dependencies and is used in [Silex website builder](https://www.silex.me)
 
 [Here is a very simple example](https://lexoyo.me/stage/pub/).
 
 ## Features
 
-* [x] move and resize elements, with multi selection
+* [x] move and resize elements
+* [x] supports absolute position as well as elements in the flow
+* [x] multi selection
+* [x] shift + resize will keep proportions
+* [x] drawing mode, which let the user select multiple elements easily or draw a new element on the stage
 * [x] hooks give you full control over what is selectable, draggable, droppable, resizeable, a drop zone
 * [x] events to be notified of every action of the user
-* [x] drawing mode, which let the user select multiple elements easily or draw a new element on the stage
 * [x] scroll when the user moves near the border of the stage, or to show a specific element
 * [x] handle the events outside the iframe (the user can drag an element and release the mouse outside the iframe)
+* [ ] [vote and submit feature requests](https://github.com/lexoyo/stage/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
 
 Here is a [list of features](https://github.com/lexoyo/stage/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement) which is the current road map (please vote with :+1:s).
 

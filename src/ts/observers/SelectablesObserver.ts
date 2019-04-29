@@ -51,14 +51,14 @@ export class SelectablesObserver {
     const selection = state.filter(selectable => filterBy('selected', selectable));
     if(selection.length > 0) this.onSelection(selection);
 
-    const draggable = state.filter(selectable => filterBy('draggable', selectable));
-    if(draggable.length > 0) this.onDraggable(draggable);
+    // const draggable = state.filter(selectable => filterBy('draggable', selectable));
+    // if(draggable.length > 0) this.onDraggable(draggable);
 
-    const resizeable = state.filter(selectable => filterBy('resizeable', selectable));
-    if(resizeable.length > 0) this.onResizeable(resizeable);
+    // const resizeable = state.filter(selectable => filterBy('resizeable', selectable));
+    // if(resizeable.length > 0) this.onResizeable(resizeable);
 
-    const isDropZone = state.filter(selectable => filterBy('isDropZone', selectable));
-    if(isDropZone.length > 0) this.onDropZone(isDropZone);
+    // const isDropZone = state.filter(selectable => filterBy('isDropZone', selectable));
+    // if(isDropZone.length > 0) this.onDropZone(isDropZone);
 
     const translation = state.filter(selectable => filterBy('translation', selectable));
     if(translation.length > 0) this.onTranslation(translation);
@@ -75,38 +75,12 @@ export class SelectablesObserver {
     }
   }
   onSelection(selectables: Array<SelectableState>) {
-    // add css classes
-    selectables.forEach(selectable => selectable.selected ?
-      selectable.el.classList.add('selected') :
-      selectable.el.classList.remove('selected'));
     // notify the app
     if(this.hooks.onSelect) this.hooks.onSelect(selectables);
   }
-  onDraggable(selectables: Array<SelectableState>) {
-    selectables.forEach(selectable => selectable.draggable ?
-      selectable.el.classList.add('draggable') :
-      selectable.el.classList.remove('draggable'));
-  }
-  onResizeable(selectables: Array<SelectableState>) {
-    selectables.forEach(selectable => {
-      [
-        {name: 'top', value: selectable.resizeable.top, },
-        {name: 'left', value: selectable.resizeable.left, },
-        {name: 'bottom', value: selectable.resizeable.bottom, },
-        {name: 'right', value: selectable.resizeable.right, },
-      ].forEach(dir => {
-        const className = 'resizeable-' + dir.name;
-        dir.value ?
-        selectable.el.classList.add(className) :
-        selectable.el.classList.remove(className);
-      })
-    })
-  }
-  onDropZone(selectables: Array<SelectableState>) {
-    selectables.forEach(selectable => selectable.isDropZone ?
-      selectable.el.classList.add('isDropZone') :
-      selectable.el.classList.remove('isDropZone'));
-  }
+  // onDraggable(selectables: Array<SelectableState>) {}
+  // onResizeable(selectables: Array<SelectableState>) {}
+  // onDropZone(selectables: Array<SelectableState>) {}
   onTranslation(selectables: Array<SelectableState>) {
     selectables.forEach(selectable => {
       if(!!selectable.translation) {
