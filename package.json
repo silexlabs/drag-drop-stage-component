@@ -1,8 +1,12 @@
 {
-  "name": "stage",
+  "name": "drag-drop-stage-component",
   "version": "1.0.0",
-  "description": "",
+  "description": "A component to \"drag'n drop\"-enable your projects, maintained and simple, light on dependencies",
   "main": "src/ts/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/silexlabs/drag-drop-stage-component.git"
+  },
   "scripts": {
     "test": "jest",
     "watch:test": "watch 'npm run test' src tests",
@@ -18,7 +22,7 @@
     "install:redux": "cp `node_modules`/redux/dist/redux.min.js pub/redux.js ; echo 'Last command can fail if stage is a depenency'",
     "install:requirejs": "cp `node_modules`/requirejs/require.js pub/js/ ; echo 'Last command can fail if stage is a depenency'"
   },
-  "author": "lexoyo",
+  "author": "Alex Hoyau <a.hoyau@silexlabs.org> (https://lexoyo.me/)",
   "license": "MIT",
   "devDependencies": {
     "redux": "^4.0.1",
