@@ -1,4 +1,4 @@
-[ ![Codeship Status for lexoyo/stage](https://codeship.com/projects/3bbb51a0-ea08-0133-a1fa-5a99213623df/status?branch=master)](https://codeship.com/projects/147777)
+![Codeship Status](https://app.codeship.com/projects/cd514dc0-4cdd-0137-3aeb-16b008087706/status?branch=master)
 [![Code Climate](https://codeclimate.com/github/lexoyo/stage/badges/gpa.svg)](https://codeclimate.com/github/lexoyo/stage)
 [![Démo stage wysiwyg drag and drop](https://monitoshi.lexoyo.me/badge/1555368788372-6479)](https://lexoyo.me/stage/pub/)
 
