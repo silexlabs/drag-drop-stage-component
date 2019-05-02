@@ -17,6 +17,9 @@ export class MoveHandler extends MouseHandlerBase {
     .filter(s => s.draggable)
     .filter(s => !domMetrics.hasASelectedDraggableParent(store, s.el));
 
+    // notify the app
+    if(!!this.hooks.onStartDrag) this.hooks.onStartDrag(this.selection);
+
     // FIXME: the region marker should be outside the iframe
     this.positionMarker = this.stageDocument.createElement('div');
     this.positionMarker.classList.add('position-marker');

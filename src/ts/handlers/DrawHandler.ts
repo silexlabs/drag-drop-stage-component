@@ -13,6 +13,9 @@ export class DrawHandler extends MouseHandlerBase {
   constructor(stageDocument: HTMLDocument, overlayDocument: HTMLDocument, store: StageStore, hooks: Hooks) {
     super(stageDocument, overlayDocument, store, hooks);
 
+    // notify the app
+    if(!!this.hooks.onStartDraw) this.hooks.onStartDraw();
+
     const state = store.getState();
 
     const scrollData = domMetrics.getScroll(this.stageDocument);

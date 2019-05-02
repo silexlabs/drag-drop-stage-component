@@ -1,6 +1,6 @@
 {
   "name": "drag-drop-stage-component",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A component to \"drag'n drop\"-enable your projects, maintained and simple, light on dependencies",
   "main": "src/ts/index.ts",
   "repository": {
@@ -29,7 +29,6 @@
     "@jest-runner/electron": "^1.1.1",
     "@types/jest": "^24.0.11",
     "@types/redux": "^3.6.31",
-    "http-server": "^0.11.1",
     "jest": "^24.7.1",
     "less": "^2.6.1",
     "pug-cli": "^1.0.0-alpha6",

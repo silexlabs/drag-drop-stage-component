@@ -16,6 +16,9 @@ export class ResizeHandler extends MouseHandlerBase {
 
     // keep only risizeable elements
     this.selection = this.selection.filter(s => domMetrics.isResizeable(s.resizeable, this.cursorData));
+
+    // notify the app
+    if(!!this.hooks.onStartResize) this.hooks.onStartResize(this.selection);
   }
 
   /**
