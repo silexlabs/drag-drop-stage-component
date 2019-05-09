@@ -1,6 +1,6 @@
 {
   "name": "drag-drop-stage-component",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A component to \"drag'n drop\"-enable your projects, maintained and simple, light on dependencies",
   "main": "src/ts/index.ts",
   "repository": {
@@ -8,36 +8,31 @@
     "url": "https://github.com/silexlabs/drag-drop-stage-component.git"
   },
   "scripts": {
-    "postinstall": "npm run install:redux",
+    "prepare": "npm run build:demo",
     "test": "jest",
     "watch:test": "watch 'npm run test' src tests",
-    "prepare": "npm run build",
-    "prebuild": "mkdir -p pub/js && npm run install:requirejs",
     "serve": "http-server . -o",
-    "build": "npm run build:js && npm run build:demo",
+    "build": "mkdir -p pub/js && npm run install:redux && npm run build:js",
     "watch": "npm run build:js -- --watch",
-    "build:js": "npm run workaround-babel && tsc -p tsconfig.json",
-    "build:demo": "npm run install:redux && npm run workaround-babel && tsc -p tsconfig.json && pug src/jade/index.jade -o pub && lessc src/less/demo.less pub/css/demo.css",
-    "workaround-babel": "rm -rf `node_modules`/@types/babel__* ; echo 'Last command can fail if stage is a depenency'",
-    "note: workaround issue:": "https://github.com/facebook/jest/issues/8218",
-    "install:redux": "cp `node_modules`/redux/dist/redux.min.js pub/redux.js ; echo 'Last command can fail if stage is a depenency'",
-    "install:requirejs": "cp `node_modules`/requirejs/require.js pub/js/ ; echo 'Last command can fail if stage is a depenency'"
+    "build:js": "tsc -p tsconfig.json",
+    "build:demo": "npm run build && tsc -p tsconfig.json && pug src/jade/index.jade -o pub && lessc src/less/demo.less pub/css/demo.css",
+    "install:redux": "cp `node_modules`/redux/dist/redux.min.js pub/redux.js"
   },
   "author": "Alex Hoyau <a.hoyau@silexlabs.org> (https://lexoyo.me/)",
   "license": "MIT",
   "dependencies": {
-    "redux": "^4.0.1",
-    "@types/redux": "^3.6.31"
+    "@types/redux": "^3.6.31",
+    "redux": "^4.0.1"
   },
   "devDependencies": {
     "@jest-runner/electron": "^1.1.1",
-    "@types/jest": "^24.0.11",
-    "jest": "^24.7.1",
-    "less": "^2.6.1",
+    "@types/jest": "^24.0.12",
+    "jest": "^24.8.0",
+    "less": "^3.9.0",
     "pug-cli": "^1.0.0-alpha6",
     "requirejs": "^2.3.6",
     "ts-jest": "^24.0.2",
-    "typescript": "^3.4.2",
+    "typescript": "^3.4.5",
     "node_modules-path": "^2.0.2"
   }
 }
