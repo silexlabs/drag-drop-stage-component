@@ -27,6 +27,7 @@ export class Stage {
   protected unsubscribeAll: Array<() => void> = [];
   protected ui: Ui;
   protected store: StageStore;
+  protected mouse: Mouse;
 
   /**
    * Init the useful classes,
@@ -70,14 +71,14 @@ export class Stage {
       const mouseObserver = new MouseObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
 
       // controllers
-      const mouse = new Mouse(this.contentWindow, this.ui.overlay.contentWindow, this.store, this.hooks);
+      this.mouse = new Mouse(this.contentWindow, this.ui.overlay.contentWindow, this.store, this.hooks);
       const keyboard = new Keyboard(this.ui.overlay.contentWindow, this.store, this.hooks);
 
       this.unsubscribeAll.push(
         () => selectablesObserver.cleanup(),
         () => uiObserver.cleanup(),
         () => mouseObserver.cleanup(),
-        () => mouse.cleanup(),
+        () => this.mouse.cleanup(),
         () => keyboard.cleanup(),
 
         // window resize
@@ -125,6 +126,21 @@ export class Stage {
    */
   resizeWindow() {
     this.ui.resizeOverlay();
+  }
+
+  /**
+   * safe subscribe to mouse event
+   * handle the multiple iframes and the current window
+   * @return function to call to unsubscribe
+   */
+  subscribeMouseEvent(type: string, cbk: (e) => void): () => void {
+    return this.mouse.subscribeMouseEvent(type, cbk);
+  }
+
+
+  hideScrolls(hide: boolean) {
+    this.iframe.contentDocument.body.style.overflow = hide ? 'hidden' : '';
+    this.ui.overlay.contentDocument.body.style.overflow = hide ? 'hidden' : '';
   }
 
   ///////////////////////////////////////////////////

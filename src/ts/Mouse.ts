@@ -35,6 +35,18 @@ export class Mouse {
   cleanup() {
     this.unsubscribeAll.forEach(u => u());
   }
+  /**
+   * safe subscribe to mouse event
+   * handle the multiple iframes and the current window
+   * @return function to call to unsubscribe
+   */
+  subscribeMouseEvent(type, cbk): () => void {
+    const unsubscribeArray = [
+      addEvent(this.winOverlay.document.body, type, (e:MouseEvent) => cbk(e), true),
+      addEvent(document.body, type, (e:MouseEvent) => cbk(e), true),
+    ];
+    return () => unsubscribeArray.forEach(u => u());
+  }
   //////////////////////////////
   scroll(e: MouseEvent) {
     const scroll = DomMetrics.getScroll(this.winOverlay.document);
