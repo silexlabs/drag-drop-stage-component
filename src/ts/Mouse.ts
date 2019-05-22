@@ -44,7 +44,12 @@ export class Mouse {
   private clearTimeout: () => void;
   down(e: MouseEvent) {
     if(!this.store.getState().ui.catchingEvents) return;
-
+    try {
+      // in firefox, this is needed to keep recieving events while dragging outside the iframe
+      // in chrome this will throw an error
+      e.target['setCapture']();
+    }
+    catch(e) {}
     e.preventDefault(); // prevent default text selection
     const mouseData = this.eventToMouseData(e);
     if(this.mouseMode === MouseMode.WAITING_DBL_CLICK_UP) {
