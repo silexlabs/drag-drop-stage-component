@@ -7,6 +7,7 @@ import { setRefreshing } from '../flux/UiState';
 
 export class MoveHandler extends MouseHandlerBase {
   private positionMarker: HTMLElement;
+  private initialMouse: {x:number, y:number};
 
   constructor(stageDocument: HTMLDocument, overlayDocument: HTMLDocument, store: StageStore, hooks: Hooks) {
     super(stageDocument, overlayDocument, store, hooks);
@@ -56,9 +57,42 @@ export class MoveHandler extends MouseHandlerBase {
     // remove the marker
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
 
+    // apply constraints
+    const { movementX, movementY } = (() => {
+      if(this.initialMouse && mouseData.shiftKey && this.selection.length > 0) {
+        const translation = this.selection[0].translation;
+        const {x, y} = {
+          x: mouseData.mouseX - this.initialMouse.x,
+          y: mouseData.mouseY - this.initialMouse.y,
+        }
+        const angle = Math.atan2(y, x);
+        const sign = Math.sin(angle) * Math.cos(angle) > 0 ? 1 : -1;
+        if(Math.abs(Math.sin(angle)) < Math.abs(Math.cos(angle))) {
+          // stick to x axis
+          return {
+            movementX: -translation.x + (mouseData.mouseX - this.initialMouse.x) + mouseData.movementX,
+            movementY: -translation.y,
+          }
+        } else {
+          // stick to y axis
+          return {
+            movementX: -translation.x,
+            movementY: -translation.y + (mouseData.mouseY - this.initialMouse.y) + mouseData.movementY,
+          }
+        }
+      }
+      return mouseData;
+    })()
+    if(!this.initialMouse) {
+      this.initialMouse = {
+        x: mouseData.mouseX,
+        y: mouseData.mouseY,
+      };
+    }
+
     // update elements postition
     this.selection = this.selection
-    .map(selectable => this.move(selectable, false, mouseData.movementX, mouseData.movementY));
+    .map(selectable => this.move(selectable, false, movementX, movementY));
 
     // update the destination of each element
     this.selection = this.selection
@@ -81,7 +115,7 @@ export class MoveHandler extends MouseHandlerBase {
     // handle the children which move with the selection
     const children = this.store.getState().selectables
     .filter(s => domMetrics.hasASelectedDraggableParent(this.store, s.el))
-    .map(selectable => this.move(selectable, true, mouseData.movementX, mouseData.movementY));
+    .map(selectable => this.move(selectable, true, movementX, movementY));
 
     // update store
     this.store.dispatch(selectableState.updateSelectables(this.selection.concat(children)));
@@ -104,6 +138,8 @@ export class MoveHandler extends MouseHandlerBase {
    */
   release() {
     super.release();
+
+    this.initialMouse = null;
 
     this.selection = this.selection.map((selectable) => {
       // move to a different container
