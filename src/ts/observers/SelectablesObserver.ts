@@ -73,6 +73,8 @@ export class SelectablesObserver {
         }
       });
     }
+    // notify the app
+    if(this.hooks.onChange) this.hooks.onChange(selectables);
   }
   onSelection(selectables: Array<SelectableState>) {
     // notify the app

@@ -17,6 +17,7 @@ export interface Hooks {
   onDraw?: (selectables: Array<SelectableState>, boundingBox: ClientRect) => void;
   onDrawEnd?: () => void;
   onEdit?: () => void; // this occures when the user double clicks or press enter with one or more elements selected
+  onChange?: (selectables: Array<SelectableState>) => void;
 }
 
 /**

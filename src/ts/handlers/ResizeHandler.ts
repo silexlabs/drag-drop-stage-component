@@ -84,7 +84,7 @@ export class ResizeHandler extends MouseHandlerBase {
         const initialWidth = selectable.el.style.width;
 
         // move to the final position will take the new parent offset
-        selectable.el.style.width = computedStyleRect.width + 'px';
+        selectable.el.style.width = Math.max(40, computedStyleRect.width) + 'px';
 
         // check for the offset and update the metrics
         const bb = domMetrics.getBoundingBoxDocument(selectable.el);
@@ -106,7 +106,7 @@ export class ResizeHandler extends MouseHandlerBase {
         const initialHeight = selectable.el.style[heightAttr];
 
         // move to the final position will take the new parent offset
-        selectable.el.style[heightAttr] = computedStyleRect.height + 'px';
+        selectable.el.style[heightAttr] = Math.max(40, computedStyleRect.height) + 'px';
 
         // check for the offset and update the metrics
         const bb = domMetrics.getBoundingBoxDocument(selectable.el);
