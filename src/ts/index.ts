@@ -296,9 +296,13 @@ export class Stage {
       .filter(s => !!s)
     );
     const initialScroll: types.ScrollData = state.mouse.scrollData;
+    const scrollSize = {
+      x: this.contentWindow.innerWidth,
+      y: this.contentWindow.innerHeight,
+    };
     const scroll: types.ScrollData = {
-      x: Math.max(0, Math.round(bb.left + (bb.width/2))),
-      y: Math.max(0, Math.round(bb.top + (bb.height/2))),
+      x: Math.max(0, Math.round(bb.left + (bb.width/2) - (scrollSize.x / 2))),
+      y: Math.max(0, Math.round(bb.top + (bb.height/2) - (scrollSize.y / 2))),
     };
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
       this.store.dispatch(setScroll(scroll));
