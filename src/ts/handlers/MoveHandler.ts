@@ -1,6 +1,6 @@
 import {MouseHandlerBase} from './MouseHandlerBase';
 import { StageStore } from '../flux/StageStore';
-import { Hooks, SelectableState, MouseData, DropZone, ScrollData, State } from '../Types';
+import { Hooks, SelectableState, MouseData, DropZone, EMPTY_BOX } from '../Types';
 import * as selectableState from '../flux/SelectableState'
 import * as domMetrics from '../utils/DomMetrics';
 import { setRefreshing, setSticky } from '../flux/UiState';
@@ -94,7 +94,7 @@ export class MoveHandler extends MouseHandlerBase {
     const DISTANCE = 5; // In constants?
     const bb = domMetrics.getBoundingBox(this.selection);
     const hasPositionedElements = this.selection.some(s => s.metrics.position === 'static');
-    const sticky = !this.store.getState().ui.enableSticky || hasPositionedElements ? {top: null, left: null, bottom: null, right: null}
+    const sticky = !this.store.getState().ui.enableSticky || hasPositionedElements ? EMPTY_BOX
       : this.store.getState().selectables
         .filter(s => !s.selected && s.selectable && s.metrics.position !== 'static')
         .reduce((prev, selectable) => {
@@ -108,7 +108,7 @@ export class MoveHandler extends MouseHandlerBase {
           if(Math.abs(selectable.metrics.clientRect.top - (bb.bottom + movementY)) < DISTANCE) prev.bottom = selectable.metrics.clientRect.top - bb.bottom;
           if(Math.abs(selectable.metrics.clientRect.left - (bb.right + movementX)) < DISTANCE) prev.right = selectable.metrics.clientRect.left - bb.right;
           return prev;
-        }, {top: null, left: null, bottom: null, right: null});
+        }, EMPTY_BOX);
 
     const stickyMovementX = (sticky.left === null ? (sticky.right == null ? movementX : sticky.right) : sticky.left);
     const stickyMovementY = (sticky.top === null ? (sticky.bottom == null ? movementY : sticky.bottom) : sticky.top);
@@ -151,7 +151,14 @@ export class MoveHandler extends MouseHandlerBase {
 
     // update scroll
     const initialScroll = this.store.getState().mouse.scrollData;
-    const scroll = domMetrics.getScrollToShow(this.stageDocument, bb);
+    const scroll = domMetrics.getScrollToShow(this.stageDocument, {
+      top: bb.top + movementY,
+      left: bb.left + movementX,
+      bottom: bb.bottom + movementY,
+      right: bb.right + movementX,
+      width: bb.width,
+      height: bb.height,
+    });
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
       this.debounceScroll(scroll);
     }

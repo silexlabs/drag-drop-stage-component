@@ -49,6 +49,8 @@ describe('UiObserver', function() {
         mode: types.UiMode.DRAW,
         catchingEvents: true,
         refreshing: false,
+        sticky: types.EMPTY_STICKY_BOX,
+        enableSticky: false,
       }
     };
     stageStoreMock.dispatch(null);
@@ -62,6 +64,8 @@ describe('UiObserver', function() {
         mode: types.UiMode.DRAW,
         catchingEvents: true,
         refreshing: false,
+        sticky: types.EMPTY_STICKY_BOX,
+        enableSticky: false,
       }
     };
     stageStoreMock.state = {
@@ -70,6 +74,8 @@ describe('UiObserver', function() {
         mode: types.UiMode.NONE,
         catchingEvents: true,
         refreshing: false,
+        sticky: types.EMPTY_STICKY_BOX,
+        enableSticky: false,
       }
     };
     stageStoreMock.dispatch(null);
@@ -84,6 +90,8 @@ describe('UiObserver', function() {
         mode: types.UiMode.DRAW,
         catchingEvents: true,
         refreshing: false,
+        sticky: types.EMPTY_STICKY_BOX,
+        enableSticky: false,
       }
     };
     stageStoreMock.state = {

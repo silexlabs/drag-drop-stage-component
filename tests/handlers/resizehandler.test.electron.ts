@@ -234,7 +234,7 @@ describe('ResizeHandler', function() {
     expect(lastAction.selectables[0].metrics.clientRect.height).toBe(110);
   });
 
-  it('should try resize to 1 element from the top but can not because of its content', function() {
+  it('should try resize to 1 element from the top but can not because of its content and the minimum size', function() {
     stageStoreMock.selectableElem1.selected = false;
     stageStoreMock.selectableElem2.selected = true;
 
@@ -273,9 +273,9 @@ describe('ResizeHandler', function() {
     expect(lastAction.type).toBe('SELECTABLE_UPDATE');
     expect(lastAction.selectables.length).toBe(1);
     expect(lastAction.selectables[0].el).toBe(StageStoreMock.elem2);
-    expect(lastAction.selectables[0].metrics.clientRect.width).toBe(0);
-    expect(lastAction.selectables[0].metrics.clientRect.height).toBe(10);
-    expect(lastAction.selectables[0].metrics.clientRect.left).toBe(20);
-    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(10);
+    expect(lastAction.selectables[0].metrics.clientRect.width).toBe(20);
+    expect(lastAction.selectables[0].metrics.clientRect.height).toBe(20);
+    expect(lastAction.selectables[0].metrics.clientRect.left).toBe(0);
+    expect(lastAction.selectables[0].metrics.clientRect.top).toBe(0);
   });
 });
