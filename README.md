@@ -1,6 +1,6 @@
 ![Codeship Status](https://app.codeship.com/projects/cd514dc0-4cdd-0137-3aeb-16b008087706/status?branch=master)
-[![Code Climate](https://codeclimate.com/github/lexoyo/stage/badges/gpa.svg)](https://codeclimate.com/github/lexoyo/stage)
-[![Démo stage wysiwyg drag and drop](https://monitoshi.lexoyo.me/badge/1555368788372-6479)](https://lexoyo.me/stage/pub/)
+[![Code Climate](https://codeclimate.com/github/drag-drop-stage-component/badges/gpa.svg)](https://codeclimate.com/github/drag-drop-stage-component)
+[![Démo stage wysiwyg drag and drop](https://monitoshi.lexoyo.me/badge/1555368788372-6479)](http://projects.silexlabs.org/drag-drop-stage-component/pub/)
 
 ## About this project
 
@@ -10,7 +10,7 @@ A component like this will be useful to the developer building any tool which in
 
 This project is maintained, has very few dependencies and is used in [Silex website builder](https://www.silex.me)
 
-[Here is a very simple example](https://lexoyo.me/stage/pub/).
+[Here is a very simple example](http://projects.silexlabs.org/drag-drop-stage-component/pub/).
 
 ## Features
 
@@ -18,18 +18,20 @@ This project is maintained, has very few dependencies and is used in [Silex webs
 * [x] supports absolute position as well as elements in the flow
 * [x] multi selection
 * [x] shift + resize will keep proportions
+* [x] shift + move to stay aligned
 * [x] drawing mode, which let the user select multiple elements easily or draw a new element on the stage
 * [x] hooks give you full control over what is selectable, draggable, droppable, resizeable, a drop zone
 * [x] events to be notified of every action of the user
 * [x] scroll when the user moves near the border of the stage, or to show a specific element
 * [x] handle the events outside the iframe (the user can drag an element and release the mouse outside the iframe)
-* [ ] [vote and submit feature requests](https://github.com/lexoyo/stage/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
+* [x] sticky elements
+* [ ] [vote and submit feature requests](https://github.com/drag-drop-stage-component/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
 
-Here is a [list of features](https://github.com/lexoyo/stage/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement) which is the current road map (please vote with :+1:s).
+Here is a [list of features](https://github.com/drag-drop-stage-component/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement) which is the current road map (please vote with :+1:s).
 
 ## Use
 
-See [the online demo](https://lexoyo.me/stage/pub/) and its sources: [html here](https://github.com/lexoyo/stage/blob/master/src/jade/index.jade) and [js here](https://github.com/lexoyo/stage/blob/master/src/ts/demo.js).
+See [the online demo](http://projects.silexlabs.org/drag-drop-stage-component/pub/) and its sources: [html here](https://github.com/drag-drop-stage-component/blob/master/src/jade/index.jade) and [js here](https://github.com/drag-drop-stage-component/blob/master/src/ts/demo.js).
 
 The component can be initialized like this, which will make it possible to select, move and resize all the elements marked with the `.selectable` css class.
 
@@ -75,8 +77,8 @@ It uses [Typescript](https://www.typescriptlang.org/) to compile to Javscript an
 
 ## Contribute
 
-Please [vote for the features which matter to you here](https://github.com/lexoyo/stage/labels/enhancement).
+Please [vote for the features which matter to you here](https://github.com/drag-drop-stage-component/labels/enhancement).
 
-If you want to contribute code, [read this readme for an introduction to the source code](./src/ts/). And then you can help fixing the [issues found in the code by Code Climat](https://codeclimate.com/github/lexoyo/stage/issues) or find things to do [in these issues which need to be done](https://github.com/lexoyo/stage/labels/ready).
+If you want to contribute code, [read this readme for an introduction to the source code](./src/ts/). And then you can help fixing the [issues found in the code by Code Climat](https://codeclimate.com/github/drag-drop-stage-component/issues) or find things to do [in these issues which need to be done](https://github.com/drag-drop-stage-component/labels/ready).
 
 The source code is written in ES2015 with less and jade.

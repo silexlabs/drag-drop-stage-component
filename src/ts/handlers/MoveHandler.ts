@@ -3,7 +3,7 @@ import { StageStore } from '../flux/StageStore';
 import { Hooks, SelectableState, MouseData, DropZone, ScrollData, State } from '../Types';
 import * as selectableState from '../flux/SelectableState'
 import * as domMetrics from '../utils/DomMetrics';
-import { setRefreshing } from '../flux/UiState';
+import { setRefreshing, setSticky } from '../flux/UiState';
 
 export class MoveHandler extends MouseHandlerBase {
   private positionMarker: HTMLElement;
@@ -57,7 +57,7 @@ export class MoveHandler extends MouseHandlerBase {
     // remove the marker
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
 
-    // apply constraints
+    // apply constraints (shift)
     const { movementX, movementY } = (() => {
       if(this.initialMouse && mouseData.shiftKey && this.selection.length > 0) {
         const translation = this.selection[0].translation;
@@ -90,9 +90,32 @@ export class MoveHandler extends MouseHandlerBase {
       };
     }
 
+    // apply constraints (sticky)
+    const DISTANCE = 5; // In constants?
+    const bb = domMetrics.getBoundingBox(this.selection);
+    const hasPositionedElements = this.selection.some(s => s.metrics.position === 'static');
+    const sticky = !this.store.getState().ui.enableSticky || hasPositionedElements ? {top: null, left: null, bottom: null, right: null}
+      : this.store.getState().selectables
+        .filter(s => !s.selected && s.selectable && s.metrics.position !== 'static')
+        .reduce((prev, selectable) => {
+          if(Math.abs(selectable.metrics.clientRect.top - (bb.top + movementY)) < DISTANCE) prev.top = selectable.metrics.clientRect.top - bb.top;
+          if(Math.abs(selectable.metrics.clientRect.left - (bb.left + movementX)) < DISTANCE) prev.left = selectable.metrics.clientRect.left - bb.left;
+          if(Math.abs(selectable.metrics.clientRect.bottom - (bb.bottom + movementY)) < DISTANCE) prev.bottom = selectable.metrics.clientRect.bottom - bb.bottom;
+          if(Math.abs(selectable.metrics.clientRect.right - (bb.right + movementX)) < DISTANCE) prev.right = selectable.metrics.clientRect.right - bb.right;
+
+          if(Math.abs(selectable.metrics.clientRect.bottom - (bb.top + movementY)) < DISTANCE) prev.top = selectable.metrics.clientRect.bottom - bb.top;
+          if(Math.abs(selectable.metrics.clientRect.right - (bb.left + movementX)) < DISTANCE) prev.left = selectable.metrics.clientRect.right - bb.left;
+          if(Math.abs(selectable.metrics.clientRect.top - (bb.bottom + movementY)) < DISTANCE) prev.bottom = selectable.metrics.clientRect.top - bb.bottom;
+          if(Math.abs(selectable.metrics.clientRect.left - (bb.right + movementX)) < DISTANCE) prev.right = selectable.metrics.clientRect.left - bb.right;
+          return prev;
+        }, {top: null, left: null, bottom: null, right: null});
+
+    const stickyMovementX = (sticky.left === null ? (sticky.right == null ? movementX : sticky.right) : sticky.left);
+    const stickyMovementY = (sticky.top === null ? (sticky.bottom == null ? movementY : sticky.bottom) : sticky.top);
+
     // update elements postition
     this.selection = this.selection
-    .map(selectable => this.move(selectable, false, movementX, movementY));
+    .map(selectable => this.move(selectable, false, stickyMovementX, stickyMovementY));
 
     // update the destination of each element
     this.selection = this.selection
@@ -119,9 +142,14 @@ export class MoveHandler extends MouseHandlerBase {
 
     // update store
     this.store.dispatch(selectableState.updateSelectables(this.selection.concat(children)));
+    this.store.dispatch(setSticky({
+      top: sticky.top !== null,
+      left: sticky.left !== null,
+      bottom: sticky.bottom !== null,
+      right: sticky.right !== null,
+    }));
 
     // update scroll
-    const bb = domMetrics.getBoundingBox(this.selection);
     const initialScroll = this.store.getState().mouse.scrollData;
     const scroll = domMetrics.getScrollToShow(this.stageDocument, bb);
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {

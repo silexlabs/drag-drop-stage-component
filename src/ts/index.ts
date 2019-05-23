@@ -122,6 +122,16 @@ export class Stage {
     });
   }
   /**
+   * enable/disable sticky
+   */
+  get enableSticky(): boolean {
+    return this.store.getState().ui.enableSticky;
+  }
+  set enableSticky(val: boolean) {
+    // dispatch UI mode change
+    this.store.dispatch(UiAction.setEnableSticky(val));
+  }
+  /**
    * force resize of UI
    */
   resizeWindow() {

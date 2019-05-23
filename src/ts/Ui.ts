@@ -103,7 +103,6 @@ export class Ui {
         .handle-se { bottom: -4px; right: -4px; }
         .not-resizeable-se .handle-se { display: none; }
 
-
         .region-marker {
           background-color: rgba(0, 0, 0, .1);
           border: 1px solid rgba(255, 255, 255, .5);
@@ -114,6 +113,11 @@ export class Ui {
           min-width: 1px;
           min-height: 1px;
         }
+
+        .stycky-left { border-left-color: red !important; }
+        .stycky-top { border-top-color: red !important; }
+        .stycky-right { border-right-color: red !important; }
+        .stycky-bottom { border-bottom-color: red !important; }
     `;
   }
 
@@ -220,6 +224,8 @@ export class Ui {
     return box;
   }
   private updateBox(box: Box, selectable: SelectableState): Box {
+    const sticky = selectable.selected ? this.store.getState().ui.sticky : {top: null, left: null, bottom: null, right: null};
+
     box.selectable = selectable;
     DomMetrics.setMetrics(box.ui, {
       ...box.selectable.metrics,
@@ -237,6 +243,10 @@ export class Ui {
       (!box.selectable.resizeable.bottom && !box.selectable.resizeable.left) ? 'resizeable-sw' : 'not-resizeable-sw',
       (!box.selectable.resizeable.bottom && !box.selectable.resizeable.right) ? 'resizeable-se' : 'not-resizeable-se',
       !box.selectable.isDropZone ? 'isDropZone' : 'not-isDropZone',
+      !sticky.left ? 'stycky-left' : 'not-stycky-left',
+      !sticky.top ? 'stycky-top' : 'not-stycky-top',
+      !sticky.right ? 'stycky-right' : 'not-stycky-right',
+      !sticky.bottom ? 'stycky-bottom' : 'not-stycky-bottom',
     ]);
     box.ui.classList.add(...[
       'box',
@@ -248,6 +258,10 @@ export class Ui {
       (box.selectable.resizeable.bottom && box.selectable.resizeable.left) ? 'resizeable-sw' : 'not-resizeable-sw',
       (box.selectable.resizeable.bottom && box.selectable.resizeable.right) ? 'resizeable-se' : 'not-resizeable-se',
       box.selectable.isDropZone ? 'isDropZone' : 'not-isDropZone',
+      sticky.left ? 'stycky-left' : 'not-stycky-left',
+      sticky.top ? 'stycky-top' : 'not-stycky-top',
+      sticky.right ? 'stycky-right' : 'not-stycky-right',
+      sticky.bottom ? 'stycky-bottom' : 'not-stycky-bottom',
     ]);
     return box;
   }

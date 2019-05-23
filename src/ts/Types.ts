@@ -72,7 +72,7 @@ export interface SelectableState {
   translation?: {x: number, y: number}
 }
 
-export interface Box {top: number, left: number, bottom: number, right: number }
+export interface Box<T=number> {top: T, left: T, bottom: T, right: T }
 export interface FullBox {top: number, left: number, bottom: number, right: number, width: number, height: number }
 /**
  * @typedef {{
@@ -94,10 +94,17 @@ export interface ElementMetrics {
   proportions: number
 }
 
+export enum Side { LEFT, RIGHT, TOP, BOTTOM }
+export type Sticky = Box<boolean>;
+export const EMPTY_STICKY_BOX: Sticky = {top: null, left: null, bottom: null, right: null};
+// export const EMPTY_BOX: Box = {top: null, left: null, bottom: null, right: null};
+
 export interface UiState {
   mode: UiMode
   refreshing: boolean
   catchingEvents: boolean
+  sticky: Sticky
+  enableSticky: boolean
 }
 
 /**
