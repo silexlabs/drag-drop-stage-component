@@ -218,6 +218,24 @@ export function getScroll(doc) {
   }
 }
 
+export function getScrollBarSize(): number {
+  // Create the measurement node
+  var scrollDiv = document.createElement("div") as HTMLElement;
+  scrollDiv.style.width = '100px';
+  scrollDiv.style.height = '100px';
+  scrollDiv.style.overflow = 'scroll';
+  scrollDiv.style.position = 'absolute';
+  scrollDiv.style.top = '-9999px';
+  document.body.appendChild(scrollDiv);
+
+  // Get the scrollbar width
+  var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+
+  // Delete the DIV
+  document.body.removeChild(scrollDiv);
+
+  return scrollbarWidth;
+}
 
 /**
  * @param {HTMLDocument} doc

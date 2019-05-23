@@ -49,7 +49,7 @@ describe('UiObserver', function() {
         mode: types.UiMode.DRAW,
         catchingEvents: true,
         refreshing: false,
-        sticky: types.EMPTY_STICKY_BOX,
+        sticky: types.EMPTY_STICKY_BOX(),
         enableSticky: false,
       }
     };
@@ -64,7 +64,7 @@ describe('UiObserver', function() {
         mode: types.UiMode.DRAW,
         catchingEvents: true,
         refreshing: false,
-        sticky: types.EMPTY_STICKY_BOX,
+        sticky: types.EMPTY_STICKY_BOX(),
         enableSticky: false,
       }
     };
@@ -74,7 +74,7 @@ describe('UiObserver', function() {
         mode: types.UiMode.NONE,
         catchingEvents: true,
         refreshing: false,
-        sticky: types.EMPTY_STICKY_BOX,
+        sticky: types.EMPTY_STICKY_BOX(),
         enableSticky: false,
       }
     };
@@ -90,7 +90,7 @@ describe('UiObserver', function() {
         mode: types.UiMode.DRAW,
         catchingEvents: true,
         refreshing: false,
-        sticky: types.EMPTY_STICKY_BOX,
+        sticky: types.EMPTY_STICKY_BOX(),
         enableSticky: false,
       }
     };

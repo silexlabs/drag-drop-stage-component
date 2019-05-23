@@ -4,6 +4,7 @@ import { Hooks, SelectableState, MouseData, DropZone, EMPTY_BOX } from '../Types
 import * as selectableState from '../flux/SelectableState'
 import * as domMetrics from '../utils/DomMetrics';
 import { setRefreshing, setSticky } from '../flux/UiState';
+import { STICK_DISTANCE } from '../Constants';
 
 export class MoveHandler extends MouseHandlerBase {
   private positionMarker: HTMLElement;
@@ -57,58 +58,63 @@ export class MoveHandler extends MouseHandlerBase {
     // remove the marker
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
 
-    // apply constraints (shift)
+    if(!this.initialMouse) {
+      this.initialMouse = {
+        x: mouseData.mouseX - mouseData.movementX,
+        y: mouseData.mouseY - mouseData.movementY,
+      };
+    }
+
+    // apply constraints (shift) and
+    // compute the real movementX and movementY based on the position of the mouse instead of the position of the selection
     const { movementX, movementY } = (() => {
-      if(this.initialMouse && mouseData.shiftKey && this.selection.length > 0) {
-        const translation = this.selection[0].translation;
+      const translation = this.selection[0].translation;
+      const realMovementX = -translation.x + (mouseData.mouseX - this.initialMouse.x);
+      const realMovementY = -translation.y + (mouseData.mouseY - this.initialMouse.y);
+      if(mouseData.shiftKey && this.selection.length > 0) {
         const {x, y} = {
           x: mouseData.mouseX - this.initialMouse.x,
           y: mouseData.mouseY - this.initialMouse.y,
         }
         const angle = Math.atan2(y, x);
-        const sign = Math.sin(angle) * Math.cos(angle) > 0 ? 1 : -1;
         if(Math.abs(Math.sin(angle)) < Math.abs(Math.cos(angle))) {
           // stick to x axis
           return {
-            movementX: -translation.x + (mouseData.mouseX - this.initialMouse.x) + mouseData.movementX,
+            movementX: realMovementX,
             movementY: -translation.y,
           }
         } else {
           // stick to y axis
           return {
             movementX: -translation.x,
-            movementY: -translation.y + (mouseData.mouseY - this.initialMouse.y) + mouseData.movementY,
+            movementY: realMovementY,
           }
         }
       }
-      return mouseData;
-    })()
-    if(!this.initialMouse) {
-      this.initialMouse = {
-        x: mouseData.mouseX,
-        y: mouseData.mouseY,
+      return {
+        movementX: realMovementX,
+        movementY: realMovementY,
       };
-    }
+    })()
 
     // apply constraints (sticky)
-    const DISTANCE = 5; // In constants?
     const bb = domMetrics.getBoundingBox(this.selection);
     const hasPositionedElements = this.selection.some(s => s.metrics.position === 'static');
-    const sticky = !this.store.getState().ui.enableSticky || hasPositionedElements ? EMPTY_BOX
+    const sticky = !this.store.getState().ui.enableSticky || hasPositionedElements ? EMPTY_BOX()
       : this.store.getState().selectables
         .filter(s => !s.selected && s.selectable && s.metrics.position !== 'static')
         .reduce((prev, selectable) => {
-          if(Math.abs(selectable.metrics.clientRect.top - (bb.top + movementY)) < DISTANCE) prev.top = selectable.metrics.clientRect.top - bb.top;
-          if(Math.abs(selectable.metrics.clientRect.left - (bb.left + movementX)) < DISTANCE) prev.left = selectable.metrics.clientRect.left - bb.left;
-          if(Math.abs(selectable.metrics.clientRect.bottom - (bb.bottom + movementY)) < DISTANCE) prev.bottom = selectable.metrics.clientRect.bottom - bb.bottom;
-          if(Math.abs(selectable.metrics.clientRect.right - (bb.right + movementX)) < DISTANCE) prev.right = selectable.metrics.clientRect.right - bb.right;
+          if(Math.abs(selectable.metrics.clientRect.top - (bb.top + movementY)) < STICK_DISTANCE) prev.top = selectable.metrics.clientRect.top - bb.top;
+          if(Math.abs(selectable.metrics.clientRect.left - (bb.left + movementX)) < STICK_DISTANCE) prev.left = selectable.metrics.clientRect.left - bb.left;
+          if(Math.abs(selectable.metrics.clientRect.bottom - (bb.bottom + movementY)) < STICK_DISTANCE) prev.bottom = selectable.metrics.clientRect.bottom - bb.bottom;
+          if(Math.abs(selectable.metrics.clientRect.right - (bb.right + movementX)) < STICK_DISTANCE) prev.right = selectable.metrics.clientRect.right - bb.right;
 
-          if(Math.abs(selectable.metrics.clientRect.bottom - (bb.top + movementY)) < DISTANCE) prev.top = selectable.metrics.clientRect.bottom - bb.top;
-          if(Math.abs(selectable.metrics.clientRect.right - (bb.left + movementX)) < DISTANCE) prev.left = selectable.metrics.clientRect.right - bb.left;
-          if(Math.abs(selectable.metrics.clientRect.top - (bb.bottom + movementY)) < DISTANCE) prev.bottom = selectable.metrics.clientRect.top - bb.bottom;
-          if(Math.abs(selectable.metrics.clientRect.left - (bb.right + movementX)) < DISTANCE) prev.right = selectable.metrics.clientRect.left - bb.right;
+          if(Math.abs(selectable.metrics.clientRect.bottom - (bb.top + movementY)) < STICK_DISTANCE) prev.top = selectable.metrics.clientRect.bottom - bb.top;
+          if(Math.abs(selectable.metrics.clientRect.right - (bb.left + movementX)) < STICK_DISTANCE) prev.left = selectable.metrics.clientRect.right - bb.left;
+          if(Math.abs(selectable.metrics.clientRect.top - (bb.bottom + movementY)) < STICK_DISTANCE) prev.bottom = selectable.metrics.clientRect.top - bb.bottom;
+          if(Math.abs(selectable.metrics.clientRect.left - (bb.right + movementX)) < STICK_DISTANCE) prev.right = selectable.metrics.clientRect.left - bb.right;
           return prev;
-        }, EMPTY_BOX);
+        }, EMPTY_BOX());
 
     const stickyMovementX = (sticky.left === null ? (sticky.right == null ? movementX : sticky.right) : sticky.left);
     const stickyMovementY = (sticky.top === null ? (sticky.bottom == null ? movementY : sticky.bottom) : sticky.top);

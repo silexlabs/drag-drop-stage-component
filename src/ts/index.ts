@@ -148,9 +148,11 @@ export class Stage {
   }
 
 
+  /**
+   * hide all iframes scroll (useful when you don't want to miss mouse events)
+   */
   hideScrolls(hide: boolean) {
-    this.iframe.contentDocument.body.style.overflow = hide ? 'hidden' : '';
-    this.ui.overlay.contentDocument.body.style.overflow = hide ? 'hidden' : '';
+    this.ui.hideScrolls(hide);
   }
 
   ///////////////////////////////////////////////////

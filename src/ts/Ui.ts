@@ -9,7 +9,7 @@ interface Box {
 }
 
 export class Ui {
-  boxes: Array<Box> = [];
+  protected boxes: Array<Box> = [];
 
   static async createUi(iframe: HTMLIFrameElement, store: StageStore): Promise<Ui> {
     return new Promise<Ui>((resolve, reject) => {
@@ -264,5 +264,12 @@ export class Ui {
       sticky.bottom ? 'stycky-bottom' : 'not-stycky-bottom',
     ]);
     return box;
+  }
+  /**
+   * hide all iframes scroll (useful when you don't want to miss mouse events)
+   */
+  hideScrolls(hide: boolean) {
+    // this.iframe.contentDocument.body.style.overflow = hide ? 'hidden' : '';
+    this.overlay.contentDocument.body.style.overflow = hide ? 'hidden' : '';
   }
 }

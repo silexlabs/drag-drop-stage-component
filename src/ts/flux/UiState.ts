@@ -70,7 +70,7 @@ export const getDefaultState = () => {
     mode: types.UiMode.NONE,
     refreshing: false,
     catchingEvents: true,
-    sticky: types.EMPTY_STICKY_BOX,
+    sticky: types.EMPTY_STICKY_BOX(),
     enableSticky: true,
   };
 }

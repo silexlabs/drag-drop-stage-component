@@ -96,8 +96,8 @@ export interface ElementMetrics {
 
 export enum Side { LEFT, RIGHT, TOP, BOTTOM }
 export type Sticky = Box<boolean>;
-export const EMPTY_STICKY_BOX: Sticky = {top: null, left: null, bottom: null, right: null};
-export const EMPTY_BOX: Box = {top: null, left: null, bottom: null, right: null};
+export const EMPTY_STICKY_BOX: () => Sticky = () => ({top: null, left: null, bottom: null, right: null});
+export const EMPTY_BOX: () => Box = () => ({top: null, left: null, bottom: null, right: null});
 
 export interface UiState {
   mode: UiMode

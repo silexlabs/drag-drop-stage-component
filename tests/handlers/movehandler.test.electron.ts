@@ -539,8 +539,8 @@ describe('MoveHandler', function() {
         expect(lastAction.selectables.length).toBe(1);
         expect(lastAction.selectables[0].el.id).toBe(StageStoreMock.elem2.id);
         expect(lastAction.selectables[0].translation).not.toBeFalsy();
-        expect(lastAction.selectables[0].translation.y).toBe(mouseData.movementY + scroll.y);
-        expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(mouseEnd.y + scroll.y - 5);
+        expect(lastAction.selectables[0].translation.y).toBe(mouseData.movementY + scroll.y - 4);
+        expect(lastAction.selectables[0].metrics.computedStyleRect.top).toBe(mouseEnd.y + scroll.y - 9);
         done();
       }
       catch(e) {
