@@ -80,7 +80,7 @@ export class Keyboard {
   move(movementX, movementY) {
     this.store.dispatch(updateSelectables(
       this.store.getState().selectables
-      .filter(s => s.selected)
+      .filter(s => s.selected && s.metrics.position !== 'static' && this.hooks.isDraggable(s.el))
       .map(selectable => ({
         ...selectable,
         metrics: {
