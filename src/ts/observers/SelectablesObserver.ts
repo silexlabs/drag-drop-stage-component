@@ -42,8 +42,8 @@ export class SelectablesObserver {
     const filterBy = (propName, selectable) => {
       const oldSelectable = prevState.find(old => selectable.el === old.el);
       // FIXME: use JSON.stringify to compare?
-      // return !oldSelectable || JSON.stringify(oldSelectable[propName]) !== JSON.stringify(selectable[propName]);
-      return !oldSelectable || oldSelectable[propName] !== selectable[propName];
+      return !oldSelectable || JSON.stringify(oldSelectable[propName]) !== JSON.stringify(selectable[propName]);
+      // return !oldSelectable || oldSelectable[propName] !== selectable[propName];
     }
     const metrics = state.filter(selectable => filterBy('metrics', selectable));
     if(metrics.length > 0) this.onMetrics(metrics);
@@ -72,9 +72,9 @@ export class SelectablesObserver {
           DomMetrics.setMetrics(selectable.el, selectable.metrics, selectable.useMinHeight);
         }
       });
+      // notify the app
+      if(this.hooks.onChange) this.hooks.onChange(selectables);
     }
-    // notify the app
-    if(this.hooks.onChange) this.hooks.onChange(selectables);
   }
   onSelection(selectables: Array<SelectableState>) {
     // notify the app

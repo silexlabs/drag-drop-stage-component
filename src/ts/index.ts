@@ -163,14 +163,16 @@ export class Stage {
    * recalculate all the metrics
    */
   redraw() {
-    this.store.dispatch(UiAction.setRefreshing(true));
-    this.store.dispatch(updateSelectables(this.store.getState().selectables.map(selectable => {
-      return {
-        ...selectable,
-        metrics: DomMetrics.getMetrics(selectable.el),
-      }
-    })));
-    this.store.dispatch(UiAction.setRefreshing(false));
+    if (!this.store.getState().ui.refreshing) {
+      this.store.dispatch(UiAction.setRefreshing(true));
+      this.store.dispatch(updateSelectables(this.store.getState().selectables.map(selectable => {
+        return {
+          ...selectable,
+          metrics: DomMetrics.getMetrics(selectable.el),
+        }
+      })));
+      this.store.dispatch(UiAction.setRefreshing(false));
+    }
   }
 
   reset(elements: ArrayLike<HTMLElement>) {
@@ -242,10 +244,11 @@ export class Stage {
     }));
 
     if(preventDispatch) {
+      this.store.dispatch(UiAction.setRefreshing(false));
+    }
+    else {
       // compute all metrics again because this element might affect others
       this.redraw();
-      // this is done in redraw
-      // this.store.dispatch(UiAction.setRefreshing(false));
     }
   }
 
