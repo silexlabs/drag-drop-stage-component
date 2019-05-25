@@ -45,8 +45,10 @@ export class SelectablesObserver {
       return !oldSelectable || JSON.stringify(oldSelectable[propName]) !== JSON.stringify(selectable[propName]);
       // return !oldSelectable || oldSelectable[propName] !== selectable[propName];
     }
+    const removed = prevState.filter(s => !state.find(s2 => s2.el === s.el));
+
     const metrics = state.filter(selectable => filterBy('metrics', selectable));
-    if(metrics.length > 0) this.onMetrics(metrics);
+    if(removed.length + metrics.length > 0) this.onMetrics(metrics, removed);
 
     const selection = state.filter(selectable => filterBy('selected', selectable));
     if(selection.length > 0) this.onSelection(selection);
@@ -64,7 +66,7 @@ export class SelectablesObserver {
     if(translation.length > 0) this.onTranslation(translation);
   }
   // update elements position and size
-  onMetrics(selectables: Array<SelectableState>) {
+  onMetrics(selectables: Array<SelectableState>, removed: Array<SelectableState>) {
     if(!this.isRefreshing) {
       selectables.forEach(selectable => {
         // while being dragged, elements are out of the flow, do not apply styles
@@ -73,7 +75,7 @@ export class SelectablesObserver {
         }
       });
       // notify the app
-      if(this.hooks.onChange) this.hooks.onChange(selectables);
+      if(this.hooks.onChange) this.hooks.onChange(selectables.concat(removed));
     }
   }
   onSelection(selectables: Array<SelectableState>) {
