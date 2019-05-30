@@ -9,6 +9,7 @@ import { STICK_DISTANCE } from '../Constants';
 export class MoveHandler extends MouseHandlerBase {
   private positionMarker: HTMLElement;
   private initialMouse: {x:number, y:number};
+  private initialScroll: {x:number, y:number};
 
   constructor(stageDocument: HTMLDocument, overlayDocument: HTMLDocument, store: StageStore, hooks: Hooks) {
     super(stageDocument, overlayDocument, store, hooks);
@@ -63,6 +64,16 @@ export class MoveHandler extends MouseHandlerBase {
         x: mouseData.mouseX - mouseData.movementX,
         y: mouseData.mouseY - mouseData.movementY,
       };
+      this.initialScroll = {
+        ...this.store.getState().mouse.scrollData,
+      };
+    }
+    const currentScroll = {
+      ...this.store.getState().mouse.scrollData,
+    }
+    const deltaScroll = {
+      x: currentScroll.x - this.initialScroll.x,
+      y: currentScroll.y - this.initialScroll.y,
     }
 
     // apply constraints (shift) and
@@ -92,8 +103,8 @@ export class MoveHandler extends MouseHandlerBase {
         }
       }
       return {
-        movementX: realMovementX,
-        movementY: realMovementY,
+        movementX: realMovementX + deltaScroll.x,
+        movementY: realMovementY + deltaScroll.y,
       };
     })()
 
