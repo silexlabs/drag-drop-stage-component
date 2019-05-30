@@ -84,6 +84,10 @@ export class Stage {
         // window resize
         addEvent(window, 'resize', (e: MouseEvent) => this.redraw()),
       );
+
+      // finish init
+      this.waitingListeners.forEach(l => l());
+      this.waitingListeners = [];
     })
   }
 
@@ -138,12 +142,20 @@ export class Stage {
     this.ui.resizeOverlay();
   }
 
+  waitingListeners: Array<() => void> = [];
   /**
    * safe subscribe to mouse event
    * handle the multiple iframes and the current window
    * @return function to call to unsubscribe
    */
   subscribeMouseEvent(type: string, cbk: (e) => void): () => void {
+    let unsub;
+    if(!this.mouse) {
+      this.waitingListeners.push(() => {
+        unsub = this.subscribeMouseEvent(type, cbk)
+      });
+      return () => unsub();
+    }
     return this.mouse.subscribeMouseEvent(type, cbk);
   }
 
