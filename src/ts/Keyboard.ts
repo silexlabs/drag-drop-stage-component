@@ -45,14 +45,14 @@ export class Keyboard {
           case 'Enter':
           if(this.hooks.onEdit) this.hooks.onEdit();
           break;
-        case 'Tab':
-          if(this.store.getState().ui.mode === UiMode.HIDE) {
-            this.store.dispatch(setMode(UiMode.NONE));
-          }
-          else {
-            this.store.dispatch(setMode(UiMode.HIDE));
-          }
-          break;
+        // case 'Tab':
+        //   if(this.store.getState().ui.mode === UiMode.HIDE) {
+        //     this.store.dispatch(setMode(UiMode.NONE));
+        //   }
+        //   else {
+        //     this.store.dispatch(setMode(UiMode.HIDE));
+        //   }
+        //   break;
         case 'ArrowLeft':
           this.move(-this.getDistance(e), 0);
           break;
