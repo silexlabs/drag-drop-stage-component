@@ -63,13 +63,14 @@ export class Ui {
           margin: -5px;
         }
 
-        body.dragging-mode .box.not-selected,
+        body.dragging-mode .box.not-selected.not-aboutToDrop,
         body.resizing-mode .box.not-selected { display: none; }
 
-        .selected.box, .box:hover {
+        .aboutToDrop, .selected.box, .box:hover {
           border: 1px solid rgba(0, 0, 0, .5);
         }
-        .selected.box:before,
+        .box.aboutToDrop:before,
+        .box.selected:before,
         .box:hover:before {
           content: ' ';
           position: absolute;
@@ -211,7 +212,9 @@ export class Ui {
     );
 
     // update the view
-    this.boxes.map(r => this.updateBox(r, selectables.find(s => s.el === r.selectable.el)));
+    const dropZones = selectables.filter(s => s.dropZone && s.dropZone.parent).map(s => s.dropZone.parent);
+    this.boxes
+    .map(r => this.updateBox(r, selectables.find(s => s.el === r.selectable.el), dropZones));
   }
   private createBoxUi(): HTMLElement {
     const box = this.overlay.contentDocument.createElement('div');
@@ -223,8 +226,9 @@ export class Ui {
     `;
     return box;
   }
-  private updateBox(box: Box, selectable: SelectableState): Box {
+  private updateBox(box: Box, selectable: SelectableState, dropZones: Array<HTMLElement>): Box {
     const sticky = selectable.selected ? this.store.getState().ui.sticky : {top: null, left: null, bottom: null, right: null};
+    const aboutToDrop = !!dropZones.find(el => el === selectable.el);
 
     box.selectable = selectable;
     DomMetrics.setMetrics(box.ui, {
@@ -247,6 +251,7 @@ export class Ui {
       !sticky.top ? 'stycky-top' : 'not-stycky-top',
       !sticky.right ? 'stycky-right' : 'not-stycky-right',
       !sticky.bottom ? 'stycky-bottom' : 'not-stycky-bottom',
+      !aboutToDrop ? 'aboutToDrop' : 'not-aboutToDrop',
     ]);
     box.ui.classList.add(...[
       'box',
@@ -262,6 +267,7 @@ export class Ui {
       sticky.top ? 'stycky-top' : 'not-stycky-top',
       sticky.right ? 'stycky-right' : 'not-stycky-right',
       sticky.bottom ? 'stycky-bottom' : 'not-stycky-bottom',
+      aboutToDrop ? 'aboutToDrop' : 'not-aboutToDrop',
     ]);
     return box;
   }

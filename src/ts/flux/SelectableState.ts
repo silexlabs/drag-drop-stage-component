@@ -1,4 +1,3 @@
-import * as DomMetrics from '../utils/DomMetrics';
 import { SelectableState } from '../Types';
 
 const UPDATE = 'SELECTABLE_UPDATE';
