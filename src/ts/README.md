@@ -1,6 +1,6 @@
 # About this folder
 
-> this is an effort to document the work in progress and what I plan to do - [read these issues if you want to help](https://github.com/lexoyo/stage/labels/ready)
+> this is an effort to document the work in progress and what I plan to do - [read these issues if you want to help](https://github.com/silexlabs/drag-drop-stage-component/labels/ready)
 
 This folder contains the classes for the stage component. See the [main readme](../../../../) for a general introduction.
 

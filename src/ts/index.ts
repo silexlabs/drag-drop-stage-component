@@ -16,7 +16,7 @@ import { Ui } from './Ui';
 
 /**
  * This class is the entry point of the library
- * @see https://github.com/lexoyo/stage
+ * @see https://github.com/silexlabs/drag-drop-stage-component
  * @class Stage
  */
 export class Stage {
