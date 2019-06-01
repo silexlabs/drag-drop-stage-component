@@ -14,6 +14,7 @@ This project is maintained, has very few dependencies and is used in [Silex webs
 
 ## Features
 
+
 * [x] move and resize elements
 * [x] supports absolute position as well as elements in the flow
 * [x] multi selection
