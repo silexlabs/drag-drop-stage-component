@@ -28,7 +28,7 @@ This project is maintained, has very few dependencies and is used in [Silex webs
 * [x] sticky elements
 * [ ] [vote and submit feature requests](https://github.com/silexlabs/drag-drop-stage-component/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
 
-Here is a [list of features](https://github.com/silexlabs/drag-drop-stage-componentdrag-drop-stage-component/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement) which is the current road map (please vote with :+1:s).
+Here is a [list of features](https://github.com/silexlabs/drag-drop-stage-component/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement) which is the current road map (please vote with :+1:s).
 
 ## Use
 
