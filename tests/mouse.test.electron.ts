@@ -266,4 +266,46 @@ describe('Mouse', function() {
     expect(mouse.onStartDrag).toBeCalledTimes(0);
 
   });
+
+  it('double click abort with move', () => {
+    const start = {
+      clientX: 10,
+      clientY: 10,
+    };
+    const end = {
+      clientX: 20,
+      clientY: 20,
+      movementX: 10,
+      movementY: 10,
+    };
+    const startExpected = {
+      mouseX: 10,
+      mouseY: 10,
+    };
+    const endExpected = {
+      mouseX: 20,
+      mouseY: 20,
+      movementX: 10,
+      movementY: 10,
+    };
+
+    mouse.down(new MouseEvent('down', start));
+    mouse.move(new MouseEvent('move', end));
+    expect(mouse.onDown).toBeCalledTimes(1);
+    expect(mouse.onDown).toBeCalledWith(expect.objectContaining(startExpected));
+    expect(mouse.onStartDrag).toBeCalledTimes(1);
+    expect(mouse.onStartDrag).toBeCalledWith(expect.objectContaining(endExpected));
+
+    init();
+
+    mouse.down(new MouseEvent('down', start));
+    mouse.up(new MouseEvent('up', start));
+    mouse.down(new MouseEvent('down', start));
+    mouse.move(new MouseEvent('move', end));
+    expect(mouse.onDown).toBeCalledTimes(1);
+    expect(mouse.onDown).toBeCalledWith(expect.objectContaining(startExpected));
+    expect(mouse.onStartDrag).toBeCalledTimes(1);
+    expect(mouse.onStartDrag).toBeCalledWith(expect.objectContaining(endExpected));
+
+  });
 });

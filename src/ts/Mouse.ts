@@ -54,6 +54,7 @@ export class Mouse {
   }
 
   private clearTimeout: () => void;
+  private firstOnDownMouseData: types.MouseData;
   down(e: MouseEvent) {
     if(!this.store.getState().ui.catchingEvents) return;
     try {
@@ -69,13 +70,16 @@ export class Mouse {
     }
     else {
       this.mouseMode = MouseMode.WAITING_DBL_CLICK_DOWN;
+      this.firstOnDownMouseData = mouseData;
       const id = setTimeout(() => {
         if(this.mouseMode === MouseMode.WAITING_DBL_CLICK_DOWN) {
           this.mouseMode = MouseMode.DOWN;
+          this.firstOnDownMouseData = null;
           this.onDown(mouseData);
         }
         else if(this.mouseMode === MouseMode.WAITING_DBL_CLICK_UP) {
           this.mouseMode = MouseMode.DOWN;
+          this.firstOnDownMouseData = null;
           this.onDown(mouseData);
           this.mouseMode = MouseMode.UP;
           this.onUp(mouseData);
@@ -117,15 +121,15 @@ export class Mouse {
     switch(this.mouseMode) {
       case MouseMode.WAITING_DBL_CLICK_UP:
         this.mouseMode = MouseMode.DOWN;
-        this.onDown(mouseData);
+        this.onDown(this.firstOnDownMouseData);
         this.mouseMode = MouseMode.UP;
-        this.onUp(mouseData);
+        this.onUp(this.firstOnDownMouseData);
         this.onMove(mouseData);
         break;
       case MouseMode.WAITING_DBL_CLICK_DOWN:
       case MouseMode.WAITING_DBL_CLICK_DOWN2:
         this.mouseMode = MouseMode.DOWN;
-        this.onDown(mouseData);
+        this.onDown(this.firstOnDownMouseData);
         // no break; here
       case MouseMode.DOWN:
         this.mouseMode = MouseMode.DRAGGING;
@@ -137,6 +141,7 @@ export class Mouse {
       default:
        this.onMove(mouseData);
     }
+    this.firstOnDownMouseData = null;
   }
 
   upOut(e: MouseEvent) {
