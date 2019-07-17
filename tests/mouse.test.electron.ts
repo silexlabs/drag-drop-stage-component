@@ -21,6 +21,15 @@ describe('Mouse', function() {
     jest.spyOn(mouse, 'onMove');
     jest.spyOn(mouse, 'onDrag');
     jest.spyOn(mouse, 'onStartDrag');
+
+    Object.keys(hooks).forEach(name => hooks[name].mockReset ? hooks[name].mockReset() : '')
+    jest.spyOn(hooks, 'isSelectable');
+    jest.spyOn(hooks, 'isDraggable');
+    jest.spyOn(hooks, 'isDropZone');
+    jest.spyOn(hooks, 'isResizeable');
+    jest.spyOn(hooks, 'useMinHeight');
+    jest.spyOn(hooks, 'canDrop');
+    jest.spyOn(hooks, 'onEdit');
   }
 
   var stageStoreMock: StageStoreMock;
@@ -307,5 +316,39 @@ describe('Mouse', function() {
     expect(mouse.onStartDrag).toBeCalledTimes(1);
     expect(mouse.onStartDrag).toBeCalledWith(expect.objectContaining(endExpected));
 
+  });
+
+  it('double click should select and edit element when needed', () => {
+    const posEl1 = {
+      clientX: 100,
+      clientY: 100,
+    };
+    stageStoreMock.selectableElem1.selected = false;
+    stageStoreMock.dispatch['mockReset']();
+    mouse.down(new MouseEvent('down', posEl1));
+    mouse.up(new MouseEvent('up', posEl1));
+    mouse.down(new MouseEvent('down', posEl1));
+    mouse.up(new MouseEvent('up', posEl1));
+    expect(mouse.onDown).toBeCalledTimes(0);
+    expect(mouse.onDblClick).toBeCalledTimes(1);
+    expect(hooks.onEdit).toBeCalledTimes(1);
+    expect(stageStoreMock.dispatch).toBeCalledTimes(1);
+    expect(stageStoreMock.dispatch).toBeCalledWith(expect.objectContaining({
+      type: 'SELECTION_SET',
+    }));
+
+    init();
+
+    // with the element already selected, do the same
+    stageStoreMock.selectableElem1.selected = true;
+    stageStoreMock.dispatch['mockReset']();
+    mouse.down(new MouseEvent('down', posEl1));
+    mouse.up(new MouseEvent('up', posEl1));
+    mouse.down(new MouseEvent('down', posEl1));
+    mouse.up(new MouseEvent('up', posEl1));
+    expect(mouse.onDown).toBeCalledTimes(0);
+    expect(mouse.onDblClick).toBeCalledTimes(1);
+    expect(hooks.onEdit).toBeCalledTimes(1);
+    expect(stageStoreMock.dispatch).toBeCalledTimes(0); // selection doesn't change
   });
 });

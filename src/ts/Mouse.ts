@@ -175,7 +175,14 @@ export class Mouse {
   onDblClick(mouseData: types.MouseData) {
     const {target, shiftKey} = mouseData;
     const selectable = DomMetrics.getSelectable(this.store, target as HTMLElement);
-    this.store.dispatch(SelectionAction.add(selectable));
+    if(shiftKey) {
+      this.store.dispatch(SelectionAction.add(selectable));
+    }
+    else if(selectable) {
+      if(!selectable.selected) {
+        this.store.dispatch(SelectionAction.set([selectable]));
+      }
+    }
     if(this.hooks.onEdit) this.hooks.onEdit();
   }
 

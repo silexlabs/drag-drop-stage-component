@@ -8,6 +8,7 @@ export const hooks = {
   isResizeable: (el => true),
   useMinHeight: (el => true),
   canDrop: (el => true),
+  onEdit: (() => undefined),
 };
 
 export class StageStoreMock extends StageStore {
