@@ -294,6 +294,15 @@ export class Stage {
     else return dropZones[0];
   }
 
+  getBoundingBox(elements: Array<HTMLElement>) {
+    const state = this.store.getState();
+    return DomMetrics.getBoundingBox(elements.map(el => state.selectables.find(s => s.el === el)));
+  }
+
+  getSelectionBox() {
+    return DomMetrics.getBoundingBox(DomMetrics.getSelection(this.store));
+  }
+
   ///////////////////////////////////////////////////
   // Scroll
   ///////////////////////////////////////////////////
