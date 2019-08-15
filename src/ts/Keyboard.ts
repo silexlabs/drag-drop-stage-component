@@ -4,6 +4,7 @@ import { setMode } from './flux/UiState';
 import { reset } from './flux/SelectionState';
 import { UiMode, Hooks } from './Types';
 import { updateSelectables } from './flux/SelectableState';
+import * as DomMetrics from './utils/DomMetrics';
 
 const MOVE_DISTANCE = 5;
 const SHIFT_MOVE_DISTANCE = 1;
@@ -42,17 +43,9 @@ export class Keyboard {
             this.store.dispatch(reset());
           }
           break;
-          case 'Enter':
+        case 'Enter':
           if(this.hooks.onEdit) this.hooks.onEdit();
           break;
-        // case 'Tab':
-        //   if(this.store.getState().ui.mode === UiMode.HIDE) {
-        //     this.store.dispatch(setMode(UiMode.NONE));
-        //   }
-        //   else {
-        //     this.store.dispatch(setMode(UiMode.HIDE));
-        //   }
-        //   break;
         case 'ArrowLeft':
           this.move(-this.getDistance(e), 0);
           break;
@@ -78,10 +71,31 @@ export class Keyboard {
       e.altKey ? ALT_MOVE_DISTANCE : MOVE_DISTANCE;
   }
   move(movementX, movementY) {
-    this.store.dispatch(updateSelectables(
-      this.store.getState().selectables
-      .filter(s => s.selected && s.metrics.position !== 'static' && this.hooks.isDraggable(s.el))
-      .map(selectable => ({
+    const updated = this.store.getState().selectables
+    .filter(s => s.selected && this.hooks.isDraggable(s.el))
+    .map(selectable => {
+      if(selectable.metrics.position === 'static') {
+        // move the element in the dom
+        const element = selectable.el;
+        if((movementX < 0 || movementY < 0) && element.previousElementSibling) {
+          element.parentNode.insertBefore(element, element.previousElementSibling);
+        }
+        else if((movementX > 0 || movementY > 0) && element.nextElementSibling) {
+          element.parentNode.insertBefore(element.nextElementSibling, element);
+        }
+        else {
+          // nothing happened
+          return null;
+        }
+        selectable.dropZone = {
+          parent: element.parentNode as HTMLElement,
+        };
+        return {
+          ...selectable,
+          metrics: DomMetrics.getMetrics(selectable.el),
+        };
+      }
+      return {
         ...selectable,
         metrics: {
           ...selectable.metrics,
@@ -100,7 +114,13 @@ export class Keyboard {
             right: selectable.metrics.computedStyleRect.right + movementX,
           },
         }
-      }))
-    ));
+      };
+    })
+    .filter(s => !!s);
+    this.store.dispatch(updateSelectables(updated));
+    const domChanged = updated.filter(s => !!s.dropZone);
+    if(domChanged.length > 0) {
+      if(this.hooks.onDrop) this.hooks.onDrop(domChanged);
+    }
   }
 }
