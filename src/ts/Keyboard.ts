@@ -4,6 +4,7 @@ import { setMode } from './flux/UiState';
 import { reset } from './flux/SelectionState';
 import { UiMode, Hooks } from './Types';
 import { updateSelectables } from './flux/SelectableState';
+import { SelectableState } from './Types';
 import * as DomMetrics from './utils/DomMetrics';
 
 const MOVE_DISTANCE = 5;
@@ -70,23 +71,58 @@ export class Keyboard {
     return e.shiftKey ? SHIFT_MOVE_DISTANCE :
       e.altKey ? ALT_MOVE_DISTANCE : MOVE_DISTANCE;
   }
+
+  /**
+   * function used to sort selectables before moving them
+   * this groups them with the ones which are next to a selected element and the others
+   * it is useful when moving multiple elements in the DOM
+   */
+  getDomMotionSort(selection: Array<SelectableState>, element: HTMLElement, movementX: number, movementY: number): number {
+    const motion = this.getDomMotion(selection, element, movementX, movementY);
+    return motion === 'up' ? -1
+      : motion === 'down' ? 1
+      : 0;
+  }
+
+  /**
+   * get the motion an element is supposed to have in the dom
+   * if the element is supposed to go up but has another selected element above it, it will not move
+   * if an element is supposed to go up but it is the top element, it will not move
+   * same rules for going down
+   */
+  getDomMotion(selection: Array<SelectableState>, element: HTMLElement, movementX: number, movementY: number): string {
+    return (movementX > 0 || movementY > 0) && element.nextElementSibling && !selection.find(s => s.el === element.nextElementSibling) ? 'down'
+      : (movementX < 0 || movementY < 0) && element.previousElementSibling && !selection.find(s => s.el === element.previousElementSibling) ? 'up'
+      : '';
+  }
+
+  /**
+   * move an element up, down, left, right
+   * changes the top or left properties or the position in the dom
+   * depending on the positionning of the element (static VS absolute/relative...)
+   */
   move(movementX, movementY) {
-    const updated = this.store.getState().selectables
-    .filter(s => s.selected && this.hooks.isDraggable(s.el))
+    const selection = this.store.getState().selectables
+    .filter(s => s.selected && this.hooks.isDraggable(s.el));
+
+    const updated = selection
+    .sort((s1, s2) => this.getDomMotionSort(selection, s2.el, movementX, movementY) - this.getDomMotionSort(selection, s1.el, movementX, movementY))
     .map(selectable => {
       if(selectable.metrics.position === 'static') {
         // move the element in the dom
         const element = selectable.el;
-        if((movementX < 0 || movementY < 0) && element.previousElementSibling) {
-          element.parentNode.insertBefore(element, element.previousElementSibling);
+        switch(this.getDomMotion(selection, element, movementX, movementY)) {
+          case 'up':
+            element.parentNode.insertBefore(element, element.previousElementSibling);
+            break;
+          case 'down':
+            element.parentNode.insertBefore(element.nextElementSibling, element);
+            break;
+          default:
+            // nothing happened
+            return null;
         }
-        else if((movementX > 0 || movementY > 0) && element.nextElementSibling) {
-          element.parentNode.insertBefore(element.nextElementSibling, element);
-        }
-        else {
-          // nothing happened
-          return null;
-        }
+        // element was moved in the dom => update metrics
         selectable.dropZone = {
           parent: element.parentNode as HTMLElement,
         };
