@@ -423,16 +423,17 @@ export function fromClientToComputed(metrics: types.ElementMetrics): types.FullB
  */
 export function findDropZonesUnderMouse(doc: HTMLDocument, store: StageStore, hooks: types.Hooks, x: number, y: number): Array<HTMLElement> {
   const win = getWindow(doc);
-  if(x > win.innerWidth || y > win.innerHeight || x < 0 || y < 0) {
-    // FIXME: the drop zone will be the previous one, how to get the drop zone outside the viewport?
-    console.info(`Coords out of viewport => the drop zone will not be updated. I can not get the drop zone at coordinates (${x}, ${y}) while the viewport is (${win.innerWidth}, ${win.innerHeight})`);
-  }
+
+  // constrain the coord inside the viewport (otherwise elementsFromPoint will return null)
+  const constrain = (num, min, max) => Math.min(Math.max(num, min), max);
+  const safeX = constrain(x, 0, win.innerWidth - 1);
+  const safeY = constrain(y, 0, win.innerHeight - 1);
 
   const selectables = store.getState().selectables;
   const selection = selectables.filter(s => s.selected);
 
   // get a list of all dropZone zone under the point (x, y)
-  return doc.elementsFromPoint(x, y)
+  return doc.elementsFromPoint(safeX, safeY)
   .filter((el: HTMLElement) => {
     const selectable = selectables.find(s => s.el === el);
     return selectable

@@ -1,4 +1,5 @@
 import {MouseHandlerBase} from './MouseHandlerBase';
+import * as mouseState from '../flux/MouseState';
 import { StageStore } from '../flux/StageStore';
 import { Hooks, SelectableState, MouseData, DropZone, EMPTY_BOX } from '../Types';
 import * as selectableState from '../flux/SelectableState'
@@ -168,13 +169,14 @@ export class MoveHandler extends MouseHandlerBase {
 
     // update scroll
     const initialScroll = this.store.getState().mouse.scrollData;
+    const margin = 30;
     const scroll = domMetrics.getScrollToShow(this.stageDocument, {
-      top: bb.top + movementY,
-      left: bb.left + movementX,
-      bottom: bb.bottom + movementY,
-      right: bb.right + movementX,
-      width: bb.width,
-      height: bb.height,
+      top: mouseData.mouseY + initialScroll.y - margin,
+      bottom: mouseData.mouseY + initialScroll.y + margin,
+      left: mouseData.mouseX + initialScroll.x - margin ,
+      right: mouseData.mouseX + initialScroll.x + margin,
+      height: 2 * margin,
+      width: 2 * margin,
     });
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
       this.debounceScroll(scroll);
@@ -293,6 +295,14 @@ export class MoveHandler extends MouseHandlerBase {
       this.store.dispatch(selectableState.updateSelectables(state));
 
       this.store.dispatch(setRefreshing(false));
+
+      // update scroll
+      const bb = domMetrics.getBoundingBox(this.selection);
+      const initialScroll = this.store.getState().mouse.scrollData;
+      const scroll = domMetrics.getScrollToShow(this.stageDocument, bb);
+      if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
+        this.debounceScroll(scroll);
+      }
 
       // notify the app
       if(this.hooks.onDrop) this.hooks.onDrop(this.selection);
