@@ -1,4 +1,4 @@
-import { MoveHandler } from '../../src/ts/handlers/MoveHandler';
+import { MoveHandler, AUTOSCROLL_MARGIN } from '../../src/ts/handlers/MoveHandler';
 import { hooks, StageStoreMock } from '../flux/StageStoreMock';
 import * as electron from 'electron';
 
@@ -496,6 +496,7 @@ describe('MoveHandler', function() {
       x: 0,
       y: mouseEnd.y + 5 - window.innerHeight,
     }
+    var expectedScroll = mouseEnd.y + AUTOSCROLL_MARGIN - window.innerHeight;
 
     var mouseData = {
       movementX: mouseEnd.x - mouseStart.x,
@@ -525,7 +526,7 @@ describe('MoveHandler', function() {
         var lastAction = calls[calls.length - 1][0];
         expect(lastAction.type).toBe('MOUSE_SCROLL');
         expect(lastAction.scrollData).not.toBeFalsy();
-        expect(lastAction.scrollData.y).toBe(scroll.y);
+        expect(lastAction.scrollData.y).toBe(expectedScroll);
 
         // move selection
         // apply the changes manually

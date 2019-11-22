@@ -7,6 +7,8 @@ import * as domMetrics from '../utils/DomMetrics';
 import { setRefreshing, setSticky } from '../flux/UiState';
 import { STICK_DISTANCE } from '../Constants';
 
+export const AUTOSCROLL_MARGIN = 30;
+
 export class MoveHandler extends MouseHandlerBase {
   private positionMarker: HTMLElement;
   private initialMouse: {x:number, y:number};
@@ -169,14 +171,13 @@ export class MoveHandler extends MouseHandlerBase {
 
     // update scroll
     const initialScroll = this.store.getState().mouse.scrollData;
-    const margin = 30;
     const scroll = domMetrics.getScrollToShow(this.stageDocument, {
-      top: mouseData.mouseY + initialScroll.y - margin,
-      bottom: mouseData.mouseY + initialScroll.y + margin,
-      left: mouseData.mouseX + initialScroll.x - margin ,
-      right: mouseData.mouseX + initialScroll.x + margin,
-      height: 2 * margin,
-      width: 2 * margin,
+      top: mouseData.mouseY + initialScroll.y - AUTOSCROLL_MARGIN,
+      bottom: mouseData.mouseY + initialScroll.y + AUTOSCROLL_MARGIN,
+      left: mouseData.mouseX + initialScroll.x - AUTOSCROLL_MARGIN ,
+      right: mouseData.mouseX + initialScroll.x + AUTOSCROLL_MARGIN,
+      height: 2 * AUTOSCROLL_MARGIN,
+      width: 2 * AUTOSCROLL_MARGIN,
     });
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
       this.debounceScroll(scroll);
