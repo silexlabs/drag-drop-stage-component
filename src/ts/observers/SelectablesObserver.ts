@@ -91,6 +91,8 @@ export class SelectablesObserver {
         selectable.el.style.transform = `translate(${selectable.translation.x}px, ${selectable.translation.y}px)`;
         selectable.el.style.zIndex = '99999999';
         if(selectable.metrics.position === 'static') {
+          selectable.el.style.top = '0';
+          selectable.el.style.left = '0';
           selectable.el.style.position = 'relative';
         }
       }
