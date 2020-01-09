@@ -45,6 +45,12 @@ export class Stage {
     this.contentDocument = this.iframe.contentDocument;
     this.hooks = {
       ...options, // other hooks without default values
+      getId: options.getId || (el => {
+        if(el.hasAttribute('data-stage-id')) return el.getAttribute('data-stage-id');
+        const id = Math.round(Math.random() * 999999).toString();
+        el.setAttribute('data-stage-id', id);
+        return id;
+      }),
       isSelectable: options.isSelectable || (el => el.classList.contains('selectable')),
       isDraggable: options.isDraggable || (el => el.classList.contains('draggable')),
       isDropZone: options.isDropZone || ((el) => el.classList.contains('droppable')),
@@ -175,9 +181,12 @@ export class Stage {
    * recalculate all the metrics
    */
   redraw() {
+    this.redrawSome(this.store.getState().selectables);
+  }
+  redrawSome(selectables: Array<types.SelectableState>) {
     if (!this.store.getState().ui.refreshing) {
       this.store.dispatch(UiAction.setRefreshing(true));
-      this.store.dispatch(updateSelectables(this.store.getState().selectables.map(selectable => {
+      this.store.dispatch(updateSelectables(selectables.map(selectable => {
         return {
           ...selectable,
           metrics: DomMetrics.getMetrics(selectable.el),
@@ -212,7 +221,7 @@ export class Stage {
    * get/set the state for an element
    */
   getState(el: HTMLElement): types.SelectableState {
-    return DomMetrics.getSelectable(this.store, el);
+    return DomMetrics.getSelectableState(this.store, el);
   }
 
   /**
@@ -245,6 +254,7 @@ export class Stage {
 
     // create an element in the store
     this.store.dispatch(createSelectable({
+      id: this.hooks.getId(el),
       el,
       selected: false,
       selectable: this.hooks.isSelectable(el),
@@ -277,8 +287,8 @@ export class Stage {
   /**
    * Remove an element from the store
    */
-  removeElement(el: HTMLElement) {
-    this.store.dispatch(deleteSelectable(this.store.getState().selectables.find(s => s.el === el)));
+  removeElement(id: string) {
+    this.store.dispatch(deleteSelectable(this.store.getState().selectables.find(s => s.id === id)));
     // compute all metrics again because this element might affect others
     this.redraw();
   }
@@ -296,7 +306,7 @@ export class Stage {
 
   getBoundingBox(elements: Array<HTMLElement>) {
     const state = this.store.getState();
-    return DomMetrics.getBoundingBox(elements.map(el => state.selectables.find(s => s.el === el)));
+    return DomMetrics.getBoundingBox(elements.map(el => state.selectables.find(s => s.id === this.hooks.getId(el))));
   }
 
   getSelectionBox() {
@@ -312,7 +322,7 @@ export class Stage {
    */
   show(elements: Array<HTMLElement>) {
     const state = this.store.getState();
-    const bb = DomMetrics.getBoundingBox(elements.map(el => state.selectables.find(s => s.el === el)));
+    const bb = DomMetrics.getBoundingBox(elements.map(el => state.selectables.find(s => s.id === this.hooks.getId(el))));
     const initialScroll: types.ScrollData = state.mouse.scrollData;
     const scroll: types.ScrollData = DomMetrics.getScrollToShow(this.contentDocument, bb);
     if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
@@ -328,7 +338,7 @@ export class Stage {
     const state = this.store.getState();
     const bb = DomMetrics.getBoundingBox(
       elements
-      .map(el => state.selectables.find(s => s.el === el))
+      .map(el => state.selectables.find(s => s.id === this.hooks.getId(el)))
       .filter(s => !!s)
     );
     const initialScroll: types.ScrollData = state.mouse.scrollData;

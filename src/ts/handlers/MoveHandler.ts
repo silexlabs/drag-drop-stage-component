@@ -428,8 +428,8 @@ export class MoveHandler extends MouseHandlerBase {
     };
     // browse all drop zone and find the nearest point
     dropZones.forEach(dropZone => {
-      for(let idx=0; idx<dropZone.childNodes.length; idx++) {
-        let sibling = dropZone.childNodes[idx] as HTMLElement;
+      for(let idx=0; idx<dropZone.children.length; idx++) {
+        let sibling = dropZone.children[idx] as HTMLElement;
         dropZone.insertBefore(phantom, sibling);
         let distance = this.getDistance(phantom, x, y);
         if(nearestPosition.distance === null || nearestPosition.distance > distance) {

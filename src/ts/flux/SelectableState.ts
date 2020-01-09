@@ -32,9 +32,9 @@ export const selectables = (state: Array<SelectableState>=[], action) => {
     case RESET:
       return [];
     case DELETE:
-      return state.filter((selectable: SelectableState) => selectable.el !== action.selectable.el);
+      return state.filter((selectable: SelectableState) => selectable.id !== action.selectable.id);
     case UPDATE:
-      return state.map((selectable: SelectableState) => action.selectables.find(s => s.el === selectable.el) || selectable);
+      return state.map((selectable: SelectableState) => action.selectables.find(s => s.id === selectable.id) || selectable);
     default:
       return state;
   }

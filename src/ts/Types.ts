@@ -1,5 +1,6 @@
 
 export interface Hooks {
+  getId?: (el: HTMLElement) => string;
   isSelectable?: (el: HTMLElement) => boolean;
   isDraggable?: (el: HTMLElement) => boolean;
   isDropZone?: (el: HTMLElement) => boolean;
@@ -59,6 +60,7 @@ export type Direction = {
  * }} SelectableState
  */
 export interface SelectableState {
+  id: string
   el: HTMLElement
   dropZone?: DropZone // for use by the move handler only
   selected: boolean

@@ -20,6 +20,7 @@ export function getBoundingBoxDocument(el: HTMLElement): ClientRect {
 
 /**
  * get the bounding box of several elements
+ * relative to the the document
  */
 export function getBoundingBox(selectables: Array<types.SelectableState>): ClientRect {
   const box: ClientRect = {
@@ -31,10 +32,11 @@ export function getBoundingBox(selectables: Array<types.SelectableState>): Clien
     height: 0,
   }
   selectables.forEach(s => {
-    box.top = Math.min(box.top, s.metrics.clientRect.top);
-    box.left = Math.min(box.left, s.metrics.clientRect.left);
-    box.bottom = Math.max(box.bottom, s.metrics.clientRect.bottom);
-    box.right = Math.max(box.right, s.metrics.clientRect.right);
+    const rect: types.FullBox = fromClientToComputed(s.metrics);
+    box.top = Math.min(box.top, rect.top);
+    box.left = Math.min(box.left, rect.left);
+    box.bottom = Math.max(box.bottom, rect.top + rect.height);
+    box.right = Math.max(box.right, rect.left + rect.width);
   });
   return {
     ...box,
