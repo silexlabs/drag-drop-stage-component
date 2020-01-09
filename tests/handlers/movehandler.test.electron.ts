@@ -206,6 +206,7 @@ describe('MoveHandler', function() {
 
   it('should not move elements and their parent', function() {
     StageStoreMock.additionalSelectables.push({
+      id: 'elem4ID',
       el: elem4,
       selected: true,
       selectable: false,
@@ -339,6 +340,7 @@ describe('MoveHandler', function() {
     // init
     var selectableElem3 = {
       el: elem3,
+      id: 'elem3ID',
       selected: false,
       selectable: false,
       draggable: true,

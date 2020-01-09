@@ -34,6 +34,7 @@ export class StageStoreMock extends StageStore {
   }
 
   selectableElem1: types.SelectableState = {
+    id: 'elem1ID',
     el: StageStoreMock.elem1,
     selectable: true,
     selected: false,
@@ -57,6 +58,7 @@ export class StageStoreMock extends StageStore {
     },
   };
   selectableElem2: types.SelectableState = {
+    id: 'elem2ID',
     el: StageStoreMock.elem2,
     selectable: true,
     selected: false,

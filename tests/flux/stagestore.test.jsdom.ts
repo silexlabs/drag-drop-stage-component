@@ -15,6 +15,7 @@ describe('StageStore', function() {
       instance.dispatch(
         createSelectable({
           el,
+          id: 'elemXID',
           selectable: true,
           selected: false,
           draggable: true,

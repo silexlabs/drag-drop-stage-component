@@ -27,6 +27,7 @@ describe('Ui', () => {
         ...stageStoreMock.state.selectables,
         {
           el: null,
+          id: 'elemXID',
           selectable: true,
           selected: false,
           draggable: true,
