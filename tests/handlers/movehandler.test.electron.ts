@@ -13,7 +13,6 @@ describe('MoveHandler', function() {
     const handler = new MoveHandler(document, document, stageStoreMock, hooks);
     jest.spyOn(handler, 'update');
     jest.spyOn(handler, 'release');
-    jest.spyOn(handler, 'move');
     jest.spyOn(handler, 'updateDestinationAbsolute');
     jest.spyOn(handler, 'updateDestinationNonAbsolute');
     jest.spyOn(handler, 'markPosition');

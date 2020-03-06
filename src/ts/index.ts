@@ -2,9 +2,10 @@ import * as types from './Types';
 import * as Polyfill from './utils/Polyfill';
 import * as DomMetrics from './utils/DomMetrics';
 import {Keyboard} from './Keyboard';
-import {Mouse} from './Mouse';
+import {Mouse, MouseMode} from './Mouse';
 import * as selectionState from './flux/SelectionState';
 import * as UiAction from './flux/UiState';
+import * as SelectableAction from './flux/SelectableState';
 import {SelectablesObserver} from './observers/SelectablesObserver';
 import {MouseObserver} from './observers/MouseObserver';
 import {UiObserver} from './observers/UiObserver';
@@ -13,6 +14,7 @@ import { resetSelectables, createSelectable, updateSelectables, deleteSelectable
 import { addEvent } from './utils/Events';
 import { setScroll } from './flux/MouseState';
 import { Ui } from './Ui';
+import { MoveHandler } from './handlers/MoveHandler';
 
 /**
  * This class is the entry point of the library
@@ -28,6 +30,10 @@ export class Stage {
   protected ui: Ui;
   protected store: StageStore;
   protected mouse: Mouse;
+
+  protected selectablesObserver: SelectablesObserver;
+  protected uiObserver: UiObserver;
+  protected mouseObserver: MouseObserver;
 
   /**
    * Init the useful classes,
@@ -72,18 +78,18 @@ export class Stage {
       this.ui = ui;
 
       // state observers
-      const selectablesObserver = new SelectablesObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
-      const uiObserver = new UiObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
-      const mouseObserver = new MouseObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
+      this.selectablesObserver = new SelectablesObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
+      this.uiObserver = new UiObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
+      this.mouseObserver = new MouseObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
 
       // controllers
       this.mouse = new Mouse(this.contentWindow, this.ui.overlay.contentWindow, this.store, this.hooks);
       const keyboard = new Keyboard(this.ui.overlay.contentWindow, this.store, this.hooks);
 
       this.unsubscribeAll.push(
-        () => selectablesObserver.cleanup(),
-        () => uiObserver.cleanup(),
-        () => mouseObserver.cleanup(),
+        () => this.selectablesObserver.cleanup(),
+        () => this.uiObserver.cleanup(),
+        () => this.mouseObserver.cleanup(),
         () => this.mouse.cleanup(),
         () => keyboard.cleanup(),
 
@@ -97,6 +103,21 @@ export class Stage {
     })
   }
 
+  /**
+   * start dragin the selection without a mouse click
+   */
+  startDrag() {
+    // const bb = DomMetrics.getBoundingBoxDocument(target.el)
+    const selection = this.getSelection()
+    const bb = DomMetrics.getBoundingBox(selection)
+    this.mouse.mouseMode = MouseMode.DRAGGING;
+    this.store.dispatch(UiAction.setMode(types.UiMode.DRAG));
+    // as if the mouse was initially in the middle of the first selected element
+    (this.uiObserver.handler as MoveHandler).initialMouse = {
+      x: bb.left + (bb.width / 2) - this.iframe.contentWindow.scrollX,
+      y: bb.top + (bb.height / 2) - this.iframe.contentWindow.scrollY,
+    }
+  }
 
   /**
    * to be called before deleting the stage

@@ -11,7 +11,7 @@ export const AUTOSCROLL_MARGIN = 30;
 
 export class MoveHandler extends MouseHandlerBase {
   private positionMarker: HTMLElement;
-  private initialMouse: {x:number, y:number};
+  public initialMouse: {x:number, y:number};
   private initialScroll: {x:number, y:number};
 
   constructor(stageDocument: HTMLDocument, overlayDocument: HTMLDocument, store: StageStore, hooks: Hooks) {
@@ -67,6 +67,8 @@ export class MoveHandler extends MouseHandlerBase {
         x: mouseData.mouseX - mouseData.movementX,
         y: mouseData.mouseY - mouseData.movementY,
       };
+    }
+    if(!this.initialScroll) {
       this.initialScroll = {
         ...this.store.getState().mouse.scrollData,
       };
@@ -135,7 +137,7 @@ export class MoveHandler extends MouseHandlerBase {
 
     // update elements postition
     this.selection = this.selection
-    .map(selectable => this.move(selectable, false, stickyMovementX, stickyMovementY));
+    .map(selectable => domMetrics.move(selectable, false, stickyMovementX, stickyMovementY));
 
     // update the destination of each element
     this.selection = this.selection
@@ -158,7 +160,7 @@ export class MoveHandler extends MouseHandlerBase {
     // handle the children which move with the selection
     const children = this.store.getState().selectables
     .filter(s => domMetrics.hasASelectedDraggableParent(this.store, s.el))
-    .map(selectable => this.move(selectable, true, movementX, movementY));
+    .map(selectable => domMetrics.move(selectable, true, movementX, movementY));
 
     // update store
     this.store.dispatch(selectableState.updateSelectables(this.selection.concat(children)));
@@ -304,42 +306,9 @@ export class MoveHandler extends MouseHandlerBase {
       if(scroll.x !== initialScroll.x || scroll.y !== initialScroll.y) {
         this.debounceScroll(scroll);
       }
-
       // notify the app
       if(this.hooks.onDrop) this.hooks.onDrop(this.selection);
     });
-  }
-
-
-  /**
-   * move an element and update its data in selection
-   * when elements are in a container which is moved, the clientRect changes but not the computedStyleRect
-   */
-  move(selectable: SelectableState, onlyClientRect: boolean, movementX, movementY): SelectableState {
-    return {
-      ...selectable,
-      translation: selectable.translation ? {
-        x: selectable.translation.x + movementX,
-        y: selectable.translation.y + movementY,
-      } : null,
-      metrics: {
-        ...selectable.metrics,
-        clientRect : {
-          ...selectable.metrics.clientRect,
-          top: selectable.metrics.clientRect.top + movementY,
-          left: selectable.metrics.clientRect.left + movementX,
-          bottom: selectable.metrics.clientRect.bottom + movementY,
-          right: selectable.metrics.clientRect.right + movementX,
-        },
-        computedStyleRect: onlyClientRect ? selectable.metrics.computedStyleRect : {
-          ...selectable.metrics.computedStyleRect,
-          top: selectable.metrics.computedStyleRect.top + movementY,
-          left: selectable.metrics.computedStyleRect.left + movementX,
-          bottom: selectable.metrics.computedStyleRect.bottom + movementY,
-          right: selectable.metrics.computedStyleRect.right + movementX,
-        },
-      }
-    };
   }
 
 
