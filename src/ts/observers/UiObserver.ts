@@ -10,7 +10,7 @@ import { MouseHandlerBase } from '../handlers/MouseHandlerBase';
  *   and apply the state changes to the DOM elements
  */
 export class UiObserver {
-  private handler: MouseHandlerBase;
+  public handler: MouseHandlerBase;
   constructor(private stageDocument: HTMLDocument, private overlayDocument: HTMLDocument, private store: StageStore, private hooks: types.Hooks) {
     this.handler = null;
     this.unsubscribeAll.push(store.subscribe(

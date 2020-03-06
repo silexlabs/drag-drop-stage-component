@@ -52,7 +52,6 @@ export const selection = (state: Array<SelectableState>=[], action) => {
         selected: true,
       } : selectable);
     case SET:
-      console.log('[state] selection reducer SET', action)
       return state.map(selectable => action.selectables.includes(selectable) ? {
         ...selectable,
         selected: true,

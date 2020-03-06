@@ -68,6 +68,11 @@ export class Mouse {
     if(this.mouseMode === MouseMode.WAITING_DBL_CLICK_UP) {
       this.mouseMode = MouseMode.WAITING_DBL_CLICK_DOWN2;
     }
+    else if (this.mouseMode === MouseMode.DRAGGING) {
+      // this happens when forcing drag/drop with Stage::startDrag
+      this.mouseMode = MouseMode.UP;
+      this.onDrop(mouseData);
+    }
     else {
       this.mouseMode = MouseMode.WAITING_DBL_CLICK_DOWN;
       this.firstOnDownMouseData = mouseData;

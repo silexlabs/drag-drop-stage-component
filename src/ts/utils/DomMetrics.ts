@@ -444,3 +444,33 @@ export function findDropZonesUnderMouse(doc: HTMLDocument, store: StageStore, ho
   }) as Array<HTMLElement>;
 }
 
+/**
+ * move an element and update its data in selection
+ * when elements are in a container which is moved, the clientRect changes but not the computedStyleRect
+ */
+export function move(selectable: types.SelectableState, onlyClientRect: boolean, movementX: number, movementY: number): types.SelectableState {
+  return {
+    ...selectable,
+    translation: selectable.translation ? {
+      x: selectable.translation.x + movementX,
+      y: selectable.translation.y + movementY,
+    } : null,
+    metrics: {
+      ...selectable.metrics,
+      clientRect : {
+        ...selectable.metrics.clientRect,
+        top: selectable.metrics.clientRect.top + movementY,
+        left: selectable.metrics.clientRect.left + movementX,
+        bottom: selectable.metrics.clientRect.bottom + movementY,
+        right: selectable.metrics.clientRect.right + movementX,
+      },
+      computedStyleRect: onlyClientRect ? selectable.metrics.computedStyleRect : {
+        ...selectable.metrics.computedStyleRect,
+        top: selectable.metrics.computedStyleRect.top + movementY,
+        left: selectable.metrics.computedStyleRect.left + movementX,
+        bottom: selectable.metrics.computedStyleRect.bottom + movementY,
+        right: selectable.metrics.computedStyleRect.right + movementX,
+      },
+    }
+  };
+}

@@ -22,7 +22,7 @@ export class StageStore implements Store<State> {
   // this is unused for now, I used the "refreshing" prop instead, on state.ui
   private static preventDispatchDuringRedraw({ getState }) {
     return next => action => {
-      if(action.preventDispatch) {
+      if (action.preventDispatch) {
         console.warn('prevent dispatch', action)
       }
       else {
