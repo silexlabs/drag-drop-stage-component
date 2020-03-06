@@ -13,10 +13,11 @@
     "test": "jest",
     "watch:test": "watch 'npm run test' src tests",
     "serve": "http-server . -o",
-    "build": "mkdir -p pub/js && npm run install:redux && npm run build:js",
+    "build": "mkdir -p pub/js && npm run install:redux && npm run install:requirejs && npm run build:js",
     "watch": "npm run build:js -- --watch",
     "build:js": "tsc -p tsconfig.json",
     "build:demo": "npm run build && tsc -p tsconfig.json && pug src/jade/index.jade -o pub && lessc src/less/demo.less pub/css/demo.css",
+    "install:requirejs": "cp `node_modules`/requirejs/require.js pub/require.js",
     "install:redux": "cp `node_modules`/redux/dist/redux.min.js pub/redux.js"
   },
   "author": "Alex Hoyau <a.hoyau@silexlabs.org> (https://lexoyo.me/)",
