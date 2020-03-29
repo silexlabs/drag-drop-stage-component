@@ -276,6 +276,6 @@ export class Ui {
    */
   hideScrolls(hide: boolean) {
     // this.iframe.contentDocument.body.style.overflow = hide ? 'hidden' : '';
-    this.overlay.contentDocument.body.style.overflow = hide ? 'hidden' : '';
+    this.overlay.contentDocument.body.style.display = hide ? 'none' : '';
   }
 }
