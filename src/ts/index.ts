@@ -194,6 +194,13 @@ export class Stage {
     this.ui.hideScrolls(hide);
   }
 
+  /**
+   * hide the whole UI
+   */
+  hideUi(hide: boolean) {
+    this.ui.hideUi(hide);
+  }
+
   ///////////////////////////////////////////////////
   // Elements and metrics
   ///////////////////////////////////////////////////

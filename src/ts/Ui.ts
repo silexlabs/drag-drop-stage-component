@@ -272,10 +272,15 @@ export class Ui {
     return box;
   }
   /**
+   * hide the whole UI
+   */
+  hideUi(hide: boolean) {
+    this.overlay.contentDocument.body.style.display = hide ? 'none' : '';
+  }
+  /**
    * hide all iframes scroll (useful when you don't want to miss mouse events)
    */
   hideScrolls(hide: boolean) {
-    // this.iframe.contentDocument.body.style.overflow = hide ? 'hidden' : '';
-    this.overlay.contentDocument.body.style.display = hide ? 'none' : '';
+    this.iframe.contentDocument.body.style.overflow = hide ? 'hidden' : '';
   }
 }
