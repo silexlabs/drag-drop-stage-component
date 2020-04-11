@@ -22,13 +22,13 @@ export class Mouse {
     // events from inside the iframe
     this.unsubscribeAll.push(
       addEvent(this.winOverlay, 'scroll', (e:MouseEvent) => this.scroll(e), true),
-      addEvent(this.winOverlay.document.body, 'mousedown', (e:MouseEvent) => this.down(e), true),
-      addEvent(this.winOverlay.document.body, 'mouseup', (e:MouseEvent) => this.up(e), true),
-      addEvent(this.winOverlay.document.body, 'mousemove', (e:MouseEvent) => this.move(e), true),
+      addEvent(this.winOverlay.document, 'mousedown', (e:MouseEvent) => this.down(e), true),
+      addEvent(this.winOverlay.document, 'mouseup', (e:MouseEvent) => this.up(e), true),
+      addEvent(this.winOverlay.document, 'mousemove', (e:MouseEvent) => this.move(e), true),
 
       // events from outside of the iframe
-      addEvent(document.body, 'mouseup', (e:MouseEvent) => this.upOut(e), true),
-      addEvent(document.body, 'mousemove', (e:MouseEvent) => this.moveOut(e), true),
+      addEvent(document, 'mouseup', (e:MouseEvent) => this.upOut(e), true),
+      addEvent(document, 'mousemove', (e:MouseEvent) => this.moveOut(e), true),
     );
   }
   private unsubscribeAll: Array<() => void> = [];
@@ -42,8 +42,8 @@ export class Mouse {
    */
   subscribeMouseEvent(type, cbk): () => void {
     const unsubscribeArray = [
-      addEvent(this.winOverlay.document.body, type, (e:MouseEvent) => cbk(e), true),
-      addEvent(document.body, type, (e:MouseEvent) => cbk(e), true),
+      addEvent(this.winOverlay, type, (e:MouseEvent) => cbk(e), true),
+      addEvent(document, type, (e:MouseEvent) => cbk(e), true),
     ];
     return () => unsubscribeArray.forEach(u => u());
   }

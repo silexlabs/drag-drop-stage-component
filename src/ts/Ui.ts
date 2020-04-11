@@ -277,10 +277,4 @@ export class Ui {
   hideUi(hide: boolean) {
     this.overlay.contentDocument.body.style.display = hide ? 'none' : '';
   }
-  /**
-   * hide all iframes scroll (useful when you don't want to miss mouse events)
-   */
-  hideScrolls(hide: boolean) {
-    this.iframe.contentDocument.body.style.overflow = hide ? 'hidden' : '';
-  }
 }
