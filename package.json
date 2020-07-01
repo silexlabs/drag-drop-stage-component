@@ -1,6 +1,6 @@
 {
   "name": "drag-drop-stage-component",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "description": "A component to \"drag'n drop\"-enable your projects, maintained and simple, light on dependencies",
   "main": "src/ts/index.ts",
   "repository": {
@@ -23,7 +23,6 @@
   "author": "Alex Hoyau <a.hoyau@silexlabs.org> (https://lexoyo.me/)",
   "license": "MIT",
   "dependencies": {
-    "@types/redux": "3.6.31",
     "redux": "4.0.5"
   },
   "devDependencies": {
