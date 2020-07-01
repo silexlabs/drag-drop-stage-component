@@ -1,6 +1,6 @@
 {
   "name": "drag-drop-stage-component",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "A component to \"drag'n drop\"-enable your projects, maintained and simple, light on dependencies",
   "main": "src/ts/index.ts",
   "repository": {
@@ -8,7 +8,7 @@
     "url": "https://github.com/silexlabs/drag-drop-stage-component.git"
   },
   "scripts": {
-    "prepare": "npm run build:demo",
+    "xprepare": "npm run build:demo",
     "prepublishOnly": "npm run build:demo",
     "test": "jest",
     "watch:test": "watch 'npm run test' src tests",
@@ -23,18 +23,19 @@
   "author": "Alex Hoyau <a.hoyau@silexlabs.org> (https://lexoyo.me/)",
   "license": "MIT",
   "dependencies": {
-    "@types/redux": "^3.6.31",
-    "redux": "^4.0.1"
+    "@types/redux": "3.6.31",
+    "redux": "4.0.5"
   },
   "devDependencies": {
-    "@jest-runner/electron": "^1.1.1",
-    "@types/jest": "^24.0.12",
-    "jest": "^24.8.0",
-    "less": "^3.9.0",
-    "pug-cli": "^1.0.0-alpha6",
-    "requirejs": "^2.3.6",
-    "ts-jest": "^24.0.2",
-    "typescript": "^3.4.5",
-    "node_modules-path": "*"
+    "@jest-runner/electron": "3.0.0",
+    "@types/jest": "26.0.3",
+    "electron": "9.0.5",
+    "jest": "26.1.0",
+    "less": "3.11.3",
+    "node_modules-path": "2.0.5",
+    "pug-cli": "1.0.0-alpha6",
+    "requirejs": "2.3.6",
+    "ts-jest": "26.1.1",
+    "typescript": "3.9.5"
   }
 }

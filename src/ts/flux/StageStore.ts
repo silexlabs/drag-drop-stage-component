@@ -1,16 +1,21 @@
-import { applyMiddleware, combineReducers, createStore, Store } from 'redux';
+import { applyMiddleware, combineReducers, Observable, createStore, Store } from 'redux';
+
 import { MouseState, SelectableState, State, UiState } from '../Types';
-import * as mouseState from './MouseState';
-import * as selectableState from './SelectableState';
 import { selection } from './SelectionState';
 import { ui } from './UiState';
+import * as mouseState from './MouseState';
+import * as selectableState from './SelectableState';
 
 export class StageStore implements Store<State> {
+  [Symbol.observable](): Observable<State> {
+    return this as any as Observable<State>;
+  };
   /**
    * Create a redux store with composed reducers
    * @return Store
    */
   protected static createStore(): Store<State> {
+
     const reducer = combineReducers({
       selectables: (state: Array<SelectableState>, action) => selectableState.selectables(selection(state, action), action),
       ui: (state: UiState, action) => ui(state, action),

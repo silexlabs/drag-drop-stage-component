@@ -8,9 +8,9 @@
     "watch": false,
     "inlineSourceMap": true,
     "removeComments": false,
-    "moduleResolution": "node",
+    "moduleResolution": "node"
   },
   "include": [
-    "src/ts/demo.ts",
-  ],
+    "src/ts/demo.ts"
+  ]
 }
