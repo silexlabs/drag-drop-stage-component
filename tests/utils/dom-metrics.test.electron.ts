@@ -237,16 +237,21 @@ describe('DomMetrics', function() {
     expect(scroll.x).toBe(0);
 
     // element not yet visible
-    const offset = 2000;
-    bb.top += offset; bb.left += offset; bb.right += offset; bb.bottom += offset; bb.width += offset; bb.height += offset;
-    var scroll = DomMetrics.getScrollToShow(document, bb);
+    window.scroll(100, 100);
+    var scroll = DomMetrics.getScrollToShow(document, {
+      top: 2100,
+      left: 2100,
+      right: 2200,
+      bottom: 2200,
+      width: 100,
+      height: 100,
+    });
     // element position - size - SCROLL_ZONE_SIZE
-    expect(scroll.x).toBe(bb.right - winWidth - 0);
-    expect(scroll.y).toBe(bb.bottom - winHeight - 0);
+    expect(scroll.x).toBe(2200 - winWidth);
+    expect(scroll.y).toBe(2200 - winHeight);
+
     // element not yet visible
     window.scroll(100, 100);
-    expect(window.scrollY).toBe(100);
-    expect(window.scrollX).toBe(100);
     var scroll = DomMetrics.getScrollToShow(document, {
       top: 10,
       left: 10,
@@ -256,6 +261,32 @@ describe('DomMetrics', function() {
       width: 0,
     });
     // element position - size - SCROLL_ZONE_SIZE
+    expect(scroll.x).toBe(10);
+    expect(scroll.y).toBe(10);
+
+    // element bigger than the viewport and not visible
+    window.scroll(10, 10);
+    var scroll = DomMetrics.getScrollToShow(document, {
+      top: 2000,
+      left: 2000,
+      bottom: 3000,
+      right: 3000,
+      height: 1000,
+      width: 1000,
+    });
+    expect(scroll.x).toBe(2000);
+    expect(scroll.y).toBe(2000);
+
+    // element bigger than the viewport and partly visible
+    window.scroll(10, 10);
+    var scroll = DomMetrics.getScrollToShow(document, {
+      top: 20,
+      left: 20,
+      bottom: 1020,
+      right: 1020,
+      height: 1000,
+      width: 1000,
+    });
     expect(scroll.x).toBe(10);
     expect(scroll.y).toBe(10);
   });

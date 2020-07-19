@@ -5,7 +5,6 @@ import {Keyboard} from './Keyboard';
 import {Mouse, MouseMode} from './Mouse';
 import * as selectionState from './flux/SelectionState';
 import * as UiAction from './flux/UiState';
-import * as SelectableAction from './flux/SelectableState';
 import {SelectablesObserver} from './observers/SelectablesObserver';
 import {MouseObserver} from './observers/MouseObserver';
 import {UiObserver} from './observers/UiObserver';
@@ -104,7 +103,7 @@ export class Stage {
   }
 
   /**
-   * start dragin the selection without a mouse click
+   * start draging the selection without a mouse click
    */
   startDrag() {
     // const bb = DomMetrics.getBoundingBoxDocument(target.el)

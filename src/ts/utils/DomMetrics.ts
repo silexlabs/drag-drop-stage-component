@@ -51,22 +51,44 @@ export const SCROLL_ZONE_SIZE = 0;
  * get the ideal scroll in order to have boundingBox visible
  * boundingBox is expected to be relative to the document, not the viewport
  */
-export function getScrollToShow(doc, boundingBox: ClientRect): types.ScrollData {
+export function getScrollToShow(doc: HTMLDocument, boundingBox: ClientRect): types.ScrollData {
   const scroll = getScroll(doc);
   const win = getWindow(doc);
   // vertical
+  if(win.innerHeight < boundingBox.height) {
+    // element bigger than viewport
+    if(scroll.y + win.innerHeight < boundingBox.top || scroll.y > boundingBox.bottom) {
+      // not visible => scroll to top
+      scroll.y = boundingBox.top - SCROLL_ZONE_SIZE;
+    }
+    else {
+      // partly visible => do not scroll at all
+    }
+  }
   // if(scroll.y > boundingBox.top - SCROLL_ZONE_SIZE) {
-  if(scroll.y > boundingBox.top) {
+  else if(scroll.y > boundingBox.top) {
+    // element is up the viewport
     scroll.y = boundingBox.top - SCROLL_ZONE_SIZE;
   }
   // else if(scroll.y < boundingBox.bottom + SCROLL_ZONE_SIZE - win.innerHeight) {
   else if(scroll.y < boundingBox.bottom - win.innerHeight) {
-      scroll.y = boundingBox.bottom + SCROLL_ZONE_SIZE - win.innerHeight;
+    // element is lower than the viewport
+    scroll.y = boundingBox.bottom + SCROLL_ZONE_SIZE - win.innerHeight;
   }
 
   // horizontal
+  if(win.innerWidth < boundingBox.width) {
+    // element bigger than viewport
+    if(scroll.x + win.innerWidth < boundingBox.left || scroll.x > boundingBox.right) {
+      // not visible => scroll to left 
+      scroll.x = boundingBox.left - SCROLL_ZONE_SIZE;
+    }
+    else {
+      // partly visible => do not scroll at all
+    }
+  }
   // if(scroll.x > boundingBox.left - SCROLL_ZONE_SIZE) {
-  if(scroll.x > boundingBox.left) {
+  else if(scroll.x > boundingBox.left) {
     scroll.x = boundingBox.left - SCROLL_ZONE_SIZE;
   }
   // else if(scroll.x < boundingBox.right + SCROLL_ZONE_SIZE - win.innerWidth) {
