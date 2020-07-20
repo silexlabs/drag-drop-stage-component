@@ -144,13 +144,13 @@ export class MoveHandler extends MouseHandlerBase {
     .map(selectable => {
       let dropZones = domMetrics.findDropZonesUnderMouse(this.stageDocument, this.store, this.hooks, mouseData.mouseX, mouseData.mouseY)
       .filter(dropZone => this.hooks.canDrop(selectable.el, dropZone));
-      if(dropZones.length > 0) {
+      let dropZoneUnderMouse = dropZones[0]; // the first one is supposed to be the top most one
+      if(dropZoneUnderMouse) {
         switch(selectable.metrics.position) {
           case 'static':
-            let nearestPosition = this.findNearestPosition(dropZones, mouseData.mouseX, mouseData.mouseY);
+            let nearestPosition = this.findNearestPosition(dropZoneUnderMouse, mouseData.mouseX, mouseData.mouseY);
             return this.updateDestinationNonAbsolute(selectable, nearestPosition);
           default:
-            let dropZoneUnderMouse = dropZones[0]; // the first one is supposed to be the top most one
             return this.updateDestinationAbsolute(selectable, dropZoneUnderMouse);
         }
       }
@@ -385,7 +385,7 @@ export class MoveHandler extends MouseHandlerBase {
    * find the place where it is the nearest from the mouse
    * x and y are coordinates relative to the viewport
    */
-  findNearestPosition(dropZones: Array<HTMLElement>, x, y) {
+  findNearestPosition(dropZone: HTMLElement, x, y) {
     // create an empty div to measure distance to the mouse
     let phantom = this.stageDocument.createElement('div');
     phantom.classList.add('phantom');
@@ -395,29 +395,27 @@ export class MoveHandler extends MouseHandlerBase {
       distance: null,
       parent: null,
     };
-    // browse all drop zone and find the nearest point
-    dropZones.forEach(dropZone => {
-      for(let idx=0; idx<dropZone.children.length; idx++) {
-        let sibling = dropZone.children[idx] as HTMLElement;
-        dropZone.insertBefore(phantom, sibling);
-        let distance = this.getDistance(phantom, x, y);
-        if(nearestPosition.distance === null || nearestPosition.distance > distance) {
-          nearestPosition.nextElementSibling = sibling;
-          nearestPosition.parent = dropZone;
-          nearestPosition.distance = distance;
-        }
-        dropZone.removeChild(phantom);
-      }
-      // test the last position
-      dropZone.appendChild(phantom);
+    for(let idx=0; idx < dropZone.children.length; idx++) {
+      let sibling = dropZone.children[idx] as HTMLElement;
+      dropZone.insertBefore(phantom, sibling);
       let distance = this.getDistance(phantom, x, y);
       if(nearestPosition.distance === null || nearestPosition.distance > distance) {
-        nearestPosition.nextElementSibling = null;
+        nearestPosition.nextElementSibling = sibling;
         nearestPosition.parent = dropZone;
         nearestPosition.distance = distance;
       }
       dropZone.removeChild(phantom);
-    });
+    }
+    // test the last position
+    dropZone.appendChild(phantom);
+    let distance = this.getDistance(phantom, x, y);
+    if(nearestPosition.distance === null || nearestPosition.distance > distance) {
+      nearestPosition.nextElementSibling = null;
+      nearestPosition.parent = dropZone;
+      nearestPosition.distance = distance;
+    }
+    dropZone.removeChild(phantom);
+
     // the next element can not be our position marker (it happens)
     if(nearestPosition.nextElementSibling === this.positionMarker)
       nearestPosition.nextElementSibling = this.positionMarker.nextElementSibling as HTMLElement;
