@@ -66,12 +66,12 @@ export class Ui {
         body.dragging-mode .box.not-selected.not-aboutToDrop,
         body.resizing-mode .box.not-selected { display: none; }
 
-        .aboutToDrop, .selected.box, .box:hover {
+        .aboutToDrop, .selected.box, .box.hover {
           border: 1px solid rgba(0, 0, 0, .5);
         }
         .box.aboutToDrop:before,
         .box.selected:before,
-        .box:hover:before {
+        .box.hover:before {
           content: ' ';
           position: absolute;
           z-index: -1;
@@ -242,6 +242,7 @@ export class Ui {
       !box.selectable.selected ? 'selected' : 'not-selected',
       !box.selectable.selectable ? 'selectable' : 'not-selectable',
       !box.selectable.draggable ? 'draggable' : 'not-draggable',
+      !box.selectable.hovered ? 'hover' : 'not-hover',
       (!box.selectable.resizeable.top && !box.selectable.resizeable.left) ? 'resizeable-nw' : 'not-resizeable-nw',
       (!box.selectable.resizeable.top && !box.selectable.resizeable.right) ? 'resizeable-ne' : 'not-resizeable-ne',
       (!box.selectable.resizeable.bottom && !box.selectable.resizeable.left) ? 'resizeable-sw' : 'not-resizeable-sw',
@@ -258,6 +259,7 @@ export class Ui {
       box.selectable.selected ? 'selected' : 'not-selected',
       box.selectable.selectable ? 'selectable' : 'not-selectable',
       box.selectable.draggable ? 'draggable' : 'not-draggable',
+      box.selectable.hovered ? 'hover' : 'not-hover',
       (box.selectable.resizeable.top && box.selectable.resizeable.left) ? 'resizeable-nw' : 'not-resizeable-nw',
       (box.selectable.resizeable.top && box.selectable.resizeable.right) ? 'resizeable-ne' : 'not-resizeable-ne',
       (box.selectable.resizeable.bottom && box.selectable.resizeable.left) ? 'resizeable-sw' : 'not-resizeable-sw',

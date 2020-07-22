@@ -158,10 +158,6 @@ export function setMetrics(el: HTMLElement, metrics: types.ElementMetrics, useMi
     }
     updateStyle('computedStyleRect', 'width', 'width');
     updateStyle('computedStyleRect', 'height', useMinHeight ? 'minHeight' : 'height');
-    // TODO: expose a hook to decide between height/bottom and width/right
-    // just like minHeight and height
-    // updateStyle('computedStyleRect', 'bottom', 'bottom');
-    // updateStyle('computedStyleRect', 'right', 'right');
   }
 
   updateStyle('margin', 'top', 'marginTop');
@@ -464,6 +460,20 @@ export function findDropZonesUnderMouse(doc: HTMLDocument, store: StageStore, ho
       && selectable.isDropZone
       && !selection.find(s => s.el === el);
   }) as Array<HTMLElement>;
+}
+
+export function findSelectableUnderMouse(doc: HTMLDocument, store: StageStore, x: number, y: number): Array<HTMLElement> {
+  const win = getWindow(doc);
+
+  // constrain the coord inside the viewport (otherwise elementsFromPoint will return null)
+  const constrain = (num, min, max) => Math.min(Math.max(num, min), max);
+  const safeX = constrain(x, 0, win.innerWidth - 1);
+  const safeY = constrain(y, 0, win.innerHeight - 1);
+
+  const selectables = store.getState().selectables;
+
+  return doc.elementsFromPoint(safeX, safeY)
+  .filter((el: HTMLElement) => !!selectables.find(s => s.el === el)) as Array<HTMLElement>;
 }
 
 /**

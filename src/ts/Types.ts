@@ -64,6 +64,7 @@ export interface SelectableState {
   el: HTMLElement
   dropZone?: DropZone // for use by the move handler only
   selected: boolean
+  hovered: boolean
   selectable: boolean
   draggable: boolean
   resizeable: Direction

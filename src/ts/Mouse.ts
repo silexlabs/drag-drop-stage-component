@@ -5,6 +5,7 @@ import { StageStore } from './flux/StageStore';
 import * as SelectionAction from './flux/SelectionState';
 import * as UiState from './flux/UiState';
 import { addEvent } from './utils/Events';
+import { updateSelectables } from './flux/SelectableState';
 
 export enum MouseMode {
   UP,
@@ -123,6 +124,19 @@ export class Mouse {
 
     e.preventDefault();
     const mouseData = this.eventToMouseData(e, offset);
+
+    // update hovered state
+    const updated = this.store.getState().selectables
+      .filter((state) => state.hovered !== (state.el === mouseData.target));
+    if (updated.length > 0) {
+      this.store.dispatch(updateSelectables(updated
+        .map((state) => ({
+          ...state,
+          hovered: state.el === mouseData.target,
+        }))))
+    }
+
+    // chose action depending on position and state
     switch(this.mouseMode) {
       case MouseMode.WAITING_DBL_CLICK_UP:
         this.mouseMode = MouseMode.DOWN;
@@ -165,13 +179,15 @@ export class Mouse {
   eventToMouseData(e: MouseEvent, offset: ClientRect = null): types.MouseData {
     const x = e.clientX - (offset ? offset.left : 0);
     const y = e.clientY - (offset ? offset.top : 0);
+    const elements = DomMetrics.findSelectableUnderMouse(this.winStage.document, this.store, x, y) as HTMLElement[];
+    const target = !!elements ? elements[0] : null;
     return {
       movementX: e.movementX,
       movementY: e.movementY,
       mouseX: x,
       mouseY: y,
       shiftKey: e.shiftKey,
-      target: this.winStage.document.elementFromPoint(x, y) as HTMLElement,
+      target,
     };
   }
 
