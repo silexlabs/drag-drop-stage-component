@@ -2,7 +2,6 @@ import * as DomMetrics from '../utils/DomMetrics';
 import {StageStore} from '../flux/StageStore';
 import { SelectableState } from '../Types';
 import * as types from '../Types';
-import { setMode } from '../flux/UiState';
 
 /**
  * @class This class listens to the store
@@ -45,8 +44,8 @@ export class SelectablesObserver {
       return !oldSelectable || JSON.stringify(oldSelectable[propName]) !== JSON.stringify(selectable[propName]);
       // return !oldSelectable || oldSelectable[propName] !== selectable[propName];
     }
-    const removed = prevState.filter(s => !state.find(s2 => s2.el === s.el));
 
+    const removed = prevState.filter(s => !state.find(s2 => s2.el === s.el));
     const metrics = state.filter(selectable => filterBy('metrics', selectable));
     if(removed.length + metrics.length > 0) this.onMetrics(metrics, removed);
 

@@ -2,8 +2,8 @@ import {SelectablesObserver} from '../../src/ts/observers/SelectablesObserver';
 import {StageStoreMock, hooks} from '../flux/StageStoreMock';
 
 describe('SelectablesObserver', function() {
-  var observer;
-  var stageStoreMock;
+  var observer: SelectablesObserver;
+  var stageStoreMock: StageStoreMock;
 
   beforeEach(function () {
     document.body.innerHTML = `
@@ -47,12 +47,14 @@ describe('SelectablesObserver', function() {
     expect(observer.onMetrics).toBeCalledTimes(0);
     expect(observer.onSelection).toBeCalledTimes(0);
   });
+
   it('onMetrics', function() {
     stageStoreMock.state = {
       ...stageStoreMock.state,
       selectables: [{
         ...stageStoreMock.selectableElem1,
         metrics: {
+          proportions: 1,
           position: 'relative',
           margin: {top: 0, left: 0, bottom: 0, right: 0 },
           padding: {top: 0, left: 0, bottom: 0, right: 0 },

@@ -6,6 +6,7 @@ import {Mouse, MouseMode} from './Mouse';
 import * as selectionState from './flux/SelectionState';
 import * as UiAction from './flux/UiState';
 import {SelectablesObserver} from './observers/SelectablesObserver';
+import { DomObserver } from './observers/DomObserver';
 import {MouseObserver} from './observers/MouseObserver';
 import {UiObserver} from './observers/UiObserver';
 import {StageStore} from './flux/StageStore';
@@ -14,6 +15,7 @@ import { addEvent } from './utils/Events';
 import { setScroll } from './flux/MouseState';
 import { Ui } from './Ui';
 import { MoveHandler } from './handlers/MoveHandler';
+import { SelectableState } from './Types';
 
 /**
  * This class is the entry point of the library
@@ -31,6 +33,7 @@ export class Stage {
   protected mouse: Mouse;
 
   protected selectablesObserver: SelectablesObserver;
+  protected domObserver: DomObserver;
   protected uiObserver: UiObserver;
   protected mouseObserver: MouseObserver;
 
@@ -67,9 +70,8 @@ export class Stage {
     // polyfill the iframe
     Polyfill.patchWindow(this.contentWindow);
 
-    // create the store and populate it
+    // create the store
     this.store = new StageStore();
-    this.reset(elements);
 
     // add a UI over the iframe
     Ui.createUi(iframe, this.store)
@@ -78,6 +80,7 @@ export class Stage {
 
       // state observers
       this.selectablesObserver = new SelectablesObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
+      this.domObserver = new DomObserver(this.store, (state, entries) => this.domObserverCallback(state, entries));
       this.uiObserver = new UiObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
       this.mouseObserver = new MouseObserver(this.contentDocument, this.ui.overlay.contentDocument, this.store, this.hooks);
 
@@ -87,6 +90,7 @@ export class Stage {
 
       this.unsubscribeAll.push(
         () => this.selectablesObserver.cleanup(),
+        () => this.domObserver.cleanup(),
         () => this.uiObserver.cleanup(),
         () => this.mouseObserver.cleanup(),
         () => this.mouse.cleanup(),
@@ -96,10 +100,32 @@ export class Stage {
         addEvent(window, 'resize', (e: MouseEvent) => this.redraw()),
       );
 
+      // populate the store
+      this.reset(elements);
+
       // finish init
       this.waitingListeners.forEach(l => l());
       this.waitingListeners = [];
     })
+  }
+
+  domObserverCallback(state: SelectableState, entries) {
+    const updateStates = [];
+    entries.forEach((entry) => {
+      if (entry.type === 'childList') {
+        const children = Array.from(entry.target.children)
+          .map((el: HTMLElement) => this.getState(el));
+        updateStates.push(...children);
+      } else {
+        updateStates.push(this.getState(entry.target));
+      }
+    })
+    if (updateStates.length > 0) {
+      this.store.dispatch(updateSelectables(updateStates.map(selectable => ({
+        ...selectable,
+        metrics: DomMetrics.getMetrics(selectable.el),
+      }))));
+    }
   }
 
   /**
@@ -203,16 +229,16 @@ export class Stage {
     this.redrawSome(this.store.getState().selectables);
   }
   redrawSome(selectables: Array<types.SelectableState>) {
-    if (!this.store.getState().ui.refreshing) {
-      this.store.dispatch(UiAction.setRefreshing(true));
-      this.store.dispatch(updateSelectables(selectables.map(selectable => {
-        return {
-          ...selectable,
-          metrics: DomMetrics.getMetrics(selectable.el),
-        }
-      })));
-      this.store.dispatch(UiAction.setRefreshing(false));
-    }
+    // if (!this.store.getState().ui.refreshing) {
+    //   this.store.dispatch(UiAction.setRefreshing(true));
+    //   this.store.dispatch(updateSelectables(selectables.map(selectable => {
+    //     return {
+    //       ...selectable,
+    //       metrics: DomMetrics.getMetrics(selectable.el),
+    //     }
+    //   })));
+    //   this.store.dispatch(UiAction.setRefreshing(false));
+    // }
   }
 
   reset(elements: ArrayLike<HTMLElement>) {
@@ -266,23 +292,30 @@ export class Stage {
    * Add an element to the store
    */
   addElement(el: HTMLElement, preventDispatch = true) {
-    if(preventDispatch) {
-      // do not apply style change to this element
-      this.store.dispatch(UiAction.setRefreshing(true));
-    }
-
-    // create an element in the store
-    this.store.dispatch(createSelectable({
+    const state: SelectableState = {
       id: this.hooks.getId(el),
       el,
       selected: false,
+      hovered: false,
       selectable: this.hooks.isSelectable(el),
       draggable: this.hooks.isDraggable(el),
       resizeable: this.getElementResizeable(el),
       isDropZone: this.hooks.isDropZone(el),
       useMinHeight: this.hooks.useMinHeight(el),
       metrics: DomMetrics.getMetrics(el),
-    }));
+    }
+
+    if(preventDispatch) {
+      // do not apply style change to this element
+      this.store.dispatch(UiAction.setRefreshing(true));
+      // still add it to the dom observer
+      // FIXME: prevent the prenvent dispatch is not smart, event prevent a dispatch is not smart
+      // FIXME: start listening after dispatch store since metrics are already computed
+      this.domObserver.onAdded(state);
+    }
+
+    // create an element in the store
+    this.store.dispatch(createSelectable(state));
 
     if(preventDispatch) {
       this.store.dispatch(UiAction.setRefreshing(false));
