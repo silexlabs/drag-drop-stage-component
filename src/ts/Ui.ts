@@ -1,5 +1,5 @@
 import {StageStore} from './flux/StageStore';
-import { SelectableState, State, MouseState, MouseData, ScrollData, ElementMetrics, UiState, UiMode } from './Types';
+import { SelectableState, State, MouseState, UiState, UiMode } from './Types';
 import { addEvent } from './utils/Events';
 import * as DomMetrics from './utils/DomMetrics';
 
@@ -37,7 +37,7 @@ export class Ui {
       // addEvent(win, 'resize', () => this.resizeOverlay()),
       addEvent(window, 'resize', () => this.resizeOverlay()),
       store.subscribe(
-        (selectables: Array<SelectableState>) => this.update(selectables, this.getScrollData(iframe)),
+        (selectables: Array<SelectableState>) => this.update(selectables),
         (state: State) => state.selectables,
       ),
       store.subscribe(
@@ -66,12 +66,12 @@ export class Ui {
         body.dragging-mode .box.not-selected.not-aboutToDrop,
         body.resizing-mode .box.not-selected { display: none; }
 
-        .aboutToDrop, .selected.box, .box.hover {
+        .aboutToDrop, .selected.box, .box.target {
           border: 1px solid rgba(0, 0, 0, .5);
         }
         .box.aboutToDrop:before,
         .box.selected:before,
-        .box.hover:before {
+        .box.target:before {
           content: ' ';
           position: absolute;
           z-index: -1;
@@ -86,6 +86,7 @@ export class Ui {
 
         .handle {
           position: absolute;
+          z-index: 999;
           border: 1px solid rgba(0, 0, 0, .5);
           background-color: rgba(255, 255, 255, 1);
           width: 5px;
@@ -124,7 +125,6 @@ export class Ui {
 
   resizeOverlay() {
     this.resize()
-    this.update(this.store.getState().selectables, this.getScrollData(this.iframe));
   }
 
   private unsubscribeAll: Array<() => void> = [];
@@ -134,12 +134,12 @@ export class Ui {
     this.overlay = null;
   }
 
-  private getScrollData(iframe: HTMLIFrameElement): ScrollData {
-    return {
-      x: iframe.contentWindow.document.scrollingElement.scrollWidth,
-      y: iframe.contentWindow.document.scrollingElement.scrollHeight,
-    };
-  }
+  // private getScrollData(iframe: HTMLIFrameElement): ScrollData {
+  //   return {
+  //     x: iframe.contentWindow.document.scrollingElement.scrollWidth,
+  //     y: iframe.contentWindow.document.scrollingElement.scrollHeight,
+  //   };
+  // }
   private resize() {
     const metrics = DomMetrics.getMetrics(this.iframe);
     const zIndex = this.iframe.contentWindow.getComputedStyle(this.iframe).getPropertyValue('z-index');
@@ -184,10 +184,11 @@ export class Ui {
     }
   }
 
-  update(selectables: Array<SelectableState>, scrollData: ScrollData) {
+  update(selectables: Array<SelectableState>) {
     //  update scroll
-    this.overlay.contentDocument.body.style.width = scrollData.x + 'px';
-    this.overlay.contentDocument.body.style.height = scrollData.y + 'px';
+    const { scrollWidth, scrollHeight} = this.iframe.contentWindow.document.scrollingElement;
+    this.overlay.contentDocument.body.style.width = scrollWidth + 'px';
+    this.overlay.contentDocument.body.style.height = scrollHeight + 'px';
 
     // remove the UIs that have no corresponding element in the stage
     this.boxes
@@ -212,7 +213,9 @@ export class Ui {
     );
 
     // update the view
-    const dropZones = selectables.filter(s => s.dropZone && s.dropZone.parent).map(s => s.dropZone.parent);
+    const mode = this.store.getState().ui.mode;
+    const dropZones = mode === UiMode.DRAG ? selectables.filter(s => s.dropZone && s.dropZone.parent).map(s => s.dropZone.parent)
+      : [];
     this.boxes
     .map(r => this.updateBox(r, selectables.find(s => s.el === r.selectable.el), dropZones));
   }
@@ -226,9 +229,10 @@ export class Ui {
     `;
     return box;
   }
-  private updateBox(box: Box, selectable: SelectableState, dropZones: Array<HTMLElement>): Box {
+  private updateBox(box: Box, selectable: SelectableState, dropZones: HTMLElement[]): Box {
     const sticky = selectable.selected ? this.store.getState().ui.sticky : {top: null, left: null, bottom: null, right: null};
     const aboutToDrop = !!dropZones.find(el => el === selectable.el);
+    const target = this.store.getState().mouse.mouseData.target === box.selectable.el;
 
     box.selectable = selectable;
     DomMetrics.setMetrics(box.ui, {
@@ -243,6 +247,7 @@ export class Ui {
       !box.selectable.selectable ? 'selectable' : 'not-selectable',
       !box.selectable.draggable ? 'draggable' : 'not-draggable',
       !box.selectable.hovered ? 'hover' : 'not-hover',
+      !target ? 'target' : 'not-target',
       (!box.selectable.resizeable.top && !box.selectable.resizeable.left) ? 'resizeable-nw' : 'not-resizeable-nw',
       (!box.selectable.resizeable.top && !box.selectable.resizeable.right) ? 'resizeable-ne' : 'not-resizeable-ne',
       (!box.selectable.resizeable.bottom && !box.selectable.resizeable.left) ? 'resizeable-sw' : 'not-resizeable-sw',
@@ -260,6 +265,7 @@ export class Ui {
       box.selectable.selectable ? 'selectable' : 'not-selectable',
       box.selectable.draggable ? 'draggable' : 'not-draggable',
       box.selectable.hovered ? 'hover' : 'not-hover',
+      target ? 'target' : 'not-target',
       (box.selectable.resizeable.top && box.selectable.resizeable.left) ? 'resizeable-nw' : 'not-resizeable-nw',
       (box.selectable.resizeable.top && box.selectable.resizeable.right) ? 'resizeable-ne' : 'not-resizeable-ne',
       (box.selectable.resizeable.bottom && box.selectable.resizeable.left) ? 'resizeable-sw' : 'not-resizeable-sw',

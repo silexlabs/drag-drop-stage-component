@@ -70,6 +70,7 @@ describe('ResizeHandler', function() {
         movementY: 10,
         shiftKey: false,
         target: StageStoreMock.elem2,
+        hovered: [],
       }
     };
     var handler = initHandler(mouseState);
@@ -86,6 +87,7 @@ describe('ResizeHandler', function() {
         movementY: 10,
         shiftKey: false,
         target: StageStoreMock.elem2,
+        hovered: [],
       }
     };
     var handler = initHandler(mouseState);
@@ -114,6 +116,7 @@ describe('ResizeHandler', function() {
         movementY: 100,
         shiftKey: false,
         target: document.body,
+        hovered: [],
       }
     };
     var handler = initHandler(mouseState);
@@ -129,6 +132,7 @@ describe('ResizeHandler', function() {
         movementY: 100,
         shiftKey: false,
         target: document.body,
+        hovered: [],
       }
     };
     var handler = initHandler(mouseState);
@@ -160,6 +164,7 @@ describe('ResizeHandler', function() {
         movementY: -10,
         shiftKey: false,
         target: document.body,
+        hovered: [],
       }
     };
     var handler = initHandler(mouseState);
@@ -175,6 +180,7 @@ describe('ResizeHandler', function() {
         movementY: -10,
         shiftKey: false,
         target: document.body,
+        hovered: [],
       }
     };
     var handler = initHandler(mouseState);
@@ -205,6 +211,7 @@ describe('ResizeHandler', function() {
         movementY: 0,
         shiftKey: true,
         target: document.body,
+        hovered: [],
       }
     };
     var handler = initHandler(mouseState);
@@ -220,6 +227,7 @@ describe('ResizeHandler', function() {
         movementY: 0,
         shiftKey: true,
         target: document.body,
+        hovered: [],
       }
     };
     var handler = initHandler(mouseState);
@@ -248,6 +256,7 @@ describe('ResizeHandler', function() {
         movementY: 10,
         shiftKey: false,
         target: document.body,
+        hovered: [],
       }
     };
     var handler = initHandler(mouseState);
@@ -263,6 +272,7 @@ describe('ResizeHandler', function() {
         movementY: 10,
         shiftKey: false,
         target: document.body,
+        hovered: [],
       }
     };
     var handler = initHandler(mouseState);

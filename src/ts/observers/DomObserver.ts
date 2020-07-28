@@ -32,14 +32,15 @@ export function addDomObserver(el: HTMLElement, onChanged: (entries: Array<any>)
   resizeObserver.observe(el, {});
 
   const mutationObserver = new MutationObserver(onChanged);
-  mutationObserver.observe(el, {
-    subtree: false,
-    childList: true,
-    attributes: false,
-    attributeOldValue: false,
-    characterData: false,
-    characterDataOldValue: false,
-  });
+  // FIXME: mutation observer is disabled => remove useless mutationObserver
+  // mutationObserver.observe(el, {
+  //   subtree: true,
+  //   childList: true,
+  //   attributes: true,
+  //   attributeOldValue: false,
+  //   characterData: true,
+  //   characterDataOldValue: false,
+  // });
 
   domObservers.set(el, {mutationObserver, resizeObserver});
 };

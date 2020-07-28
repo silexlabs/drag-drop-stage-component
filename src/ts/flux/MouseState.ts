@@ -52,6 +52,7 @@ export const getDefaultState = (): types.MouseState => {
       mouseY: 0,
       shiftKey: false,
       target: null,
+      hovered: [],
     },
   };
 }

@@ -11,11 +11,11 @@ import {MouseObserver} from './observers/MouseObserver';
 import {UiObserver} from './observers/UiObserver';
 import {StageStore} from './flux/StageStore';
 import { resetSelectables, createSelectable, updateSelectables, deleteSelectable } from './flux/SelectableState';
-import { addEvent } from './utils/Events';
 import { setScroll } from './flux/MouseState';
 import { Ui } from './Ui';
 import { MoveHandler } from './handlers/MoveHandler';
 import { SelectableState } from './Types';
+import { addEvent } from './utils/Events';
 
 /**
  * This class is the entry point of the library
@@ -95,9 +95,7 @@ export class Stage {
         () => this.mouseObserver.cleanup(),
         () => this.mouse.cleanup(),
         () => keyboard.cleanup(),
-
-        // window resize
-        addEvent(window, 'resize', (e: MouseEvent) => this.redraw()),
+        addEvent(window, 'resize', () => this.updateMetrics()),
       );
 
       // populate the store
@@ -109,23 +107,68 @@ export class Stage {
     })
   }
 
+  /**
+   * DOM observers say some elements changed
+   * We need to update their metrics
+   */
   domObserverCallback(state: SelectableState, entries) {
-    const updateStates = [];
-    entries.forEach((entry) => {
-      if (entry.type === 'childList') {
-        const children = Array.from(entry.target.children)
-          .map((el: HTMLElement) => this.getState(el));
-        updateStates.push(...children);
-      } else {
-        updateStates.push(this.getState(entry.target));
-      }
-    })
-    if (updateStates.length > 0) {
-      this.store.dispatch(updateSelectables(updateStates.map(selectable => ({
+    // mutation observers are not used anymore
+    // they use to detect changes many times
+    // const updated: HTMLElement[] = [];
+    // entries.forEach((entry) => {
+    //   if (entry.type === 'childList') {
+    //     // update children UI when their order changed
+    //     const children: HTMLElement[] = Array.from(entry.target.children)
+    //     // TODO: also add the elements children recursively
+    //     updated.push(...children);
+    //   } else {
+    //     // update the target itself
+    //     updated.push(entry.target);
+    //   }
+    // })
+    // this.updateMetrics(updated);
+    this.updateMetrics(
+      entries.map((entry: any) => entry.target as HTMLElement)
+      .concat(state.el)
+    )
+  }
+
+  /**
+   * update the position and size of the UI
+   */
+  updateMetrics(updated: HTMLElement[] = null) {
+    const updateStates: SelectableState[] = updated ? updated
+      .map((el) => this.getState(el))
+      .filter((state) => !!state)
+      : this.store.getState().selectables;
+
+    // add children
+    const children = this.store.getState().selectables
+      .filter((state) => this.getParents(state.el)
+        .some((parentEl) => updateStates
+          .some((updateState) => updateState.el === parentEl)))
+
+    // remove duplicates
+    const states = [...new Set(updateStates.concat(children))]
+    
+    // update metrics of the updated states
+    if (states.length > 0) {
+      this.store.dispatch(UiAction.setRefreshing(true));
+      this.store.dispatch(updateSelectables(states.map(selectable => ({
         ...selectable,
         metrics: DomMetrics.getMetrics(selectable.el),
       }))));
+      this.store.dispatch(UiAction.setRefreshing(false));
+      //this.ui.update(states, this.getScroll())
     }
+  }
+
+  /**
+   * get all parents of an element in the dom
+   */
+  getParents(el: HTMLElement): HTMLElement[] {
+    return el ? this.getParents(el.parentElement).concat(el.parentElement ? [el.parentElement] : [])
+      : []
   }
 
   /**
@@ -222,25 +265,6 @@ export class Stage {
   // Elements and metrics
   ///////////////////////////////////////////////////
 
-  /**
-   * recalculate all the metrics
-   */
-  redraw() {
-    this.redrawSome(this.store.getState().selectables);
-  }
-  redrawSome(selectables: Array<types.SelectableState>) {
-    // if (!this.store.getState().ui.refreshing) {
-    //   this.store.dispatch(UiAction.setRefreshing(true));
-    //   this.store.dispatch(updateSelectables(selectables.map(selectable => {
-    //     return {
-    //       ...selectable,
-    //       metrics: DomMetrics.getMetrics(selectable.el),
-    //     }
-    //   })));
-    //   this.store.dispatch(UiAction.setRefreshing(false));
-    // }
-  }
-
   reset(elements: ArrayLike<HTMLElement>) {
     this.store.dispatch(UiAction.setRefreshing(true));
     this.store.dispatch(resetSelectables());
@@ -320,10 +344,6 @@ export class Stage {
     if(preventDispatch) {
       this.store.dispatch(UiAction.setRefreshing(false));
     }
-    else {
-      // compute all metrics again because this element might affect others
-      this.redraw();
-    }
   }
 
   protected getElementResizeable(el: HTMLElement): types.Direction {
@@ -341,8 +361,6 @@ export class Stage {
    */
   removeElement(id: string) {
     this.store.dispatch(deleteSelectable(this.store.getState().selectables.find(s => s.id === id)));
-    // compute all metrics again because this element might affect others
-    this.redraw();
   }
 
 

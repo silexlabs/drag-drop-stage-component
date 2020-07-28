@@ -162,6 +162,7 @@ describe('Mouse', function() {
       movementX: 0,
       movementY: 0,
       target: StageStoreMock.elem1,
+      hovered: [],
     });
     await wait(400); // for dbl click detection
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
@@ -178,6 +179,7 @@ describe('Mouse', function() {
       movementX: 0,
       movementY: 0,
       target: StageStoreMock.elem1,
+      hovered: [],
     });
     await wait(400); // for dbl click detection
     expect(stageStoreMock.dispatch).toBeCalledTimes(1);
@@ -195,6 +197,7 @@ describe('Mouse', function() {
       movementX: 0,
       movementY: 0,
       target: StageStoreMock.elem2,
+      hovered: [],
     });
     await wait(400); // for dbl click detection
     expect(stageStoreMock.dispatch).toBeCalledTimes(2);
@@ -210,6 +213,7 @@ describe('Mouse', function() {
       movementX: 0,
       movementY: 0,
       target: StageStoreMock.elem2,
+      hovered: [],
     });
     expect(stageStoreMock.dispatch).toBeCalledTimes(2);
 
@@ -222,6 +226,7 @@ describe('Mouse', function() {
       movementX: 0,
       movementY: 0,
       target: StageStoreMock.elem2,
+      hovered: [],
     });
     await wait(400); // for dbl click detection
     expect(stageStoreMock.dispatch).toBeCalledTimes(3);
@@ -232,6 +237,7 @@ describe('Mouse', function() {
       movementX: 0,
       movementY: 0,
       target: StageStoreMock.elem2,
+      hovered: [],
     });
     var calls = stageStoreMock.dispatch['mock'].calls;
     expect(calls[calls.length - 1][0].type).toBe('SELECTION_REMOVE');

@@ -11,13 +11,12 @@ describe('Ui', () => {
 
   async function resetUi() {
     iframeTest = document.querySelector('#iframe-test-id');
-    return Ui.createUi(iframeTest, stageStoreMock).then(_ui => {
-      ui = _ui;
-      jest.spyOn(ui, 'update');
 
-      const iframes = Array.from(document.querySelectorAll('iframe'));
-      iframeUi = iframes.find(i => i.id != 'iframe-test-id');
-    });
+    ui = await Ui.createUi(iframeTest, stageStoreMock);
+    iframeUi = ui.overlay;
+
+    jest.spyOn(ui, 'update');
+    jest.spyOn(ui, 'resizeOverlay');
   }
 
   function addSelectable() {
@@ -30,6 +29,7 @@ describe('Ui', () => {
           id: 'elemXID',
           selectable: true,
           selected: false,
+          hovered: false,
           draggable: true,
           resizeable: {
             top: true,
@@ -96,7 +96,7 @@ describe('Ui', () => {
     expect(window.getComputedStyle(iframeUi).backgroundColor).toBe('rgba(0, 0, 0, 0)');
 
     window.dispatchEvent(new Event('resize'));
-    expect(ui.update).toBeCalledTimes(1);
+    expect(ui.resizeOverlay).toBeCalledTimes(1);
   });
 
   it('should listen to the store and update', () => {
@@ -106,6 +106,7 @@ describe('Ui', () => {
   });
 
   it('should draw the UI', () => {
+    ui.update(stageStoreMock.getState().selectables)
     var elements = Array.from(iframeUi.contentDocument.body.querySelectorAll('.box'));
     expect(elements.length).toBe(2);
     elements.forEach((el, idx) => expect(el).toMatchSnapshot('snapshot-draw-ui' + idx));

@@ -18,6 +18,7 @@ describe('StageStore', function() {
           id: 'elemXID',
           selectable: true,
           selected: false,
+          hovered: false,
           draggable: true,
           resizeable: {
             top: true,

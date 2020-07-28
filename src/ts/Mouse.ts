@@ -125,14 +125,19 @@ export class Mouse {
     e.preventDefault();
     const mouseData = this.eventToMouseData(e, offset);
 
+    // update mouse data
+    this.store.dispatch(MouseState.setMouseData(mouseData));
+
     // update hovered state
+    // one could use the store.getState().mouseState.mouseData.hovered
+    // but the change event is used by the Ui.ts to detect that a box should change
     const updated = this.store.getState().selectables
-      .filter((state) => state.hovered !== (state.el === mouseData.target));
-    if (updated.length > 0) {
+      .filter((state) => state.hovered !== mouseData.hovered.includes(state.el));
+    if (updated.length > 0) { 
       this.store.dispatch(updateSelectables(updated
         .map((state) => ({
           ...state,
-          hovered: state.el === mouseData.target,
+          hovered: mouseData.hovered.includes(state.el),
         }))))
     }
 
@@ -179,8 +184,8 @@ export class Mouse {
   eventToMouseData(e: MouseEvent, offset: ClientRect = null): types.MouseData {
     const x = e.clientX - (offset ? offset.left : 0);
     const y = e.clientY - (offset ? offset.top : 0);
-    const elements = DomMetrics.findSelectableUnderMouse(this.winStage.document, this.store, x, y) as HTMLElement[];
-    const target = !!elements ? elements[0] : null;
+    const hovered = DomMetrics.findSelectableUnderMouse(this.winStage.document, this.store, x, y) as HTMLElement[];
+    const target = !!hovered ? hovered[0] : null;
     return {
       movementX: e.movementX,
       movementY: e.movementY,
@@ -188,6 +193,7 @@ export class Mouse {
       mouseY: y,
       shiftKey: e.shiftKey,
       target,
+      hovered,
     };
   }
 
@@ -253,12 +259,9 @@ export class Mouse {
 
 
   onDrag(mouseData: types.MouseData) {
-    this.store.dispatch(MouseState.setMouseData(mouseData));
   }
 
   onStartDrag(mouseData: types.MouseData) {
-    // update mouse data
-    this.store.dispatch(MouseState.setMouseData(mouseData));
     // draw or resize or move
     const selectable = DomMetrics.getSelectable(this.store, mouseData.target as HTMLElement);
     if(selectable) {

@@ -59,6 +59,11 @@ export class MoveHandler extends MouseHandlerBase {
   update(mouseData: MouseData) {
     super.update(mouseData);
 
+    if (this.selection.length === 0) {
+      // This seems to happen when the user moves the mouse fast
+      return;
+    }
+
     // remove the marker
     if(this.positionMarker.parentNode) this.positionMarker.parentNode.removeChild(this.positionMarker);
 

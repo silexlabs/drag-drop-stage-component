@@ -38,6 +38,7 @@ export class StageStoreMock extends StageStore {
     el: StageStoreMock.elem1,
     selectable: true,
     selected: false,
+    hovered: false,
     draggable: true,
     resizeable: {
       top: true,
@@ -62,6 +63,7 @@ export class StageStoreMock extends StageStore {
     el: StageStoreMock.elem2,
     selectable: true,
     selected: false,
+    hovered: false,
     draggable: true,
     resizeable: {
       top: true,
@@ -90,7 +92,7 @@ export class StageStoreMock extends StageStore {
     enableSticky: false,
   };
   mouseState: types.MouseState = {
-    scrollData: {x: 0, y: 0},
+    scrollData: { x: 0, y: 0},
     cursorData: {x: '', y: '', cursorType: ''},
     mouseData: {
       movementX: 0,
@@ -99,6 +101,7 @@ export class StageStoreMock extends StageStore {
       mouseY: 0,
       shiftKey: false,
       target: null,
+      hovered: [],
     },
   };
   initialState = {

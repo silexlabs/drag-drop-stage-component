@@ -150,4 +150,5 @@ export interface MouseData {
   mouseY: number
   shiftKey: boolean
   target: HTMLElement
+  hovered: HTMLElement[]
 }

@@ -40,6 +40,7 @@ describe('DrawHandler', function() {
       movementY: 1,
       shiftKey: false,
       target: document.body,
+      hovered: [],
     };
     stageStoreMock.mouseState.mouseData = mouseData;
     handler.update(mouseData);
@@ -57,6 +58,7 @@ describe('DrawHandler', function() {
       movementY: 100,
       shiftKey: false,
       target: document.body,
+      hovered: [],
     };
     stageStoreMock.mouseState.mouseData = mouseData;
     handler.update(mouseData);
@@ -81,6 +83,7 @@ describe('DrawHandler', function() {
       movementY: 100,
       shiftKey: false,
       target: document.body,
+      hovered: [],
     };
     stageStoreMock.mouseState.mouseData = mouseData;
     handler.update(mouseData);
@@ -96,6 +99,7 @@ describe('DrawHandler', function() {
       movementY: -100,
       shiftKey: false,
       target: document.body,
+      hovered: [],
     };
     stageStoreMock.mouseState.mouseData = mouseData;
     handler.update(mouseData);

@@ -103,6 +103,7 @@ describe('MoveHandler', function() {
       mouseY: 100,
       shiftKey: false,
       target: StageStoreMock.elem1,
+      hovered: [],
     };
     stageStoreMock.mouseState.mouseData = mouseData;
     handler.update(mouseData);
@@ -128,6 +129,7 @@ describe('MoveHandler', function() {
       mouseY: 150, // to middle of elem1
       shiftKey: false,
       target: StageStoreMock.elem2,
+      hovered: [],
     };
     stageStoreMock.mouseState.mouseData = mouseData;
     handler.update(mouseData);
@@ -162,6 +164,7 @@ describe('MoveHandler', function() {
       mouseY: 150, // to middle of elem1
       shiftKey: false,
       target: StageStoreMock.elem2,
+      hovered: [],
     };
     stageStoreMock.mouseState.mouseData = mouseData;
     handler.update(mouseData);
@@ -192,6 +195,7 @@ describe('MoveHandler', function() {
       mouseY: 16, // to middle of nowhere
       shiftKey: false,
       target: StageStoreMock.elem2,
+      hovered: [],
     };
     stageStoreMock.mouseState.mouseData = mouseData;
     handler.update(mouseData);
@@ -208,6 +212,7 @@ describe('MoveHandler', function() {
       id: 'elem4ID',
       el: elem4,
       selected: true,
+      hovered: false,
       selectable: false,
       draggable: true,
       resizeable: {
@@ -258,6 +263,7 @@ describe('MoveHandler', function() {
       mouseY: 60, // to middle of elem1
       shiftKey: false,
       target: StageStoreMock.elem1,
+      hovered: [],
     };
     stageStoreMock.mouseState.mouseData = mouseData;
     handler.update(mouseData);
@@ -303,6 +309,7 @@ describe('MoveHandler', function() {
       mouseY: 60, // to middle of elem1
       shiftKey: false,
       target: StageStoreMock.elem1,
+      hovered: [],
     };
     stageStoreMock.mouseState.mouseData = mouseData;
     handler.update(mouseData);
@@ -341,6 +348,7 @@ describe('MoveHandler', function() {
       el: elem3,
       id: 'elem3ID',
       selected: false,
+      hovered: false,
       selectable: false,
       draggable: true,
       resizeable: {
@@ -385,6 +393,7 @@ describe('MoveHandler', function() {
       mouseY: mouseEnd.y - scroll.y,
       shiftKey: false,
       target: StageStoreMock.elem2,
+      hovered: [],
     };
     stageStoreMock.mouseState.mouseData = mouseData;
     handler.update(mouseData);
@@ -452,6 +461,7 @@ describe('MoveHandler', function() {
       mouseY: mouseEnd.y - scroll.y,
       shiftKey: false,
       target: StageStoreMock.elem2,
+      hovered: [],
     };
     stageStoreMock.mouseState.mouseData = mouseData;
     handler.update(mouseData);
@@ -506,6 +516,7 @@ describe('MoveHandler', function() {
       mouseY: mouseEnd.y,
       shiftKey: false,
       target: StageStoreMock.elem2,
+      hovered: [],
     };
     stageStoreMock.mouseState.mouseData = mouseData;
     handler.update(mouseData);
