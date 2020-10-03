@@ -15,15 +15,21 @@ export class SelectablesObserver {
         (state:types.State) => state.selectables
       ),
       store.subscribe(
-        (state: types.UiState, prevState: types.UiState) => this.onUiChanged(state),
+        (state: types.UiState, prevState: types.UiState) => this.onUiChanged(state, prevState),
         (state:types.State) => state.ui
       ),
     );
   }
 
   private isRefreshing: boolean = false;
-  onUiChanged(state: types.UiState) {
+  private state: Array<SelectableState> = []
+  private prevState: Array<SelectableState> = []
+  onUiChanged(state: types.UiState, prevState: types.UiState) {
     this.isRefreshing = state.refreshing;
+    // // update after refresh (bug because isRefreshing is turned on and off many times)
+    // if (state.refreshing !== prevState.refreshing && state.refreshing === false) {
+    //   this.onStateChanged(this.state, this.prevState)
+    // }
   }
 
   private unsubscribeAll: Array<() => void> = [];
@@ -36,37 +42,40 @@ export class SelectablesObserver {
    * @param {State} state
    * @param {State} prevState the old state obj
    */
-  onStateChanged(state: Array<SelectableState>, prevState: Array<SelectableState>) {
-    // select selectables which have changed
-    const filterBy = (propName, selectable) => {
-      const oldSelectable = prevState.find(old => selectable.el === old.el);
-      // FIXME: use JSON.stringify to compare?
-      return !oldSelectable || JSON.stringify(oldSelectable[propName]) !== JSON.stringify(selectable[propName]);
-      // return !oldSelectable || oldSelectable[propName] !== selectable[propName];
+  onStateChanged(state: Array<SelectableState> = this.state, prevState: Array<SelectableState> = this.prevState) {
+    this.state = state
+    if(!this.isRefreshing) {
+      this.prevState = prevState
+      // select selectables which have changed
+      const filterBy = (propName, selectable) => {
+        const oldSelectable = prevState.find(old => selectable.el === old.el);
+        // FIXME: use JSON.stringify to compare?
+        return !oldSelectable || JSON.stringify(oldSelectable[propName]) !== JSON.stringify(selectable[propName]);
+        // return !oldSelectable || oldSelectable[propName] !== selectable[propName];
+      }
+
+      const removed = prevState.filter(s => !state.find(s2 => s2.el === s.el));
+      const metrics = state.filter(selectable => filterBy('metrics', selectable));
+      if(removed.length + metrics.length > 0) this.onMetrics(metrics, removed);
+
+      const selection = state.filter(selectable => filterBy('selected', selectable));
+      if(selection.length > 0) this.onSelection(selection);
+
+      // const draggable = state.filter(selectable => filterBy('draggable', selectable));
+      // if(draggable.length > 0) this.onDraggable(draggable);
+
+      // const resizeable = state.filter(selectable => filterBy('resizeable', selectable));
+      // if(resizeable.length > 0) this.onResizeable(resizeable);
+
+      // const isDropZone = state.filter(selectable => filterBy('isDropZone', selectable));
+      // if(isDropZone.length > 0) this.onDropZone(isDropZone);
+
+      const translation = state.filter(selectable => filterBy('translation', selectable));
+      if(translation.length > 0) this.onTranslation(translation);
     }
-
-    const removed = prevState.filter(s => !state.find(s2 => s2.el === s.el));
-    const metrics = state.filter(selectable => filterBy('metrics', selectable));
-    if(removed.length + metrics.length > 0) this.onMetrics(metrics, removed);
-
-    const selection = state.filter(selectable => filterBy('selected', selectable));
-    if(selection.length > 0) this.onSelection(selection);
-
-    // const draggable = state.filter(selectable => filterBy('draggable', selectable));
-    // if(draggable.length > 0) this.onDraggable(draggable);
-
-    // const resizeable = state.filter(selectable => filterBy('resizeable', selectable));
-    // if(resizeable.length > 0) this.onResizeable(resizeable);
-
-    // const isDropZone = state.filter(selectable => filterBy('isDropZone', selectable));
-    // if(isDropZone.length > 0) this.onDropZone(isDropZone);
-
-    const translation = state.filter(selectable => filterBy('translation', selectable));
-    if(translation.length > 0) this.onTranslation(translation);
   }
   // update elements position and size
   onMetrics(selectables: Array<SelectableState>, removed: Array<SelectableState>) {
-    if(!this.isRefreshing) {
       selectables.forEach(selectable => {
         // while being dragged, elements are out of the flow, do not apply styles
         if(!selectable.preventMetrics) {
@@ -75,7 +84,6 @@ export class SelectablesObserver {
       });
       // notify the app
       if(this.hooks.onChange) this.hooks.onChange(selectables.concat(removed));
-    }
   }
   onSelection(selectables: Array<SelectableState>) {
     // notify the app

@@ -69,7 +69,22 @@ export class DomObserver {
         (state: Array<SelectableState>, prevState: Array<SelectableState>) => this.onStateChanged(state, prevState),
         (state:types.State) => state.selectables
       ),
+      store.subscribe(
+        (state: types.UiState, prevState: types.UiState) => this.onUiChanged(state, prevState),
+        (state:types.State) => state.ui
+      ),
     );
+  }
+
+  private isRefreshing: boolean = false;
+  private state: Array<SelectableState> = []
+  private prevState: Array<SelectableState> = []
+  onUiChanged(state: types.UiState, prevState: types.UiState) {
+    this.isRefreshing = state.refreshing;
+    // // update after refresh (bug because isRefreshing is turned on and off many times)
+    // if (state.refreshing !== prevState.refreshing && state.refreshing === false) {
+    //   this.onStateChanged()
+    // }
   }
 
   private unsubscribeAll: Array<() => void> = [];
@@ -95,11 +110,15 @@ export class DomObserver {
    * @param {State} state
    * @param {State} prevState the old state obj
    */
-  onStateChanged(state: Array<SelectableState>, prevState: Array<SelectableState>) {
-    const added = state.filter(s => !prevState.find(s2 => s2.el === s.el));
-    added.forEach((state) => this.onAdded(state))
+  onStateChanged(state: Array<SelectableState> = this.state, prevState: Array<SelectableState> = this.prevState) {
+    this.state = state
+    if(!this.isRefreshing) {
+      this.prevState = prevState
+      const added = state.filter(s => !prevState.find(s2 => s2.el === s.el));
+      added.forEach((state) => this.onAdded(state))
 
-    const removed = prevState.filter(s => !state.find(s2 => s2.el === s.el));
-    removed.forEach((state) => this.onRemoved(state))
+      const removed = prevState.filter(s => !state.find(s2 => s2.el === s.el));
+      removed.forEach((state) => this.onRemoved(state))
+    }
   }
 }

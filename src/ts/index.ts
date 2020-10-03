@@ -153,12 +153,13 @@ export class Stage {
     
     // update metrics of the updated states
     if (states.length > 0) {
-      this.store.dispatch(UiAction.setRefreshing(true));
+      const isRefreshing = this.store.getState().ui.refreshing
+      if (!isRefreshing) this.store.dispatch(UiAction.setRefreshing(true));
       this.store.dispatch(updateSelectables(states.map(selectable => ({
         ...selectable,
         metrics: DomMetrics.getMetrics(selectable.el),
       }))));
-      this.store.dispatch(UiAction.setRefreshing(false));
+      if (!isRefreshing) this.store.dispatch(UiAction.setRefreshing(false));
       //this.ui.update(states, this.getScroll())
     }
   }
@@ -266,10 +267,15 @@ export class Stage {
   ///////////////////////////////////////////////////
 
   reset(elements: ArrayLike<HTMLElement>) {
-    this.store.dispatch(UiAction.setRefreshing(true));
+    const isRefreshing = this.store.getState().ui.refreshing
+    if (!isRefreshing) this.store.dispatch(UiAction.setRefreshing(true));
     this.store.dispatch(resetSelectables());
     Array.from(elements).forEach(el => this.addElement(el, false));
-    this.store.dispatch(UiAction.setRefreshing(false));
+    if (!isRefreshing) this.store.dispatch(UiAction.setRefreshing(false));
+    // update after reset (FIXME: should be called in the objects by listening to the store changes but it fails because isRefreshing is turned on and off many times)
+    this.ui.update(this.store.getState().selectables)
+    // bug, why?: this.selectablesObserver.onStateChanged()
+    this.domObserver.onStateChanged()
   }
 
   /**
@@ -329,9 +335,10 @@ export class Stage {
       metrics: DomMetrics.getMetrics(el),
     }
 
+    const isRefreshing = this.store.getState().ui.refreshing
     if(preventDispatch) {
       // do not apply style change to this element
-      this.store.dispatch(UiAction.setRefreshing(true));
+      if (!isRefreshing) this.store.dispatch(UiAction.setRefreshing(true));
       // still add it to the dom observer
       // FIXME: prevent the prenvent dispatch is not smart, event prevent a dispatch is not smart
       // FIXME: start listening after dispatch store since metrics are already computed
@@ -342,7 +349,7 @@ export class Stage {
     this.store.dispatch(createSelectable(state));
 
     if(preventDispatch) {
-      this.store.dispatch(UiAction.setRefreshing(false));
+      if (!isRefreshing) this.store.dispatch(UiAction.setRefreshing(false));
     }
   }
 

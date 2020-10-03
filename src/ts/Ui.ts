@@ -149,7 +149,13 @@ export class Ui {
     this.overlay.style.zIndex = ((parseInt(zIndex) || 0) + 1).toString();
     this.overlay.style.border = 'none';
   }
+  private isRefreshing: boolean = false;
   private onUiChanged(state: UiState, prevState: UiState) {
+    this.isRefreshing = state.refreshing;
+    // // update after refresh (fail because isRefreshing is turned on and off many times)
+    // if (state.refreshing !== prevState.refreshing && state.refreshing === false) {
+    //   this.update(this.store.getState().selectables)
+    // }
     if(state.catchingEvents !== prevState.catchingEvents || state.mode !== prevState.mode) {
       // this is to give the focus on the UI, and not prevent the user from pressing tab again
       this.overlay.style.pointerEvents = state.catchingEvents ? '' : 'none';
@@ -185,39 +191,41 @@ export class Ui {
   }
 
   update(selectables: Array<SelectableState>) {
-    //  update scroll
-    const { scrollWidth, scrollHeight} = this.iframe.contentWindow.document.scrollingElement;
-    this.overlay.contentDocument.body.style.width = scrollWidth + 'px';
-    this.overlay.contentDocument.body.style.height = scrollHeight + 'px';
+    if(!this.isRefreshing) {
+      //  update scroll
+      const { scrollWidth, scrollHeight} = this.iframe.contentWindow.document.scrollingElement;
+      this.overlay.contentDocument.body.style.width = scrollWidth + 'px';
+      this.overlay.contentDocument.body.style.height = scrollHeight + 'px';
 
-    // remove the UIs that have no corresponding element in the stage
-    this.boxes
-    .filter(r => !selectables.find(s => r.selectable.el === s.el))
-    .forEach(r => r.ui.parentElement.removeChild(r.ui));
+      // remove the UIs that have no corresponding element in the stage
+      this.boxes
+      .filter(r => !selectables.find(s => r.selectable.el === s.el))
+      .forEach(r => r.ui.parentElement.removeChild(r.ui));
 
-    // remove the boxes
-    this.boxes = this.boxes
-    .filter(r => selectables.find(s => r.selectable.el === s.el))
+      // remove the boxes
+      this.boxes = this.boxes
+      .filter(r => selectables.find(s => r.selectable.el === s.el))
 
-    // add the missing boxes
-    this.boxes = this.boxes.concat(
-      selectables
-      // only the missing ones
-      .filter(s => !this.boxes.find(r => r.selectable.el === s.el))
-      // create a box object
-      .map(s => ({
-        selectable: s,
-        // append a new div to the overlay
-        ui: this.overlay.contentDocument.body.appendChild(this.createBoxUi()),
-      }))
-    );
+      // add the missing boxes
+      this.boxes = this.boxes.concat(
+        selectables
+        // only the missing ones
+        .filter(s => !this.boxes.find(r => r.selectable.el === s.el))
+        // create a box object
+        .map(s => ({
+          selectable: s,
+          // append a new div to the overlay
+          ui: this.overlay.contentDocument.body.appendChild(this.createBoxUi()),
+        }))
+      );
 
-    // update the view
-    const mode = this.store.getState().ui.mode;
-    const dropZones = mode === UiMode.DRAG ? selectables.filter(s => s.dropZone && s.dropZone.parent).map(s => s.dropZone.parent)
-      : [];
-    this.boxes
-    .map(r => this.updateBox(r, selectables.find(s => s.el === r.selectable.el), dropZones));
+      // update the view
+      const mode = this.store.getState().ui.mode;
+      const dropZones = mode === UiMode.DRAG ? selectables.filter(s => s.dropZone && s.dropZone.parent).map(s => s.dropZone.parent)
+        : [];
+        this.boxes
+        .map(r => this.updateBox(r, selectables.find(s => s.el === r.selectable.el), dropZones));
+    }
   }
   private createBoxUi(): HTMLElement {
     const box = this.overlay.contentDocument.createElement('div');
