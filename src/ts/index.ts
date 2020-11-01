@@ -295,7 +295,14 @@ export class Stage {
   /**
    * get/set the state for an element
    */
-  getState(el: HTMLElement): types.SelectableState {
+  getStateById(id: string): types.SelectableState {
+    return this.store.getState().selectables.find(s => s.id === id)
+  }
+
+  /**
+   * get/set the state for an element
+   */
+  private getState(el: HTMLElement): types.SelectableState {
     return DomMetrics.getSelectableState(this.store, el);
   }
 
