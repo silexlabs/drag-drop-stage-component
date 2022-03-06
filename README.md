@@ -1,6 +1,3 @@
-![Codeship Status](https://app.codeship.com/projects/3bbb51a0-ea08-0133-a1fa-5a99213623df/status?branch=master)
-[![Démo stage wysiwyg drag and drop](https://monitoshi.lexoyo.me/badge/1555368788372-6479)](http://projects.silexlabs.org/drag-drop-stage-component/pub/)
-
 ## About this project
 
 This "stage" component enables the user select elements, drag and drop them, resize them.
@@ -31,7 +28,7 @@ Here is a [list of features](https://github.com/silexlabs/drag-drop-stage-compon
 
 ## Use
 
-See [the online demo](http://projects.silexlabs.org/drag-drop-stage-component/pub/) and its sources: [html here](https://github.com/silexlabs/drag-drop-stage-component/blob/master/src/jade/index.jade) and [js here](https://github.com/silexlabs/drag-drop-stage-componentdrag-drop-stage-component/blob/master/src/ts/demo.js).
+See [the online demo](http://projects.silexlabs.org/drag-drop-stage-component/pub/) and its sources: [html here](https://github.com/silexlabs/drag-drop-stage-component/blob/main/src/jade/index.jade) and [js here](https://github.com/silexlabs/drag-drop-stage-componentdrag-drop-stage-component/blob/main/src/ts/demo.js).
 
 The component can be initialized like this, which will make it possible to select, move and resize all the elements marked with the `.selectable` css class.
 

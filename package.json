@@ -10,6 +10,7 @@
   "scripts": {
     "prepare": "npm run build:demo",
     "prepublishOnly": "npm run build:demo",
+    "lint": "echo NO LINTER YET",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:update-snapshot": "jest --updateSnapshot",
