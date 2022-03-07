@@ -8,6 +8,7 @@
     "url": "https://github.com/silexlabs/drag-drop-stage-component.git"
   },
   "scripts": {
+    "release": "",
     "prepare": "npm run build:demo",
     "prepublishOnly": "npm run build:demo",
     "lint": "echo NO LINTER YET",
