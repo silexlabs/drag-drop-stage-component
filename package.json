@@ -7,6 +7,9 @@
     "type": "git",
     "url": "https://github.com/silexlabs/drag-drop-stage-component.git"
   },
+  "engines": {
+    "node": ">=10.16.3 <=12.22.10"
+  },
   "scripts": {
     "release": "",
     "prepare": "npm run build:demo",
