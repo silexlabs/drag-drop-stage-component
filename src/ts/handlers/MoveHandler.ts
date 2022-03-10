@@ -1,7 +1,7 @@
 import {MouseHandlerBase} from './MouseHandlerBase';
 import * as mouseState from '../flux/MouseState';
 import { StageStore } from '../flux/StageStore';
-import { Hooks, SelectableState, MouseData, DropZone, EMPTY_BOX } from '../Types';
+import { Hooks, SelectableState, MouseData, DropZone, EMPTY_BOX, FullBox } from '../Types';
 import * as selectableState from '../flux/SelectableState'
 import * as domMetrics from '../utils/DomMetrics';
 import { setRefreshing, setSticky } from '../flux/UiState';
@@ -368,9 +368,9 @@ export class MoveHandler extends MouseHandlerBase {
     else if(position.parent) {
       position.parent.appendChild(this.positionMarker);
     }
-    let bbMarker: ClientRect = domMetrics.getBoundingBoxDocument(this.positionMarker);
-    let bbTargetPrev: ClientRect = this.positionMarker.previousElementSibling ? domMetrics.getBoundingBoxDocument(this.positionMarker.previousElementSibling as HTMLElement) : null;
-    let bbTargetNext: ClientRect = this.positionMarker.nextElementSibling ? domMetrics.getBoundingBoxDocument(this.positionMarker.nextElementSibling as HTMLElement) : null;
+    let bbMarker: FullBox = domMetrics.getBoundingBoxDocument(this.positionMarker);
+    let bbTargetPrev: FullBox = this.positionMarker.previousElementSibling ? domMetrics.getBoundingBoxDocument(this.positionMarker.previousElementSibling as HTMLElement) : null;
+    let bbTargetNext: FullBox = this.positionMarker.nextElementSibling ? domMetrics.getBoundingBoxDocument(this.positionMarker.nextElementSibling as HTMLElement) : null;
     if((!bbTargetPrev || bbMarker.top >= bbTargetPrev.bottom)
       && (!bbTargetNext || bbMarker.bottom <= bbTargetNext.top)) {
       // horizontal

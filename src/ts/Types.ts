@@ -9,13 +9,13 @@ export interface Hooks {
   canDrop?: (el: HTMLElement, dropZone: HTMLElement) => boolean;
   onSelect?: (selectables: Array<SelectableState>) => void;
   onStartDrag?: (selectables: Array<SelectableState>) => void;
-  onDrag?: (selectables: Array<SelectableState>, boundingBox: ClientRect) => void;
+  onDrag?: (selectables: Array<SelectableState>, boundingBox: FullBox) => void;
   onDrop?: (selectables: Array<SelectableState>) => void;
   onStartResize?: (selectables: Array<SelectableState>) => void;
-  onResize?: (selectables: Array<SelectableState>, boundingBox: ClientRect) => void;
+  onResize?: (selectables: Array<SelectableState>, boundingBox: FullBox) => void;
   onResizeEnd?: (selectables: Array<SelectableState>) => void;
   onStartDraw?: () => void;
-  onDraw?: (selectables: Array<SelectableState>, boundingBox: ClientRect) => void;
+  onDraw?: (selectables: Array<SelectableState>, boundingBox: FullBox) => void;
   onDrawEnd?: () => void;
   onEdit?: () => void; // this occures when the user double clicks or press enter with one or more elements selected
   onChange?: (selectables: Array<SelectableState>) => void;

@@ -1,5 +1,5 @@
 import { StageStore } from '../flux/StageStore';
-import { Hooks, MouseData, SelectableState } from '../Types';
+import { Hooks, MouseData, SelectableState, Box, FullBox } from '../Types';
 import { MouseHandlerBase } from './MouseHandlerBase';
 import * as selectionState from '../flux/SelectionState';
 import * as mouseState from '../flux/MouseState';
@@ -34,7 +34,7 @@ export class DrawHandler extends MouseHandlerBase {
     super.update(mouseData);
 
     const scrollData = domMetrics.getScroll(this.stageDocument);
-    const bb = {
+    const bb: FullBox = {
       left: Math.min(this.initialX, (mouseData.mouseX + scrollData.x)),
       top: Math.min(this.initialY, (mouseData.mouseY + scrollData.y)),
       right: Math.max(this.initialX, (mouseData.mouseX + scrollData.x)),
@@ -99,7 +99,7 @@ export class DrawHandler extends MouseHandlerBase {
   /**
    * display the position marker atthe given positionin the dom
    */
-  moveRegion({left, top, width, height}: ClientRect) {
+  moveRegion({left, top, width, height}: FullBox) {
     this.regionMarker.style.width = width + 'px';
     this.regionMarker.style.height = height + 'px';
     this.regionMarker.style.transform = `translate(${left}px, ${top}px)`; // scale(${width}, ${height})
