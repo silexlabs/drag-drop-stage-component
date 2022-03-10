@@ -1,6 +1,6 @@
 import {MouseHandlerBase} from './MouseHandlerBase';
 import { StageStore } from '../flux/StageStore';
-import { Hooks, SelectableState, MouseData, CursorData } from '../Types';
+import { Hooks, SelectableState, MouseData, CursorData, FullBox } from '../Types';
 import * as selectableState from '../flux/SelectableState'
 import * as mouseState from '../flux/MouseState';
 import * as domMetrics from '../utils/DomMetrics';
@@ -144,7 +144,7 @@ export class ResizeHandler extends MouseHandlerBase {
 
     // update scroll
     const initialScroll = this.store.getState().mouse.scrollData;
-    const bb: ClientRect = {
+    const bb: FullBox = {
       top: mouseData.mouseY + initialScroll.y,
       left: mouseData.mouseX + initialScroll.x,
       bottom: mouseData.mouseY + initialScroll.y,

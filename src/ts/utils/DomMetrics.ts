@@ -4,7 +4,7 @@ import { StageStore } from '../flux/StageStore';
 /**
  * get the bounding box of an element relative to the document, not the viewport (unlike el.getBoundingClientRect())
  */
-export function getBoundingBoxDocument(el: HTMLElement): ClientRect {
+export function getBoundingBoxDocument(el: HTMLElement): types.FullBox {
   const doc = getDocument(el);
   const scroll = getScroll(doc);
   const box = el.getBoundingClientRect();
@@ -22,8 +22,8 @@ export function getBoundingBoxDocument(el: HTMLElement): ClientRect {
  * get the bounding box of several elements
  * relative to the the document
  */
-export function getBoundingBox(selectables: Array<types.SelectableState>): ClientRect {
-  const box: ClientRect = {
+export function getBoundingBox(selectables: Array<types.SelectableState>): types.FullBox {
+  const box: types.FullBox = {
     top: Infinity,
     left: Infinity,
     bottom: -Infinity,
@@ -51,7 +51,7 @@ export const SCROLL_ZONE_SIZE = 0;
  * get the ideal scroll in order to have boundingBox visible
  * boundingBox is expected to be relative to the document, not the viewport
  */
-export function getScrollToShow(doc: HTMLDocument, boundingBox: ClientRect): types.ScrollData {
+export function getScrollToShow(doc: HTMLDocument, boundingBox: types.FullBox): types.ScrollData {
   const scroll = getScroll(doc);
   const win = getWindow(doc);
   // vertical
