@@ -61,7 +61,9 @@ export class Mouse {
     try {
       // in firefox, this is needed to keep recieving events while dragging outside the iframe
       // in chrome this will throw an error
-      e.target['setCapture']();
+      // e.target['setCapture']();
+      // Firefox now warns: Element.setCapture() is deprecated. Use Element.setPointerCapture() instead. For more help https://developer.mozilla.org/docs/Web/API/Element/setPointerCapture
+      e.target['setPointerCapture']();
     }
     catch(e) {}
     e.preventDefault(); // prevent default text selection
