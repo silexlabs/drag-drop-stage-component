@@ -4,7 +4,7 @@ import { StageStoreMock, hooks } from './flux/StageStoreMock';
 import { UiMode } from '../src/ts/Types';
 
 async function wait(delay) {
-  return new Promise((resolve) => {
+  return new Promise<void>((resolve) => {
     setTimeout(() => {
       resolve();
     }, delay);
